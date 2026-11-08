@@ -65,7 +65,7 @@ jobs:
         run: |
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
-          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b','solar-mounting-core.js':None,'solar-mounting.js':None,'solar-offer.js':'6a39deef699c0d00c037182e081cc22907e06235017f302985e9abdb385ce594','solar-offer-visuals.js':None,'api/solar-yield.php':None}
+          expected = {'solar-mounting-core.js':None,'solar-offer-visuals.js':None}
           Path('/tmp/solar-rollback/hosting-before').mkdir(parents=True,exist_ok=True)
           Path('/tmp/solar-rollback/source-before').mkdir(exist_ok=True)
           for file in expected:
@@ -107,7 +107,7 @@ jobs:
           name: solar-cad-hosting-rollback-${{ github.sha }}
           path: /tmp/solar-rollback/
           retention-days: 30
-      - name: Upload only Solar CAD pages and verify exact deployed bytes
+      - name: Upload only mounting calculation and offer drawing scripts
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -119,14 +119,14 @@ jobs:
           with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
               ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']); ftp.prot_p(); ftp.cwd('/')
-              for file in ('solar-mounting-core.js','solar-mounting.js','solar-offer-visuals.js','solar-offer.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php'):
+              for file in ('solar-mounting-core.js','solar-offer-visuals.js'):
                   body=Path(file).read_bytes()
                   ftp.storbinary('STOR '+file,io.BytesIO(body))
                   check=io.BytesIO(); ftp.retrbinary('RETR '+file,check.write)
                   assert check.getvalue()==body, 'FTPS verification failed: '+file
                   print('Verified hosting source:',file,hashlib.sha256(body).hexdigest(),flush=True)
           time.sleep(4)
-          for file in ('solar-mounting-core.js','solar-mounting.js','solar-offer-visuals.js','solar-offer.js','solar-cad-preview.html'):
+          for file in ('solar-mounting-core.js','solar-offer-visuals.js'):
               request=urllib.request.Request('https://pdgsystems.bg/'+file+'?release='+os.environ['GITHUB_SHA'],headers={'User-Agent':'PDG-Solar-Release-Verification/1.0'})
               with urllib.request.urlopen(request,timeout=45) as response:
                   assert response.status==200

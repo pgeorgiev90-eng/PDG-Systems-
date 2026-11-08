@@ -34,3 +34,22 @@ for(const lengths of [[2.3,2.3],[6.2,6.2],[1.1,1.1,1.1,1.1]]){const cut=core.cut
 assert.equal(core.runs([panel(0,0),panel(1.02,.03),panel(2.04,0)]).length,1);
 assert.equal(core.runs([panel(0,0),panel(0,2.02)]).length,2);
 console.log('PASS: offcut reuse, kerf, long rail joints, conserved cut lengths and small alignment offsets');
+
+// A panel run fitting in one stock rail must never gain joints from end allowance.
+for(const span of [4.91,4.98,5]){
+ const r=roof([panel(0,0,0,span,2)]),bom=core.calculate([r],products);
+ assert.equal(qty(bom,'SFR-01'),0);assert.equal(qty(bom,'R52-5000'),2);
+ assert(bom.roofs[0].railRuns[0].railLength<=5);
+ assert.equal(bom.roofs[0].cutting.splices,0);
+}
+// Five panels plus four 20 mm gaps total 4.98 m, below the 5 m profile.
+const near=roof(Array.from({length:5},(_,i)=>panel(i*1,0,0,.98,2)));
+assert.equal(qty(core.calculate([near],products),'SFR-01'),0);
+// Overlength spans still require the minimum joints; totals cannot pool separate lines.
+for(const [span,joints] of [[5.01,2],[9.98,2],[10.01,4]]){
+ const bom=core.calculate([roof([panel(0,0,0,span,2)])],products);
+ assert.equal(qty(bom,'SFR-01'),joints);
+}
+assert.equal(core.cutRails([4.98,4.98,1.2],5).splices,0);
+assert.equal(core.railExtent(5.00001,5,.05).length,5);
+console.log('PASS: no joints for fitting panel spans including gaps, capped end allowance, exact stock boundaries and minimum joints for longer runs');

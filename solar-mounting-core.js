@@ -42,11 +42,17 @@ function runs(panels,maxGap=.04){
  }
  return result.map(r=>({...r,length:r.end-r.start}));
 }
+// End allowance must not add a rail joint when the panel span already fits.
+function railExtent(span,stock,allowance){
+ const tolerance=.0001,needed=stock>0?Math.max(1,Math.ceil((span-tolerance)/stock)):0;
+ const length=stock>0?Math.min(span+2*allowance,needed*stock):span+2*allowance;
+ return {length,allowance:Math.max(0,(length-span)/2)};
+}
 // First-fit decreasing cutting plan. Reuse offcuts within a roof; reserve 3 mm per cut.
 function cutRails(lengths,stock){
  if(!(stock>0))return {bars:0,splices:0,cuts:[]};
  const pieces=[];let splices=0;
- for(const length of lengths){const n=Math.max(1,Math.ceil((length-1e-7)/stock));splices+=n-1;for(let i=0;i<n-1;i++)pieces.push(stock);pieces.push(length-(n-1)*stock)}
+ for(const length of lengths){const n=Math.max(1,Math.ceil((length-.0001)/stock));splices+=n-1;for(let i=0;i<n-1;i++)pieces.push(stock);pieces.push(Math.min(stock,length-(n-1)*stock))}
  pieces.sort((a,b)=>b-a);const bins=[];
  for(const piece of pieces){let bin=bins.find(b=>b.remaining+1e-7>=piece);if(!bin){bin={remaining:stock,pieces:[]};bins.push(bin)}bin.pieces.push(piece);bin.remaining=Math.max(0,bin.remaining-piece-.003)}
  return {bars:bins.length,splices,cuts:bins.map(b=>({pieces:b.pieces,remainder:b.remaining}))};
@@ -61,9 +67,10 @@ function calculate(planes,products=[]){
   const chosen={};for(const role of Object.keys(p.roles))chosen[role]=productFor(p,role,products,opts);
   const stock=chosen.rail?Number(String(chosen.rail.code).match(/-(\d+)$/)?.[1])/1000:0;
   let railBars=0,splices=0,ends=0,mids=0,supports=0;const lengths=[];
-  for(const run of segments){const length=run.length+2*opts.endAllowance;info.railMetres+=2*length;ends+=4;mids+=2*(run.count-1);
+  info.railRuns=[];
+  for(const run of segments){const extent=railExtent(run.length,stock,opts.endAllowance),length=extent.length;info.railRuns.push({...run,railLength:length,allowance:extent.allowance});info.railMetres+=2*length;ends+=4;mids+=2*(run.count-1);
    lengths.push(length,length);
-   const stations=Math.max(2,Math.ceil((length-2*opts.endAllowance-1e-7)/opts.span)+1);supports+=p.kind==='rail'?2*stations:stations;
+   const stations=Math.max(2,Math.ceil((run.length-1e-7)/opts.span)+1);supports+=p.kind==='rail'?2*stations:stations;
   }
   const cutting=cutRails(lengths,stock);railBars=cutting.bars;splices=cutting.splices;info.cutting=cutting;
   info.railMetres=Math.round(info.railMetres*1000)/1000;info.supports=supports;
@@ -74,7 +81,7 @@ function calculate(planes,products=[]){
    const row={id:String(product.id),code:product.code,name:product.name,qty,unit:'бр.',price:product.price??'',role,roofs:[index+1]};rows.push(row);
    const key=row.id,existing=aggregate.get(key);if(existing){existing.qty+=row.qty;if(!existing.roofs.includes(index+1))existing.roofs.push(index+1)}else aggregate.set(key,{...row,roofs:[index+1]});
   }
-  notes.push('2 релси на непрекъснат ред; '+opts.endAllowance+' m запас във всеки край. Отрезите се използват повторно в същия скат с резерв 3 mm за срез. Броят цели релси следва план за разкрояване.');
+  notes.push('2 релси на непрекъснат ред; до '+opts.endAllowance+' m запас във всеки край, ограничен до наличната дължина на профила. Връзки се добавят само когато панелите с междините надвишават една цяла релса. Отрезите се използват повторно в същия скат с резерв 3 mm за срез.');
   notes.push('Опорите са по разчетна стъпка '+opts.span+' m; реалните носещи точки и допустимите разстояния се потвърждават по монтажната схема.');
   if(p.kind==='ground')pending.push('Диагонали, свързващ крепеж и фундаменти се уточняват по проекта на наземната конструкция.');
   if(p.kind==='tilt')pending.push('Закрепването на триподите към основата се уточнява по монтажна схема.');
@@ -87,6 +94,6 @@ function addCosts(costs,result,price){
  for(const name of result.pending)rows.push({name:'Конструкция · '+name,qty:1,unit:null,total:null});
  const subtotal=rows.reduce((sum,r)=>sum+(r.total||0),0),vat=Math.round(subtotal*.2);return {rows,complete:rows.every(r=>r.total!==null),subtotal,vat,total:subtotal+vat};
 }
-const api={types,documents,defaults,settings,profile,candidates,runs,cutRails,calculate,addCosts,roleLabels};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarMountingCore=api;
+const api={types,documents,defaults,settings,profile,candidates,runs,railExtent,cutRails,calculate,addCosts,roleLabels};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarMountingCore=api;
 })(typeof window==='object'?window:globalThis);
 
