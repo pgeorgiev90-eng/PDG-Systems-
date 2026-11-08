@@ -1,0 +1,104 @@
+name: Fill missing Kamea supplier prices
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-kamea-prices.yml'
+      - 'database/kamea-prices.json'
+      - 'api/kamea-prices-bootstrap.php'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci-panels
+          MYSQL_DATABASE: pdg_kamea
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-panels"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Validate full catalog and isolated idempotent import
+        run: |
+          php -l api/kamea-catalog-bootstrap.php
+          php -l api/schrack-shop-bootstrap.php
+          php -l api/kamea-prices-bootstrap.php
+          php tests/kamea_prices_import.php
+          node tests/kamea_prices_test.js
+          node --check catalog-sections.js
+          node tests/kamea_catalog_test.js
+      - name: Verify and retain production rollback copies
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,subprocess,hashlib,urllib.request
+          from pathlib import Path
+          files=['database/kamea-prices.json','api/kamea-prices-bootstrap.php','api/schrack-shop-bootstrap.php']
+          with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?before='+os.environ['GITHUB_SHA'],timeout=45) as r:
+              Path('/tmp/kamea-before.json').write_bytes(r.read())
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  b=io.BytesIO()
+                  try:ftp.retrbinary('RETR '+name,b.write)
+                  except ftplib.error_perm as e:
+                      if str(e).startswith('550') and name in files[:2]:continue
+                      raise
+                  body=b.getvalue();p=Path('/tmp/kamea-rollback')/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(body)
+                  previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+                  print('Verified preflight hash:',name,hashlib.sha256(body).hexdigest(),flush=True)
+                  assert body==Path(name).read_bytes() or (previous.returncode==0 and body==previous.stdout),'Unexpected hosting source; nothing uploaded: '+name
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kamea-prices-rollback-${{ github.sha }}
+          path: /tmp/kamea-rollback/
+          retention-days: 30
+      - name: Publish price data and migration; activate last
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,hashlib
+          from pathlib import Path
+          files=['database/kamea-prices.json','api/kamea-prices-bootstrap.php','api/schrack-shop-bootstrap.php']
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body));check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert body==check.getvalue(),name
+              for name in files:
+                  ftp.rename(name+'.pdg-upload',name);check=io.BytesIO();ftp.retrbinary('RETR '+name,check.write);assert check.getvalue()==Path(name).read_bytes(),name
+                  print('Verified published source:',name,flush=True)
+      - name: Verify deployed price migration, preserved products and hidden guest prices
+        shell: python
+        run: |
+          import json,urllib.request,os
+          from pathlib import Path
+          def get(path):
+              with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'prices='+os.environ['GITHUB_SHA'],timeout=60) as r:return r.read()
+          for name in ['database/kamea-prices.json','api/kamea-prices-bootstrap.php','api/schrack-shop-bootstrap.php']:
+              assert get(name)==Path(name).read_bytes() if not name.endswith('.php') else True
+          # A successful API response executes the atomic migration. Each newly assigned
+          # database price is read back and verified before the migration can commit.
+          response=json.loads(get('api/products.php'));products=response['products']
+          before=json.loads(Path('/tmp/kamea-before.json').read_text())['products']
+          assert {p['id'] for p in products}=={p['id'] for p in before}
+          assert response['prices_visible'] is False
+          assert all(p['price'] is None for p in products)
+          assert len(json.loads(get('api/products.php'))['products'])==len(products)
+          print('PASS: price migration executed with database readback verification, existing products preserved, guest prices hidden',flush=True)

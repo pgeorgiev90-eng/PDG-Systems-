@@ -1,0 +1,1352 @@
+[
+  {
+    "brand": "Deye",
+    "code": "8210-02-0080",
+    "sourceId": "744",
+    "grossEur": "13.00",
+    "netEur": "10.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=744"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0073",
+    "sourceId": "605",
+    "grossEur": "15.00",
+    "netEur": "12.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=605"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0061",
+    "sourceId": "747",
+    "grossEur": "23.00",
+    "netEur": "19.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=747"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0060",
+    "sourceId": "690",
+    "grossEur": "38.00",
+    "netEur": "31.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=690"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0059",
+    "sourceId": "691",
+    "grossEur": "38.00",
+    "netEur": "31.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=691"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0099",
+    "sourceId": "998",
+    "grossEur": "38.00",
+    "netEur": "31.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=998"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0083",
+    "sourceId": "822",
+    "grossEur": "46.00",
+    "netEur": "38.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=822"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-99-0032",
+    "sourceId": "411",
+    "grossEur": "55.20",
+    "netEur": "46.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=411"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0084",
+    "sourceId": "827",
+    "grossEur": "64.00",
+    "netEur": "53.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=827"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-99-0037",
+    "sourceId": "502",
+    "grossEur": "67.50",
+    "netEur": "56.25",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=502"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0048",
+    "sourceId": "405",
+    "grossEur": "81.30",
+    "netEur": "67.75",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=405"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-99-0051",
+    "sourceId": "718",
+    "grossEur": "88.00",
+    "netEur": "73.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=718"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-07-0001",
+    "sourceId": "421",
+    "grossEur": "93.00",
+    "netEur": "77.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=421"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0082",
+    "sourceId": "823",
+    "grossEur": "101.00",
+    "netEur": "84.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=823"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-07-0002",
+    "sourceId": "1062",
+    "grossEur": "106.00",
+    "netEur": "88.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1062"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0043",
+    "sourceId": "382",
+    "grossEur": "106.40",
+    "netEur": "88.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=382"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0055_1",
+    "sourceId": "748",
+    "grossEur": "109.00",
+    "netEur": "90.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=748"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-99-0030",
+    "sourceId": "403",
+    "grossEur": "122.20",
+    "netEur": "101.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=403"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0034_1",
+    "sourceId": "535",
+    "grossEur": "124.00",
+    "netEur": "103.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=535"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0085",
+    "sourceId": "828",
+    "grossEur": "142.00",
+    "netEur": "118.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=828"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0047",
+    "sourceId": "401",
+    "grossEur": "144.70",
+    "netEur": "120.58",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=401"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0037",
+    "sourceId": "354",
+    "grossEur": "145.70",
+    "netEur": "121.42",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=354"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-02-0044",
+    "sourceId": "383",
+    "grossEur": "147.80",
+    "netEur": "123.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=383"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0034",
+    "sourceId": "424",
+    "grossEur": "161.00",
+    "netEur": "134.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=424"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0020",
+    "sourceId": "324",
+    "grossEur": "321.00",
+    "netEur": "267.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=324"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0021",
+    "sourceId": "323",
+    "grossEur": "346.00",
+    "netEur": "288.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=323"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0068",
+    "sourceId": "782",
+    "grossEur": "366.00",
+    "netEur": "305.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=782"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0035",
+    "sourceId": "428",
+    "grossEur": "369.00",
+    "netEur": "307.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=428"
+  },
+  {
+    "brand": "Deye",
+    "code": "8250-01-0007",
+    "sourceId": "821",
+    "grossEur": "379.20",
+    "netEur": "316.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=821"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0069",
+    "sourceId": "783",
+    "grossEur": "396.00",
+    "netEur": "330.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=783"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0017",
+    "sourceId": "321",
+    "grossEur": "501.00",
+    "netEur": "417.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=321"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-01-0097",
+    "sourceId": "352",
+    "grossEur": "536.40",
+    "netEur": "447.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=352"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0096",
+    "sourceId": "990",
+    "grossEur": "699.00",
+    "netEur": "582.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=990"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0053",
+    "sourceId": "597",
+    "grossEur": "798.00",
+    "netEur": "665.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=597"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0139_VT",
+    "sourceId": "810",
+    "grossEur": "809.00",
+    "netEur": "674.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=810"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0139",
+    "sourceId": "837",
+    "grossEur": "809.00",
+    "netEur": "674.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=837"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0140-VT",
+    "sourceId": "865",
+    "grossEur": "829.00",
+    "netEur": "690.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=865"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0132_VT",
+    "sourceId": "776",
+    "grossEur": "836.00",
+    "netEur": "696.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=776"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0132",
+    "sourceId": "740",
+    "grossEur": "836.00",
+    "netEur": "696.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=740"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0146",
+    "sourceId": "1063",
+    "grossEur": "836.00",
+    "netEur": "696.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1063"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0019",
+    "sourceId": "322",
+    "grossEur": "839.00",
+    "netEur": "699.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=322"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0019_1",
+    "sourceId": "658",
+    "grossEur": "839.00",
+    "netEur": "699.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=658"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0026",
+    "sourceId": "379",
+    "grossEur": "843.00",
+    "netEur": "702.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=379"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0052",
+    "sourceId": "598",
+    "grossEur": "849.00",
+    "netEur": "707.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=598"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0022",
+    "sourceId": "357",
+    "grossEur": "859.00",
+    "netEur": "715.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=357"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0079",
+    "sourceId": "862",
+    "grossEur": "865.00",
+    "netEur": "720.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=862"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0116-VT",
+    "sourceId": "351",
+    "grossEur": "898.00",
+    "netEur": "748.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=351"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0116",
+    "sourceId": "301",
+    "grossEur": "910.00",
+    "netEur": "758.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=301"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0117-VT",
+    "sourceId": "355",
+    "grossEur": "972.50",
+    "netEur": "810.42",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=355"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0018",
+    "sourceId": "328",
+    "grossEur": "986.00",
+    "netEur": "821.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=328"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0117-OPT",
+    "sourceId": "420",
+    "grossEur": "1010.30",
+    "netEur": "841.92",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=420"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0117",
+    "sourceId": "302",
+    "grossEur": "1010.30",
+    "netEur": "841.92",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=302"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0067",
+    "sourceId": "781",
+    "grossEur": "1065.00",
+    "netEur": "887.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=781"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0097",
+    "sourceId": "989",
+    "grossEur": "1066.00",
+    "netEur": "888.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=989"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0137_VT",
+    "sourceId": "801",
+    "grossEur": "1127.00",
+    "netEur": "939.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=801"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0137",
+    "sourceId": "800",
+    "grossEur": "1132.00",
+    "netEur": "943.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=800"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0042",
+    "sourceId": "501",
+    "grossEur": "1218.00",
+    "netEur": "1015.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=501"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0124_VT",
+    "sourceId": "585",
+    "grossEur": "1291.00",
+    "netEur": "1075.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=585"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0131",
+    "sourceId": "724",
+    "grossEur": "1291.00",
+    "netEur": "1075.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=724"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0029",
+    "sourceId": "404",
+    "grossEur": "1298.00",
+    "netEur": "1081.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=404"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0066",
+    "sourceId": "784",
+    "grossEur": "1300.00",
+    "netEur": "1083.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=784"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0016",
+    "sourceId": "329",
+    "grossEur": "1365.00",
+    "netEur": "1137.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=329"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0103",
+    "sourceId": "304",
+    "grossEur": "1435.20",
+    "netEur": "1196.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=304"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0103_VT",
+    "sourceId": "530",
+    "grossEur": "1443.90",
+    "netEur": "1203.25",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=530"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0104",
+    "sourceId": "306",
+    "grossEur": "1580.00",
+    "netEur": "1316.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=306"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0135_VT",
+    "sourceId": "805",
+    "grossEur": "1606.00",
+    "netEur": "1338.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=805"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0111",
+    "sourceId": "314",
+    "grossEur": "1612.00",
+    "netEur": "1343.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=314"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0123_VT",
+    "sourceId": "462",
+    "grossEur": "1616.00",
+    "netEur": "1346.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=462"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0123",
+    "sourceId": "596",
+    "grossEur": "1616.00",
+    "netEur": "1346.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=596"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0134_VT",
+    "sourceId": "762",
+    "grossEur": "1616.00",
+    "netEur": "1346.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=762"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0134",
+    "sourceId": "1014",
+    "grossEur": "1616.00",
+    "netEur": "1346.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1014"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0121_VT",
+    "sourceId": "452",
+    "grossEur": "1624.00",
+    "netEur": "1353.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=452"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0121",
+    "sourceId": "453",
+    "grossEur": "1624.00",
+    "netEur": "1353.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=453"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0135",
+    "sourceId": "764",
+    "grossEur": "1624.00",
+    "netEur": "1353.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=764"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0112",
+    "sourceId": "316",
+    "grossEur": "1655.00",
+    "netEur": "1379.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=316"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0106_VT",
+    "sourceId": "578",
+    "grossEur": "1658.00",
+    "netEur": "1381.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=578"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0125_VT",
+    "sourceId": "825",
+    "grossEur": "1680.00",
+    "netEur": "1400.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=825"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0125",
+    "sourceId": "672",
+    "grossEur": "1680.00",
+    "netEur": "1400.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=672"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0118",
+    "sourceId": "303",
+    "grossEur": "1683.20",
+    "netEur": "1402.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=303"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0101",
+    "sourceId": "315",
+    "grossEur": "1701.10",
+    "netEur": "1417.58",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=315"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0111_VT",
+    "sourceId": "649",
+    "grossEur": "1715.00",
+    "netEur": "1429.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=649"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0118_VT",
+    "sourceId": "378",
+    "grossEur": "1717.90",
+    "netEur": "1431.58",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=378"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0113",
+    "sourceId": "318",
+    "grossEur": "1725.00",
+    "netEur": "1437.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=318"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0102",
+    "sourceId": "317",
+    "grossEur": "1727.70",
+    "netEur": "1439.75",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=317"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0133_VT",
+    "sourceId": "778",
+    "grossEur": "1768.00",
+    "netEur": "1473.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=778"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0091",
+    "sourceId": "916",
+    "grossEur": "1774.00",
+    "netEur": "1478.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=916"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0107",
+    "sourceId": "310",
+    "grossEur": "1869.00",
+    "netEur": "1557.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=310"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0112_VT",
+    "sourceId": "384",
+    "grossEur": "1890.00",
+    "netEur": "1575.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=384"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0128_VT",
+    "sourceId": "689",
+    "grossEur": "1890.00",
+    "netEur": "1575.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=689"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0105",
+    "sourceId": "308",
+    "grossEur": "1895.00",
+    "netEur": "1579.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=308"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0133",
+    "sourceId": "741",
+    "grossEur": "1932.70",
+    "netEur": "1610.58",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=741"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0107_VT",
+    "sourceId": "779",
+    "grossEur": "1958.00",
+    "netEur": "1631.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=779"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0122_VT",
+    "sourceId": "454",
+    "grossEur": "1998.00",
+    "netEur": "1665.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=454"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0122",
+    "sourceId": "601",
+    "grossEur": "1998.00",
+    "netEur": "1665.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=601"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0138_VT",
+    "sourceId": "807",
+    "grossEur": "1998.00",
+    "netEur": "1665.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=807"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0078",
+    "sourceId": "857",
+    "grossEur": "1998.00",
+    "netEur": "1665.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=857"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0063",
+    "sourceId": "763",
+    "grossEur": "2040.00",
+    "netEur": "1700.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=763"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0114_OPT",
+    "sourceId": "777",
+    "grossEur": "2042.60",
+    "netEur": "1702.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=777"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0114_VT",
+    "sourceId": "586",
+    "grossEur": "2043.60",
+    "netEur": "1703.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=586"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0114",
+    "sourceId": "305",
+    "grossEur": "2043.60",
+    "netEur": "1703.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=305"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0106",
+    "sourceId": "309",
+    "grossEur": "2043.60",
+    "netEur": "1703.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=309"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0113_VT",
+    "sourceId": "591",
+    "grossEur": "2060.00",
+    "netEur": "1716.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=591"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0095",
+    "sourceId": "992",
+    "grossEur": "2080.00",
+    "netEur": "1733.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=992"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0145",
+    "sourceId": "1015",
+    "grossEur": "2110.00",
+    "netEur": "1758.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1015"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0115_VT",
+    "sourceId": "447",
+    "grossEur": "2121.00",
+    "netEur": "1767.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=447"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0115",
+    "sourceId": "307",
+    "grossEur": "2128.00",
+    "netEur": "1773.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=307"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0144",
+    "sourceId": "1011",
+    "grossEur": "2172.00",
+    "netEur": "1810.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1011"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0122_B_VT",
+    "sourceId": "563",
+    "grossEur": "2218.00",
+    "netEur": "1848.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=563"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0119_VT",
+    "sourceId": "441",
+    "grossEur": "2222.00",
+    "netEur": "1851.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=441"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-01-0094",
+    "sourceId": "988",
+    "grossEur": "2246.00",
+    "netEur": "1871.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=988"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0120_VT",
+    "sourceId": "448",
+    "grossEur": "2538.00",
+    "netEur": "2115.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=448"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0120",
+    "sourceId": "602",
+    "grossEur": "2569.00",
+    "netEur": "2140.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=602"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0129_VT",
+    "sourceId": "863",
+    "grossEur": "2769.00",
+    "netEur": "2307.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=863"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0129",
+    "sourceId": "717",
+    "grossEur": "2769.00",
+    "netEur": "2307.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=717"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0108",
+    "sourceId": "311",
+    "grossEur": "4151.70",
+    "netEur": "3459.75",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=311"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0109_VT",
+    "sourceId": "815",
+    "grossEur": "4243.00",
+    "netEur": "3535.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=815"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0110_P",
+    "sourceId": "729",
+    "grossEur": "4289.70",
+    "netEur": "3574.75",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=729"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0109",
+    "sourceId": "312",
+    "grossEur": "4423.00",
+    "netEur": "3685.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=312"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0110_VT",
+    "sourceId": "603",
+    "grossEur": "4430.00",
+    "netEur": "3691.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=603"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0110",
+    "sourceId": "313",
+    "grossEur": "4430.00",
+    "netEur": "3691.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=313"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0127",
+    "sourceId": "683",
+    "grossEur": "5686.00",
+    "netEur": "4738.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=683"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0126_VT",
+    "sourceId": "654",
+    "grossEur": "6120.00",
+    "netEur": "5100.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=654"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0126",
+    "sourceId": "889",
+    "grossEur": "6180.00",
+    "netEur": "5150.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=889"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0142_VT",
+    "sourceId": "913",
+    "grossEur": "7358.00",
+    "netEur": "6131.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=913"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0143_VT",
+    "sourceId": "914",
+    "grossEur": "8105.00",
+    "netEur": "6754.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=914"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-02-0002",
+    "sourceId": "449",
+    "grossEur": "17670.00",
+    "netEur": "14725.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=449"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-02-0001",
+    "sourceId": "442",
+    "grossEur": "23800.00",
+    "netEur": "19833.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=442"
+  },
+  {
+    "brand": "Deye",
+    "code": "8230-02-0016",
+    "sourceId": "1027",
+    "grossEur": "36900.00",
+    "netEur": "30750.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1027"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0040",
+    "sourceId": "471",
+    "grossEur": "332.00",
+    "netEur": "276.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=471"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0101",
+    "sourceId": "1037",
+    "grossEur": "332.00",
+    "netEur": "276.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1037"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0082",
+    "sourceId": "866",
+    "grossEur": "357.00",
+    "netEur": "297.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=866"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0062",
+    "sourceId": "750",
+    "grossEur": "392.00",
+    "netEur": "326.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=750"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0084",
+    "sourceId": "874",
+    "grossEur": "412.00",
+    "netEur": "343.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=874"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0100",
+    "sourceId": "1038",
+    "grossEur": "699.00",
+    "netEur": "582.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1038"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0038",
+    "sourceId": "464",
+    "grossEur": "728.00",
+    "netEur": "606.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=464"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0093",
+    "sourceId": "949",
+    "grossEur": "879.00",
+    "netEur": "732.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=949"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0092",
+    "sourceId": "950",
+    "grossEur": "889.00",
+    "netEur": "740.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=950"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0039",
+    "sourceId": "469",
+    "grossEur": "889.00",
+    "netEur": "740.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=469"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0081",
+    "sourceId": "867",
+    "grossEur": "935.00",
+    "netEur": "779.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=867"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0080",
+    "sourceId": "868",
+    "grossEur": "949.00",
+    "netEur": "790.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=868"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0050",
+    "sourceId": "565",
+    "grossEur": "1775.00",
+    "netEur": "1479.17",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=565"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0058",
+    "sourceId": "681",
+    "grossEur": "1972.00",
+    "netEur": "1643.33",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=681"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0077",
+    "sourceId": "861",
+    "grossEur": "2114.00",
+    "netEur": "1761.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=861"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0058_PRO",
+    "sourceId": "723",
+    "grossEur": "2149.00",
+    "netEur": "1790.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=723"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0098",
+    "sourceId": "991",
+    "grossEur": "22400.00",
+    "netEur": "18666.67",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=991"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-02-0006",
+    "sourceId": "653",
+    "grossEur": "38400.00",
+    "netEur": "32000.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=653"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-02-0003",
+    "sourceId": "540",
+    "grossEur": "44322.00",
+    "netEur": "36935.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=540"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-02-0007",
+    "sourceId": "655",
+    "grossEur": "50347.00",
+    "netEur": "41955.83",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=655"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-02-0004",
+    "sourceId": "559",
+    "grossEur": "50922.00",
+    "netEur": "42435.00",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=559"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-02-0005",
+    "sourceId": "558",
+    "grossEur": "53685.00",
+    "netEur": "44737.50",
+    "vatPercent": 20,
+    "source": "https://www.kameasolar.com/product_info.php?products_id=558"
+  }
+]
