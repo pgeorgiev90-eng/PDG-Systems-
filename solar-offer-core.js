@@ -15,8 +15,18 @@
   }
   function price(value){if(value===''||value===null||value===undefined)return null;const n=Number(value);if(!Number.isFinite(n)||n<0||n>100000000)throw Error('Невалидна цена.');return Math.round(n*100);}
   function costs(summary,settings){
-    const lines=[['Фотоволтаични панели',summary.count,price(settings.panelPrice)],['Инвертор: '+settings.inverterName,Number(settings.inverterQty),price(settings.inverterPrice)],['Монтажна конструкция',1,price(settings.mountPrice)],['Монтаж и останали материали',1,price(settings.installPrice)]];
+    const lines=[['Фотоволтаични панели',summary.count,price(settings.panelPrice)],['Инвертор: '+settings.inverterName,Number(settings.inverterQty),price(settings.inverterPrice)],['Монтажна конструкция',1,price(settings.mountPrice)]];
+    const mode=settings.installMode||'total';
+    if(mode==='detailed')lines.push(['Монтаж — конструкция и панели',1,price(settings.installPanelsPrice)],['Монтаж — инвертор',1,price(settings.installInverterPrice)],['Монтаж — батерии',1,price(settings.installBatteryPrice)]);
+    else if(mode==='total')lines.push(['Монтаж — обща сума',1,price(settings.installPrice)]);
+    else if(mode!=='perW')throw Error('Невалиден начин на изчисление на монтажа.');
+    lines.push(['Останали материали',1,price(settings.materialsPrice??(settings.installMode?undefined:'0'))]);
     const rows=lines.map(([name,qty,unit])=>({name,qty,unit,total:unit===null?null:Math.round(qty*unit)}));
+    if(mode==='perW'){
+      const value=settings.installCentsPerW,rate=value===''||value==null?null:Number(value),watts=summary.kwp*1000;
+      if(rate!==null&&(!Number.isFinite(rate)||rate<0||rate>100000000))throw Error('Невалидна ставка за монтаж.');
+      rows.splice(rows.length-1,0,{name:'Монтаж — общо по мощност',qty:watts,qtyLabel:watts.toLocaleString('bg-BG',{maximumFractionDigits:3})+' W',unit:rate,unitLabel:rate===null?null:rate.toLocaleString('bg-BG',{maximumFractionDigits:6})+' евроцента/W',total:rate===null?null:Math.round(watts*rate)});
+    }
     const subtotal=rows.reduce((s,r)=>s+(r.total||0),0),vat=Math.round(subtotal*.2);
     return {rows,complete:rows.every(r=>r.total!==null),subtotal,vat,total:subtotal+vat};
   }

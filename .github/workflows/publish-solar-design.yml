@@ -12,6 +12,8 @@ on:
       - 'solar-mounting-core.js'
       - 'solar-mounting.js'
       - 'solar-offer.js'
+      - 'solar-offer-core.js'
+      - 'tests/solar_offer_test.js'
       - 'solar-offer-visuals.js'
       - 'api/solar-yield.php'
       - 'tests/solar_offer_visuals_test.js'
@@ -65,7 +67,11 @@ jobs:
         run: |
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
-          expected = {'solar-mounting-core.js':None,'solar-offer-visuals.js':None}
+          changed=set(subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines())
+          allowed_files=['solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
+          expected={name:None for name in allowed_files if name in changed}
+          import json
+          Path('/tmp/solar-changed.json').write_text(json.dumps(list(expected)))
           Path('/tmp/solar-rollback/hosting-before').mkdir(parents=True,exist_ok=True)
           Path('/tmp/solar-rollback/source-before').mkdir(exist_ok=True)
           for file in expected:
@@ -107,26 +113,27 @@ jobs:
           name: solar-cad-hosting-rollback-${{ github.sha }}
           path: /tmp/solar-rollback/
           retention-days: 30
-      - name: Upload only mounting calculation and offer drawing scripts
+      - name: Upload only changed Solar CAD files and verify exact bytes
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: python
         run: |
-          import ftplib, ssl, os, hashlib, io, urllib.request, time
+          import ftplib, ssl, os, hashlib, io, urllib.request, time, json
           from pathlib import Path
           with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
               ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']); ftp.prot_p(); ftp.cwd('/')
-              for file in ('solar-mounting-core.js','solar-offer-visuals.js'):
+              for file in json.loads(Path('/tmp/solar-changed.json').read_text()):
                   body=Path(file).read_bytes()
                   ftp.storbinary('STOR '+file,io.BytesIO(body))
                   check=io.BytesIO(); ftp.retrbinary('RETR '+file,check.write)
                   assert check.getvalue()==body, 'FTPS verification failed: '+file
                   print('Verified hosting source:',file,hashlib.sha256(body).hexdigest(),flush=True)
           time.sleep(4)
-          for file in ('solar-mounting-core.js','solar-offer-visuals.js'):
+          for file in json.loads(Path('/tmp/solar-changed.json').read_text()):
+              if file.endswith('.php'):continue
               request=urllib.request.Request('https://pdgsystems.bg/'+file+'?release='+os.environ['GITHUB_SHA'],headers={'User-Agent':'PDG-Solar-Release-Verification/1.0'})
               with urllib.request.urlopen(request,timeout=45) as response:
                   assert response.status==200

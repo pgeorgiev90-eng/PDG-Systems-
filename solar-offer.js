@@ -1,13 +1,26 @@
 (() => {
   'use strict';
   const $=id=>document.getElementById(id),core=window.PDGSolarOfferCore;
-  const ids=['client','site','inverter','inverterName','inverterKw','inverterQty','inverterPrice','panelPrice','mountPrice','installPrice','loss','yieldMode','manualYield','minTemperature'];
+  const ids=['client','site','inverter','inverterName','inverterKw','inverterQty','inverterPrice','panelPrice','mountPrice','installPrice','installMode','installPanelsPrice','installInverterPrice','installBatteryPrice','installCentsPerW','materialsPrice','loss','yieldMode','manualYield','minTemperature'];
   let products=[],generation=0,ready=false,electricalSpec=null,specSequence=0,restoredProduct='';
   const field=id=>$('offer-'+id);
+  const labour=document.createElement('fieldset');labour.id='offer-install-settings';
+  labour.style.cssText='margin:14px 0;padding:10px;border:1px solid #d5dfef;border-radius:8px';
+  labour.innerHTML='<legend>Монтаж</legend><label for="offer-installMode">Начин на ценообразуване</label><select id="offer-installMode"><option value="detailed">По отделни дейности</option><option value="perW">Общ монтаж — евроцента/W</option><option value="total">Общ монтаж — фиксирана сума</option></select><div id="offer-install-detailed"><label for="offer-installPanelsPrice">Конструкция и панели (€ без ДДС)</label><input id="offer-installPanelsPrice" type="number" min="0" max="100000000" step="0.01" placeholder="Ръчна обща цена"><label for="offer-installInverterPrice">Монтаж на инвертор (€ без ДДС)</label><input id="offer-installInverterPrice" type="number" min="0" max="100000000" step="0.01" placeholder="Ръчна обща цена"><label for="offer-installBatteryPrice">Монтаж на батерии (€ без ДДС)</label><input id="offer-installBatteryPrice" type="number" min="0" max="100000000" step="0.01" placeholder="Ръчна обща цена"></div><div id="offer-install-perW"><label for="offer-installCentsPerW">Общ монтаж (евроцента/W, без ДДС)</label><input id="offer-installCentsPerW" type="number" min="0" max="100000000" step="any" placeholder="Например 8"><p class="note">Ставката включва всички монтажни дейности и се умножава по общата DC мощност на панелите. Пример: 8 евроцента/W × 10 000 W = 800 € без ДДС.</p></div><div id="offer-install-total"><label for="offer-installPrice">Общ монтаж (€ без ДДС)</label></div><p class="note">Въведете 0 за дейност, която не се начислява. Само избраният начин се включва в офертата.</p>';
+  const oldLabel=document.querySelector('label[for="offer-installPrice"]');oldLabel.before(labour);oldLabel.remove();
+  $('offer-install-total').append(field('installPrice'));
+  const materials=document.createElement('fieldset');materials.style.cssText=labour.style.cssText;materials.innerHTML='<legend>Останали материали</legend><label for="offer-materialsPrice">Обща цена (€ без ДДС)</label><input id="offer-materialsPrice" type="number" min="0" max="100000000" step="0.01" placeholder="Ръчна обща цена"><p class="note">Допълнителни материали извън вече избраните артикули в проекта.</p>';labour.after(materials);
+  function installControls(){for(const mode of ['detailed','perW','total']){const group=$('offer-install-'+mode);group.hidden=field('installMode').value!==mode;for(const input of group.querySelectorAll('input'))input.disabled=group.hidden;}}
+  field('installMode').addEventListener('change',installControls);installControls();
   function settings(){const data={};for(const id of ids)data[id]=field(id).value;return data;}
   function restore(data){
-    if(!data||typeof data!=='object')return;
+    if(!data||typeof data!=='object')data={};
+    for(const id of ['installPanelsPrice','installInverterPrice','installBatteryPrice','installCentsPerW','materialsPrice','installPrice'])field(id).value='';
+    field('installMode').value=['detailed','perW','total'].includes(data.installMode)?data.installMode:typeof data.installPrice==='string'&&data.installPrice!==''?'total':'detailed';
+    if(!data.installMode&&typeof data.installPrice==='string'&&data.installPrice!=='')field('materialsPrice').value='0';
     for(const id of ids)if(typeof data[id]==='string')field(id).value=data[id].slice(0,500);
+    if(!['detailed','perW','total'].includes(field('installMode').value))field('installMode').value='detailed';
+    installControls();
     restoredProduct=typeof data.inverter==='string'?data.inverter:'';
     if(restoredProduct)field('inverterPrice').value='';
     if(products.length)loadElectrical(false);
@@ -110,7 +123,7 @@
     if(summary.roofs.some(r=>r.count&&r.mounting==='Не е избрана'))report.append(text('p','За част от скатовете няма избрана конструкция. Запазете конструкцията за всеки скат преди окончателната оферта.','offer-pending'));
     report.append(text('h2','Прогнозен средногодишен добив'));
     const yieldBox=document.createElement('div');report.append(yieldBox);
-    report.append(text('h2','Ценова оферта'),table(['Позиция','Количество','Ед. цена без ДДС','Стойност без ДДС'],prices.rows.map(r=>[r.name,String(r.qty),r.unit===null?'По запитване':money(r.unit),r.total===null?'По запитване':money(r.total)])));
+    report.append(text('h2','Ценова оферта'),table(['Позиция','Количество','Ед. цена без ДДС','Стойност без ДДС'],prices.rows.map(r=>[r.name,r.qtyLabel||String(r.qty),r.unit===null?'По запитване':r.unitLabel||money(r.unit),r.total===null?'По запитване':money(r.total)])));
     report.append(text('p',(prices.complete?'Общо без ДДС: ':'Междинна сума на оценените позиции без ДДС: ')+money(prices.subtotal)),text('p','ДДС 20%: '+money(prices.vat)),text('p',(prices.complete?'Общо с ДДС: ':'Междинна сума с ДДС: ')+money(prices.total),'offer-summary'));
     if(!prices.complete)report.append(text('p','Офертата е с непопълнени цени. Междинната сума не е крайна цена на системата.','offer-pending'));
     report.append(text('p','Предварителна оферта. Каталожните цени и ръчно въведените стойности подлежат на потвърждение от PDG Systems. Доставката не е включена. Конструкцията, отстоянията, електрическата схема и крайната съвместимост се уточняват за конкретния обект.','offer-fine'));
