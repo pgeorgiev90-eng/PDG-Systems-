@@ -7,6 +7,8 @@ on:
       - 'roof-cad.php'
       - 'solar-cad-preview.html'
       - 'tests/solar_editor_test.js'
+      - 'tests/solar_equipment_test.js'
+      - 'catalog-sections.js'
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,6 +28,7 @@ jobs:
           php -l roof-cad.php
           php -l api/cad-page-access.php
           node tests/solar_editor_test.js
+          node tests/solar_equipment_test.js
           node tests/solar_mobile_test.js
           node tests/solar_location_test.js
           node tests/solar_offer_test.js
