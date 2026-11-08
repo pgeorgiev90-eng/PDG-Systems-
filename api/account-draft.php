@@ -97,7 +97,7 @@ try {
     $stmt->execute([$email]); $user=$stmt->fetch();
     $dummy='$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
     $valid=password_verify($password, $user['password_hash'] ?? $dummy);
-    if (!$user || !$valid || (int)$user['is_active']!==1) respond(401,['error'=>'invalid_credentials']);
+    if (!$user || !$valid || (int)$user['is_active']!==1 || ($demoAlias && $user['role']!=='customer')) respond(401,['error'=>'invalid_credentials']);
     session_regenerate_id(true);
     $_SESSION['csrf']=bin2hex(random_bytes(32));
     $_SESSION['user']=['id'=>(int)$user['id'],'email'=>$user['email'],'role'=>$user['role']];

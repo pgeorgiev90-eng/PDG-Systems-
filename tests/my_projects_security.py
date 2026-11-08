@@ -25,6 +25,12 @@ b,bc=login(demo['email'],demo['password']);code,listing=req(b,'api/my-projects.p
 solar=next(p for p in listing['projects'] if p['editor']=='solar');electric=next(p for p in listing['projects'] if p['editor']=='electric')
 _,electricdata=req(b,'api/my-projects.php?id='+str(electric['id']));open('/tmp/pdg-demo-electric.json','w').write(json.dumps(electricdata['project']))
 check(req(b,'api/admin-users.php')[0]==403,'demo is not administrator')
+_,demo_session=req(b,'api/account-draft.php?action=session');_,admin_session=req(a,'api/account-draft.php?action=session')
+check(demo_session['user']['id']!=admin_session['user']['id'],'demo and administrator are distinct database users')
+for endpoint in ['api/cad-projects.php','api/admin-products-draft.php','api/project-requests.php']:check(req(b,endpoint)[0]==403,'demo cannot access '+endpoint)
+import re
+for c,uid in [(a,admin_session['user']['id']),(b,demo_session['user']['id'])]:
+ with c.open(BASE+'roof-cad.php',timeout=15) as response:check(('data-account-user="'+str(uid)+'"') in response.read().decode(),'server renders the correct local-storage owner')
 check(req(u,'api/my-projects.php?id='+str(solar['id']))[0]==404,'other user cannot read project')
 check(req(u,'api/my-projects.php?id='+str(solar['id'])+'&view=history')[0]==404,'other user cannot read history')
 for action in ['save','archive','restore','duplicate','request']:
