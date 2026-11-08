@@ -4,13 +4,14 @@
   inverters:'Инвертори',batteries:'Батерии',mounting:'Конструкции и крепежи',
   bms:'BMS модули',battery_accessories:'Аксесоари за батерии',storage:'Системи за съхранение',
   chargers:'Зарядни станции',energy_management:'Енергийно управление',system_cabinets:'Системни шкафове',
-  panels:'Фотоволтаични панели',electrical:'Електроапаратура',protection:'Защити и апаратура',enclosures:'Табла и кутии',accessories:'Кабели и аксесоари'
+  archive:'Архивни модели',panels:'Фотоволтаични панели',electrical:'Електроапаратура',protection:'Защити и апаратура',enclosures:'Табла и кутии',accessories:'Кабели и аксесоари'
  };
  const batteryNames=new Set(['TB-HS51','TB-HR76','TB-HR140','HS160-PA','TB-LD16']);
  const bmsNames=new Set(['TBMS-MCS0800','TBMS-S8-1','TBMS-R76','TBMS-R15','HS160-BA']);
  function sectionOf(product){
   const c=String(product.category||'').trim().toLocaleLowerCase('bg');
   if(c==='батерии и аксесоари')return batteryNames.has(product.name)?'batteries':bmsNames.has(product.name)?'bms':'battery_accessories';
+  if(c==='архивни модели')return 'archive';
   if(c.includes('инвертор'))return 'inverters';
   if(c==='батерии'||c==='високоволтови батерии'||c==='нисковолтови батерии')return 'batteries';
   if(c==='bms модули')return 'bms';

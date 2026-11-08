@@ -1,0 +1,131 @@
+name: Import Kamea Deye and Dyness catalog
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-kamea-catalog.yml'
+      - 'database/kamea-catalog.json'
+      - 'api/kamea-catalog-bootstrap.php'
+      - 'tests/catalog_manufacturers_test.cjs'
+      - 'tests/kamea_catalog_import.php'
+      - 'catalog.html'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci-panels
+          MYSQL_DATABASE: pdg_kamea
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-panels"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Validate full catalog and isolated idempotent import
+        run: |
+          php -l api/kamea-catalog-bootstrap.php
+          php -l api/schrack-shop-bootstrap.php
+          php tests/kamea_catalog_import.php
+          node --check catalog-sections.js
+          node tests/kamea_catalog_test.js
+      - name: Verify and retain production rollback copies
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,subprocess,hashlib,urllib.request
+          from pathlib import Path
+          files=['database/kamea-catalog.json','api/kamea-catalog-bootstrap.php','catalog.html','catalog-sections.js','api/schrack-shop-bootstrap.php']
+          with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?before='+os.environ['GITHUB_SHA'],timeout=45) as r:
+              Path('/tmp/kamea-before.json').write_bytes(r.read())
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  b=io.BytesIO()
+                  try:ftp.retrbinary('RETR '+name,b.write)
+                  except ftplib.error_perm as e:
+                      if str(e).startswith('550') and name in files[:2]:continue
+                      raise
+                  body=b.getvalue();p=Path('/tmp/kamea-rollback')/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(body)
+                  previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+                  print('Verified preflight hash:',name,hashlib.sha256(body).hexdigest(),flush=True)
+                  assert body==Path(name).read_bytes() or (previous.returncode==0 and body==previous.stdout),'Unexpected hosting source; nothing uploaded: '+name
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kamea-catalog-rollback-${{ github.sha }}
+          path: /tmp/kamea-rollback/
+          retention-days: 30
+      - name: Publish immutable photos, data and CAD files; activate import last
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,hashlib
+          from pathlib import Path
+          items=json.loads(Path('database/kamea-catalog.json').read_text())
+          photos=sorted(set(r['image'].replace('https://pdgsystems.bg/','') for r in items))
+          files=['database/kamea-catalog.json','api/kamea-catalog-bootstrap.php','catalog.html','catalog-sections.js','api/schrack-shop-bootstrap.php']
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              try:ftp.mkd('assets/products/kamea')
+              except ftplib.error_perm as e:
+                  if not str(e).startswith('550'):raise
+              for i,name in enumerate(photos):
+                  body=Path(name).read_bytes();assert hashlib.sha256(body).hexdigest().startswith(Path(name).stem)
+                  ftp.storbinary('STOR '+name,io.BytesIO(body));check=io.BytesIO();ftp.retrbinary('RETR '+name,check.write);assert body==check.getvalue(),name
+                  if (i+1)%20==0:print('Verified photos:',i+1,'/',len(photos),flush=True)
+              for name in files:
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body));check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert body==check.getvalue(),name
+              for name in files:
+                  ftp.rename(name+'.pdg-upload',name);check=io.BytesIO();ftp.retrbinary('RETR '+name,check.write);assert check.getvalue()==Path(name).read_bytes(),name
+                  print('Verified published source:',name,flush=True)
+      - name: Verify live catalog, all categories, CAD fields and guest pricing
+        shell: python
+        run: |
+          import json,urllib.request,os
+          from pathlib import Path
+          def get(path):
+              with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'release='+os.environ['GITHUB_SHA'],timeout=60) as r:return r.read()
+          expected=json.loads(Path('database/kamea-catalog.json').read_text())
+          before=json.loads(Path('/tmp/kamea-before.json').read_text())['products']
+          old={(p['brand'],p['code']):p for p in before}
+          response=json.loads(get('api/products.php'));products=response['products'];live={(p['brand'],p['code']):p for p in products}
+          assert {p['id'] for p in before}<={p['id'] for p in products},'Existing product missing'
+          for row in expected:
+              key=(row['brand'],row['code']);p=live[key]
+              assert p['category']==row['category'] and p['imageUrl']==row['image'] and p.get('description'),key
+              if key not in old:assert p['price'] is None,key
+          assert len({live[(p['brand'],p['code'])]['id'] for p in expected})==150
+          sample=[]
+          for kind in ['inverter','microinverter','battery','storage','bms','battery_accessory','management','charger','cable']:
+              sample.append(next(p for p in expected if p['kind']==kind and not p['archived']))
+          sample.append(next(p for p in expected if p['brand']=='Dyness' and p['kind']=='battery' and not p['archived']))
+          for row in sample:
+              p=live[(row['brand'],row['code'])];detail=json.loads(get('api/product-details.php?id='+str(p['id'])));fields={f['label']:f['value'] for f in detail['fields']}
+              assert fields['CAD: тип']==row['kind'];assert fields['CAD: статус']=='готов';assert detail['product']['price'] is None
+              for field in row['fields']:
+                  if field['label'] in ['Брой фази','Номинална AC мощност (kW)','Брой MPPT','Максимално DC напрежение (V)','Номинална енергия (kWh)']:assert fields[field['label']]==field['value']
+              assert get('product.html?id='+str(p['id']))
+              print('Verified live CAD item:',p['id'],p['brand'],p['code'],flush=True)
+          for section in ['Батерии','Инвертори']:
+              print('Verified manufacturers:',section,sorted(set(p['brand'] for p in products if p['category']==section)),flush=True)
+          assert response.get('prices_visible') is False
+          assert len(json.loads(get('api/products.php'))['products'])==len(products),'Duplicate import'
+          for row in expected[:3]:assert get(row['image'].replace('https://pdgsystems.bg/',''))==Path(row['image'].replace('https://pdgsystems.bg/','')).read_bytes()
+          for name in ['catalog.html','catalog-sections.js']:assert get(name)==Path(name).read_bytes(),name
+          print('PASS: 150 Deye/Dyness items, 20 archives, full CAD fields, local photos, preserved catalog and no guest prices',flush=True)

@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 function pdg_import_schrack_shop(PDO $db): void {
+    require_once __DIR__.'/kamea-catalog-bootstrap.php';
+    pdg_import_kamea_catalog($db);
     require_once __DIR__.'/intermetal-panels-bootstrap.php';
     pdg_import_intermetal_panels($db);
     $path = dirname(__DIR__) . '/database/schrack-shop-catalog.json';
