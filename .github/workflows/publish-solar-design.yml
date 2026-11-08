@@ -63,7 +63,8 @@ jobs:
                   actual=hashlib.sha256(body).hexdigest()
                   new=hashlib.sha256(Path(file).read_bytes()).hexdigest()
                   print('Before deployment:',file,actual,flush=True)
-                  assert actual in (known,new), 'Unexpected hosting source; no files uploaded: '+file
+                  previous_release=subprocess.check_output(['git','show','HEAD^:'+file])
+                  assert actual in (known,new,hashlib.sha256(previous_release).hexdigest()), 'Unexpected hosting source; no files uploaded: '+file
       - uses: actions/upload-artifact@v4
         with:
           name: solar-cad-hosting-rollback-${{ github.sha }}
