@@ -62,6 +62,8 @@ if ($action === 'logout') {
 if ($action !== 'login') respond(404, ['error'=>'not_found']);
 $input = json_decode(file_get_contents('php://input'), true);
 $email = is_array($input) && is_string($input['email'] ?? null) ? trim($input['email']) : '';
+$demoAlias=in_array(mb_strtolower($email,'UTF-8'),['демо','demo'],true);
+if($demoAlias)$email='demo-cad-a7eb27c84d@pdgsystems.bg';
 $password = is_array($input) && is_string($input['password'] ?? null) ? $input['password'] : '';
 if (strlen($email)>254 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password)>1024 || $password==='') {
     respond(400, ['error'=>'invalid_credentials']);
@@ -90,6 +92,7 @@ try {
     }
     $stmt=$pdo->prepare('UPDATE pdg_login_attempts SET attempt_count=attempt_count+1 WHERE identifier_hash=?');
     $stmt->execute([$key]); $pdo->commit();
+    if($demoAlias){require_once __DIR__.'/demo-account-bootstrap.php';pdg_prepare_demo_login($pdo);}
     $stmt=$pdo->prepare('SELECT id,email,password_hash,role,is_active FROM pdg_users WHERE email=? LIMIT 1');
     $stmt->execute([$email]); $user=$stmt->fetch();
     $dummy='$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';

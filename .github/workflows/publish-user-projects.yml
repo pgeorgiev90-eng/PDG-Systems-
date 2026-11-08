@@ -9,6 +9,8 @@ on:
       - 'my-projects.css'
       - 'api/my-projects*.php'
       - 'api/project-requests.php'
+      - 'api/demo-account-bootstrap.php'
+      - 'api/account-draft.php'
       - 'tests/my_projects*'
       - 'tests/cad_account_projects_test.js'
   workflow_dispatch:
@@ -40,6 +42,9 @@ jobs:
         run: |
           for file in my-projects.php api/my-projects-common.php api/my-projects.php api/my-projects-demo.php api/project-requests.php api/cad-projects.php api/cad-page-access.php; do php -l "$file"; done
           php tests/bootstrap-account-ci.php
+          php -l api/demo-account-bootstrap.php
+          php -l api/account-draft.php
+          php tests/demo_alias_test.php
           php -d auto_prepend_file=/tmp/pdg-test-https.php -S 127.0.0.1:8199 -t . > /tmp/pdg-project-test.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" || true' EXIT
@@ -69,7 +74,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io,json,subprocess
           from pathlib import Path
-          files=['api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php']
+          files=['api/demo-account-bootstrap.php','api/account-draft.php','api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php']
           Path('/tmp/profile-files.json').write_text(json.dumps(files))
           backup=Path('/tmp/profile-rollback');backup.mkdir()
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
@@ -120,3 +125,17 @@ jobs:
               assert '/auth.html?next=my-projects.php' in r.url
               assert 'Моите проекти' in r.read().decode('utf-8')
           print('PASS: live personal APIs require authentication and dashboard redirects guests to login',flush=True)
+
+      - name: Verify public demo alias login
+        shell: python
+        run: |
+          import urllib.request,http.cookiejar,json
+          c=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          root='https://pdgsystems.bg/'
+          with c.open(root+'api/account-draft.php?action=session',timeout=45) as r:s=json.load(r)
+          request=urllib.request.Request(root+'api/account-draft.php?action=login',data=json.dumps({'email':'демо','password':'демо'}).encode(),headers={'Content-Type':'application/json','X-CSRF-Token':s['csrf']})
+          with c.open(request,timeout=45) as r:d=json.load(r)
+          assert d['user']['email']=='demo-cad-a7eb27c84d@pdgsystems.bg' and d['user']['role']=='customer'
+          with c.open(root+'api/my-projects.php',timeout=45) as r:projects=json.load(r)['projects']
+          assert {p['editor'] for p in projects}=={'solar','electric'}
+          print('PASS: Cyrillic demo alias authenticates the existing customer and retains both example projects')
