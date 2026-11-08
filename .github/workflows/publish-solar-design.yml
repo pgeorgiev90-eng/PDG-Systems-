@@ -18,6 +18,7 @@ on:
       - 'solar-project-format.js'
       - 'tests/solar_house_roof_test.js'
       - 'tests/solar_house_roof_3d_test.js'
+      - 'tests/solar_single_panel_ui_test.js'
       - 'tests/solar_project_start_test.js'
       - 'tests/solar_project_start_ui_test.js'
       - 'database/cad-panels.json'
@@ -70,6 +71,7 @@ jobs:
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_navigation_test.js
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_project_start_ui_test.js
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_house_roof_3d_test.js
+          PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_single_panel_ui_test.js
           php -l api/solar-yield.php
           node --check solar-offer.js
           node --check solar-offer-visuals.js
