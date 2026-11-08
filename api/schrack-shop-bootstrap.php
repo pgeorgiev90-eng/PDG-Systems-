@@ -8,6 +8,8 @@ function pdg_import_schrack_shop(PDO $db): void {
     pdg_import_kamea_prices($db);
     require_once __DIR__.'/intermetal-panels-bootstrap.php';
     pdg_import_intermetal_panels($db);
+    require_once __DIR__ . '/cad-panels-bootstrap.php';
+    pdg_import_cad_panels($db);
     $path = dirname(__DIR__) . '/database/schrack-shop-catalog.json';
     $json = file_get_contents($path);
     if ($json === false) throw new RuntimeException('Schrack catalog unavailable');

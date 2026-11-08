@@ -1,0 +1,16 @@
+'use strict';
+const {JSDOM}=require(process.env.PDG_JSDOM||'jsdom'),fs=require('node:fs'),assert=require('node:assert/strict');
+(async()=>{const dom=new JSDOM(fs.readFileSync('roof-cad.php','utf8'),{url:'https://pdgsystems.bg/roof-cad.php',runScripts:'outside-only'}),w=dom.window,d=w.document;
+const items=[...require('../database/cad-panels.json'),...require('../database/intermetal-panels.json')].map((p,i)=>({...p,id:i+1,price:i===0?'100':i===1?'200':null}));
+const preview=d.createElement('select');preview.id='preview-model';d.body.append(preview);
+w.PDGSolarOfferCore={...require('../solar-offer-core.js')};w.PDGSolarEditor={project:()=>({planes:[]}),restore(){},message(){}};d.querySelector('#offer-generate').onclick=()=>true;
+w.fetch=async url=>({ok:true,json:async()=>url.includes('product-details')?{product:items.find(p=>p.id===Number(url.split('=')[1])),fields:items.find(p=>p.id===Number(url.split('=')[1])).fields}:{products:items,prices_visible:true}});
+w.eval(fs.readFileSync('solar-panel-catalog.js','utf8'));await new Promise(r=>setTimeout(r,20));await w.PDGSolarPanels.refresh();
+for(const id of ['panelCatalog','preview-model'])assert.equal(d.getElementById(id).options.length,9);
+const select=d.getElementById('panelCatalog');select.value='shop:1';select.dispatchEvent(new w.Event('change'));
+assert.equal(d.getElementById('panelPower').value,'440');assert.equal(d.getElementById('panelW').value,'1.134');assert.equal(d.getElementById('panelVoc').value,'39.57');assert.match(d.getElementById('panel-store-status').textContent,/100/);assert(!d.getElementById('offer-panelPrice').readOnly);d.getElementById('offer-panelPrice').value='80';
+select.value='shop:3';select.dispatchEvent(new w.Event('change'));assert.equal(d.getElementById('panelPower').value,'475');assert.equal(d.getElementById('panelVocCoefficient').value,'');assert.equal(d.getElementById('offer-panelPrice').value,'80');
+assert.match(d.getElementById('panel-store-status').textContent,/Цена по запитване/);
+w.PDGSolarEditor.restore({panelDefaults:{model:'longi435'}});assert.equal(select.value,'shop:2');assert.equal(d.getElementById('preview-model').value,'shop:2');
+const r=w.PDGSolarOfferCore.costs({count:3,kwp:1.3,groups:[{model:'shop:1',count:2},{model:'shop:2',count:1}]},{inverterQty:'1',inverterName:'test',inverterPrice:'0',panelPrice:'999',mountPrice:'0',installPrice:'0'});assert.equal(r.subtotal,40000);
+console.log('PASS: actual desktop/mobile selectors share store models, product selection loads specs and price, missing coefficient clears stale value, project restore and exact mixed-model quote');w.close();})().catch(e=>{console.error(e);process.exitCode=1});

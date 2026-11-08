@@ -1,0 +1,98 @@
+[
+  {
+    "brand": "Jinko Solar",
+    "code": "JKM440N-54HL4R-B",
+    "category": "Фотоволтаични панели",
+    "name": "JKM440N-54HL4R-B · 440 W",
+    "price": null,
+    "image": null,
+    "imageCaption": "",
+    "description": "Фотоволтаичен панел Jinko Solar JKM440N-54HL4R-B, 440 W. Размери 1762 × 1134 mm. Модел от съществуващия CAD каталог. Цената и наличността се потвърждават отделно.",
+    "fields": [
+      {
+        "label": "Мощност (Wp)",
+        "value": "440"
+      },
+      {
+        "label": "Ширина (mm)",
+        "value": "1134"
+      },
+      {
+        "label": "Дължина (mm)",
+        "value": "1762"
+      },
+      {
+        "label": "Voc (V)",
+        "value": "39.57"
+      },
+      {
+        "label": "Vmp (V)",
+        "value": "32.99"
+      },
+      {
+        "label": "Температурен коефициент Voc (%/°C)",
+        "value": "-0.25"
+      },
+      {
+        "label": "Imp (A)",
+        "value": "13.34"
+      },
+      {
+        "label": "Isc (A)",
+        "value": "13.8"
+      },
+      {
+        "label": "Технически лист",
+        "value": "https://jinkosolar.eu/wp-content/uploads/JKM425-445N-54HL4R-B-F2-EN-3.pdf"
+      }
+    ]
+  },
+  {
+    "brand": "LONGi",
+    "code": "LR5-54HTH-435M",
+    "category": "Фотоволтаични панели",
+    "name": "LR5-54HTH-435M · 435 W",
+    "price": null,
+    "image": null,
+    "imageCaption": "",
+    "description": "Фотоволтаичен панел LONGi LR5-54HTH-435M, 435 W. Размери 1722 × 1134 mm. Модел от съществуващия CAD каталог. Цената и наличността се потвърждават отделно.",
+    "fields": [
+      {
+        "label": "Мощност (Wp)",
+        "value": "435"
+      },
+      {
+        "label": "Ширина (mm)",
+        "value": "1134"
+      },
+      {
+        "label": "Дължина (mm)",
+        "value": "1722"
+      },
+      {
+        "label": "Voc (V)",
+        "value": "39.33"
+      },
+      {
+        "label": "Vmp (V)",
+        "value": "33.04"
+      },
+      {
+        "label": "Температурен коефициент Voc (%/°C)",
+        "value": "-0.23"
+      },
+      {
+        "label": "Imp (A)",
+        "value": "13.17"
+      },
+      {
+        "label": "Isc (A)",
+        "value": "14.22"
+      },
+      {
+        "label": "Технически лист",
+        "value": "https://static.longi.com/Hi_MO_6_Scientist_LR_5_54_HTH_435_450_M_V03_DG_21637b209b.pdf"
+      }
+    ]
+  }
+]
