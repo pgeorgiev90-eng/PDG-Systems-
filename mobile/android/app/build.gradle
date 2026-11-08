@@ -1,0 +1,22 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'bg.pdgsystems.app'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'bg.pdgsystems.app'
+        minSdk 24
+        targetSdk 36
+        versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
+        versionName '1.0.0'
+    }
+    signingConfigs {
+        release {
+            storeFile file(System.getenv('PDG_ANDROID_KEYSTORE') ?: '/tmp/pdg-android-signing.p12')
+            storePassword System.getenv('FTP_PASSWORD')
+            keyAlias 'pdg-android'
+            keyPassword System.getenv('FTP_PASSWORD')
+        }
+    }
+    buildTypes { release { signingConfig signingConfigs.release; minifyEnabled false } }
+}
+dependencies { implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3' }

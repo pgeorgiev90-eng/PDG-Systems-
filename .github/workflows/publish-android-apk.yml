@@ -1,0 +1,72 @@
+name: Build sign and publish PDG Android APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-android-apk.yml'
+      - 'mobile/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      FTP_HOST: ${{ secrets.FTP_HOST }}
+      FTP_USER: ${{ secrets.FTP_USER }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      PDG_ANDROID_KEYSTORE: /tmp/pdg-android-signing.p12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Check app links, install interface and Android source
+        run: |
+          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
+          test -x "$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          node --check app-install.js
+          node --check app-launch.js
+          python -m py_compile mobile/scripts/*.py
+          npm install --prefix /tmp/pdg-native-tests --no-audit --no-fund jsdom@26
+          PDG_JSDOM=/tmp/pdg-native-tests/node_modules/jsdom node tests/app_install_test.cjs
+      - name: Reject an outdated release
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Restore or create the protected Android signing identity
+        run: python mobile/scripts/prepare_signing.py
+      - name: Build signed APK and lint release
+        working-directory: mobile/android
+        run: gradle --no-daemon :app:assembleRelease :app:lintRelease
+      - name: Verify APK signature, package and launcher
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose mobile/android/app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging mobile/android/app/build/outputs/apk/release/app-release.apk > /tmp/pdg-apk-badging.txt
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('/tmp/pdg-apk-badging.txt').read_text()
+          assert "package: name='bg.pdgsystems.app'" in text
+          assert "launchable-activity: name='com.google.androidbrowserhelper.trusted.LauncherActivity'" in text
+          assert "sdkVersion:'24'" in text
+          assert "application-label:'PDG Systems'" in text
+          print('PASS: signed installable Android package and launcher verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PDG-Systems-Android-APK
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
+      - name: Confirm current release and publish the APK and website download buttons
+        run: |
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+          python mobile/scripts/publish_android.py
+      - name: Remove the temporary unencrypted signing file
+        if: always()
+        run: rm -f /tmp/pdg-android-signing.p12
