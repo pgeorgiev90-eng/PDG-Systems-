@@ -9,6 +9,9 @@ on:
       - 'tests/solar_editor_test.js'
       - 'tests/solar_equipment_test.js'
       - 'catalog-sections.js'
+      - 'solar-mounting-core.js'
+      - 'solar-mounting.js'
+      - 'tests/solar_mounting_test.js'
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,6 +32,9 @@ jobs:
           php -l api/cad-page-access.php
           node tests/solar_editor_test.js
           node tests/solar_equipment_test.js
+          node --check solar-mounting-core.js
+          node --check solar-mounting.js
+          node tests/solar_mounting_test.js
           node tests/solar_mobile_test.js
           node tests/solar_location_test.js
           node tests/solar_offer_test.js
@@ -51,23 +57,38 @@ jobs:
         run: |
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
-          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b'}
+          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b','solar-mounting-core.js':None,'solar-mounting.js':None}
           Path('/tmp/solar-rollback/hosting-before').mkdir(parents=True,exist_ok=True)
           Path('/tmp/solar-rollback/source-before').mkdir(exist_ok=True)
           for file in expected:
-              previous=subprocess.check_output(['git','show','393d3e35054ab0340eac21eadfc12bea6fa15679:'+file])
-              Path('/tmp/solar-rollback/source-before/'+file).write_bytes(previous)
+              previous=subprocess.run(['git','show','HEAD^:'+file],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+              if previous.returncode==0:
+                  Path('/tmp/solar-rollback/source-before/'+file).write_bytes(previous.stdout)
+              else:
+                  assert expected[file] is None, 'Missing previous source: '+file
+                  Path('/tmp/solar-rollback/source-before/'+file+'.absent').write_text('New file in this release')
           with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
               ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']); ftp.prot_p(); ftp.cwd('/')
               for file, known in expected.items():
-                  data=io.BytesIO(); ftp.retrbinary('RETR '+file,data.write); body=data.getvalue()
+                  data=io.BytesIO()
+                  try:
+                      ftp.retrbinary('RETR '+file,data.write)
+                  except ftplib.error_perm as error:
+                      if str(error).startswith('550') and known is None:
+                          Path('/tmp/solar-rollback/hosting-before/'+file+'.absent').write_text('Absent before release')
+                          continue
+                      raise
+                  body=data.getvalue()
                   Path('/tmp/solar-rollback/hosting-before/'+file).write_bytes(body)
                   actual=hashlib.sha256(body).hexdigest()
                   new=hashlib.sha256(Path(file).read_bytes()).hexdigest()
                   print('Before deployment:',file,actual,flush=True)
-                  previous_release=subprocess.check_output(['git','show','HEAD^:'+file])
-                  assert actual in (known,new,hashlib.sha256(previous_release).hexdigest()), 'Unexpected hosting source; no files uploaded: '+file
+                  previous_release=subprocess.run(['git','show','HEAD^:'+file],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                  allowed={known,new}
+                  if previous_release.returncode==0:
+                      allowed.add(hashlib.sha256(previous_release.stdout).hexdigest())
+                  assert actual in allowed, 'Unexpected hosting source; no files uploaded: '+file
       - uses: actions/upload-artifact@v4
         with:
           name: solar-cad-hosting-rollback-${{ github.sha }}
@@ -85,15 +106,16 @@ jobs:
           with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
               ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']); ftp.prot_p(); ftp.cwd('/')
-              for file in ('solar-cad-preview.html','roof-cad.php'):
+              for file in ('solar-mounting-core.js','solar-mounting.js','solar-cad-preview.html','roof-cad.php'):
                   body=Path(file).read_bytes()
                   ftp.storbinary('STOR '+file,io.BytesIO(body))
                   check=io.BytesIO(); ftp.retrbinary('RETR '+file,check.write)
                   assert check.getvalue()==body, 'FTPS verification failed: '+file
                   print('Verified hosting source:',file,hashlib.sha256(body).hexdigest(),flush=True)
           time.sleep(4)
-          request=urllib.request.Request('https://pdgsystems.bg/solar-cad-preview.html?release='+os.environ['GITHUB_SHA'],headers={'User-Agent':'PDG-Solar-Release-Verification/1.0'})
-          with urllib.request.urlopen(request,timeout=45) as response:
-              assert response.status==200
-              assert response.read()==Path('solar-cad-preview.html').read_bytes(), 'Public response differs'
-          print('Verified public HTTPS Solar CAD response',flush=True)
+          for file in ('solar-mounting-core.js','solar-mounting.js','solar-cad-preview.html'):
+              request=urllib.request.Request('https://pdgsystems.bg/'+file+'?release='+os.environ['GITHUB_SHA'],headers={'User-Agent':'PDG-Solar-Release-Verification/1.0'})
+              with urllib.request.urlopen(request,timeout=45) as response:
+                  assert response.status==200
+                  assert response.read()==Path(file).read_bytes(), 'Public response differs: '+file
+          print('Verified public HTTPS Solar CAD assets',flush=True)
