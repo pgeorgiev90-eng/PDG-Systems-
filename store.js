@@ -1,24 +1,25 @@
 (() => {
   'use strict';
   const money = cents => (Number(cents) / 100).toLocaleString('bg-BG', {style:'currency', currency:'EUR'});
-  const errors = {shop_unavailable:'Магазинът временно не е достъпен.', product_unavailable:'Този продукт е само по запитване или вече не се предлага.', invalid_quantity:'Въведете количество от 1 до 999.', cart_limit:'Достигнат е лимитът на количката (50 продукта, до 999 броя).', invalid_request:'Сесията е обновена. Презаредете страницата.', cart_changed:'Количката или цените са променени. Прегледайте обновените суми и изпратете отново.', invalid_customer:'Проверете данните за контакт и адреса.', try_later:'Достигнат е лимитът за поръчки. Опитайте по-късно.', checkout_unavailable:'Поръчката не може да бъде потвърдена. Опитайте отново със същата количка.', empty_cart:'Количката е празна.'};
-  let cart = null, queue = Promise.resolve();
+  const errors = {authentication_required:'Влезте в профила си, за да използвате количката.',shop_unavailable:'Магазинът временно не е достъпен.', product_unavailable:'Този продукт е само по запитване или вече не се предлага.', invalid_quantity:'Въведете количество от 1 до 999.', cart_limit:'Достигнат е лимитът на количката (50 продукта, до 999 броя).', invalid_request:'Сесията е обновена. Презаредете страницата.', cart_changed:'Количката или цените са променени. Прегледайте обновените суми и изпратете отново.', invalid_customer:'Проверете данните за контакт и адреса.', try_later:'Достигнат е лимитът за поръчки. Опитайте по-късно.', checkout_unavailable:'Поръчката не може да бъде потвърдена. Опитайте отново със същата количка.', empty_cart:'Количката е празна.'};
+  let cart = null, queue = Promise.resolve(),cartState='loading',refreshPromise=null;
   const node = (tag, text, cls) => {const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
   const notice = node('div', '', 'store-toast');
   notice.setAttribute('role','status'); notice.setAttribute('aria-live','polite'); document.body.append(notice);
   let noticeTimer;
   function tell(text) {notice.textContent=text;notice.hidden=false;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>{notice.hidden=true;},6000);}
   async function request(url, data) {
-    const options={credentials:'same-origin',cache:'no-store'};
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),20000);
+    const options={credentials:'same-origin',cache:'no-store',signal:controller.signal};
     if(data!==undefined){options.method='POST';options.headers={'Content-Type':'application/json','X-CSRF-Token':cart?.csrf||''};options.body=JSON.stringify(data);}
-    const response=await fetch(url,options); const result=await response.json();
-    if(!response.ok)throw new Error(result.error||'shop_unavailable');
-    return result;
+    try{const response=await fetch(url,options);const result=await response.json().catch(()=>({}));
+    if(!response.ok){const e=new Error(response.status===401?'authentication_required':result.error||'shop_unavailable');if(response.status===401)failed(e);throw e;}
+    return result;}finally{clearTimeout(timeout);}
   }
-  function updateBadge() {document.querySelectorAll('[data-cart-count]').forEach(e=>{e.textContent=cart?String(cart.items.reduce((sum,p)=>sum+p.quantity,0)):'…';});}
-  async function refresh() {cart=await request('api/cart.php');updateBadge();return cart;}
+  function updateBadge() {document.querySelectorAll('[data-cart-count]').forEach(e=>{e.textContent=cart?String(cart.items.reduce((sum,p)=>sum+p.quantity,0)):cartState==='login'?'Вход':cartState==='error'?'!':'…';e.setAttribute('aria-label',cart?'Продукти в количката: '+e.textContent:cartState==='login'?'За количката е необходим вход':cartState==='error'?'Количката временно не е достъпна':'Зареждане на количката');});}
+  async function refresh(){if(refreshPromise)return refreshPromise;refreshPromise=(async()=>{try{const data=await request('api/cart.php');if(!Array.isArray(data.items))throw Error('shop_unavailable');cart=data;cartState='ready';updateBadge();return cart;}catch(e){failed(e);throw e;}finally{refreshPromise=null;}})();return refreshPromise;}
   function mutate(data) {
-    const operation=queue.then(async()=>{if(!cart)await refresh();cart=await request('api/cart.php',data);updateBadge();return cart;});
+    const operation=queue.then(async()=>{if(!cart)await refresh();cart=await request('api/cart.php',data);cartState='ready';updateBadge();return cart;});
     queue=operation.catch(()=>{});return operation;
   }
   function cartLink() {const a=node('a',undefined,'cart-link');a.href='cart.html';a.append(node('span','Количка '));const count=node('span','…');count.dataset.cartCount='';a.append(count);return a;}
@@ -26,6 +27,14 @@
   window.PDGStore={add:async(id,quantity=1)=>{try{await mutate({action:'add',id:Number(id),quantity});window.PDGTrack?.('cart_add');tell('Продуктът е добавен в количката.');}catch(e){tell(errors[e.message]||'Неуспешно добавяне. Опитайте отново.');throw e;}},money};
   const root=document.getElementById('cart-content'),form=document.getElementById('checkout-form'),status=document.getElementById('cart-status');
   const summary=document.getElementById('cart-summary');
+  function failed(error){
+    cart=null;cartState=error.message==='authentication_required'?'login':'error';updateBadge();
+    if(!root)return;root.replaceChildren();summary?.replaceChildren();if(form)form.hidden=true;
+    if(cartState==='login'){
+      setStatus('');root.append(node('h2','Влезте, за да използвате количката'),node('p','След вход ще видите продуктите, цените и отстъпката за вашия профил.'));
+      for(const [label,mode]of [['Вход','login'],['Регистрация','register']]){const link=node('a',label,'button');link.href='auth.html?next=cart.html'+(mode==='register'?'&mode=register':'');link.style.marginRight='10px';root.append(link);}
+    }else{root.append(node('p','Количката временно не е достъпна.'));const retry=node('button','Опитай отново');retry.type='button';retry.onclick=async()=>{retry.disabled=true;try{await refresh();render();setStatus('');}catch{}finally{retry.disabled=false;}};root.append(retry);}
+  }
   let submitting=false;
   const setStatus=text=>{if(status)status.textContent=text;};
   function render() {
@@ -75,5 +84,5 @@
       submitting=false;button.disabled=!cart?.can_checkout;button.textContent='Изпрати поръчка за потвърждение';root.querySelectorAll('button,input').forEach(e=>e.disabled=false);
     }
   });
-  refresh().then(render).catch(()=>{if(root){root.textContent='Количката временно не е достъпна.';form.hidden=true;}tell('Не можем да заредим количката. Презаредете страницата.');});
+  refresh().then(render).catch(()=>{});
 })();

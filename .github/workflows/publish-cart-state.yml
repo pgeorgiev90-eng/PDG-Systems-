@@ -1,0 +1,94 @@
+name: Test and publish cart session states
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-cart-state.yml'
+      - 'store.js'
+      - 'tests/cart_ui_test.cjs'
+      - 'tests/authenticated_cart_security.py'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: pdg_test
+          MYSQL_ROOT_PASSWORD: test-root-password
+          MYSQL_ROOT_HOST: '%'
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptest-root-password"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Test authenticated cart and guest boundaries
+        run: |
+          node --check store.js
+          php -l api/cart.php
+          php tests/bootstrap-account-ci.php
+          php -r '$s=require dirname(getcwd())."/pdg-shop-db.php";$d=new PDO("mysql:host=".$s["host"].";dbname=".$s["database"],$s["username"],$s["password"]);$d->exec("INSERT INTO products(brand,category,code,name,price) VALUES(\"Test\",\"Test\",\"CART-CI-TEST\",\"Cart test\",10.00)");'
+          php -d auto_prepend_file=/tmp/pdg-test-https.php -S 127.0.0.1:8199 -t . > /tmp/cart-test.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -s -o /dev/null 'http://127.0.0.1:8199/api/account-draft.php?action=session'; then break; fi
+            sleep 1
+          done
+          python tests/authenticated_cart_security.py
+      - name: Test browser cart states and controls
+        run: |
+          npm install --prefix /tmp/pdg-cart-ui --no-audit --no-fund jsdom@26
+          PDG_JSDOM=/tmp/pdg-cart-ui/node_modules/jsdom node tests/cart_ui_test.cjs
+      - name: Reject an outdated production release
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Back up, stage and publish cart interface
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io
+          from pathlib import Path
+          files=['store.js','cart.html','catalog.html','product.html','shop.html']
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              for name in files:
+                  original=io.BytesIO();ftp.retrbinary('RETR '+name,original.write)
+                  backup=Path('/tmp/cart-rollback')/name;backup.parent.mkdir(parents=True,exist_ok=True);backup.write_bytes(original.getvalue())
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert check.getvalue()==body,name
+              for name in files:
+                  ftp.rename(name+'.pdg-upload',name)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cart-interface-rollback
+          path: /tmp/cart-rollback/
+          retention-days: 14
+      - name: Verify published files and guest login requirement
+        shell: python
+        run: |
+          import urllib.request,urllib.error,os,json
+          from pathlib import Path
+          root='https://pdgsystems.bg/'
+          for name in ['store.js','cart.html','catalog.html','product.html','shop.html']:
+              with urllib.request.urlopen(root+name+'?cart_release='+os.environ['GITHUB_SHA'],timeout=60) as r:assert r.read()==Path(name).read_bytes(),name
+          try:urllib.request.urlopen(root+'api/cart.php?cart_release='+os.environ['GITHUB_SHA'],timeout=60);raise AssertionError('Anonymous cart access')
+          except urllib.error.HTTPError as error:
+              assert error.code==401
+              assert json.load(error)['error']=='authentication_required'
+          print('PASS: cart interface published, guest authentication requirement preserved')
