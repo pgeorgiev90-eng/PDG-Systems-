@@ -7,7 +7,7 @@ try{
  $v=[];if($method==='POST'){$raw=file_get_contents('php://input',false,null,0,1048577);if(strlen($raw)>1048576)pdg_answer(413,['error'=>'project_too_large']);$v=json_decode($raw,true,128);if(!is_array($v))pdg_answer(422,['error'=>'invalid_request']);}
  $id=filter_var($method==='GET'?($_GET['id']??null):($v['support']??null),FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);if(!$id)pdg_answer(422,['error'=>'invalid_request']);
  // Read the request first; lock the project in the same order as customer writes.
- $q=$db->prepare("SELECT r.*,u.email,p.user_id FROM pdg_cad_project_requests r JOIN pdg_cad_projects p ON p.id=r.project_id JOIN pdg_users u ON u.id=p.user_id WHERE r.id=? AND r.request_kind='assistance'");$q->execute([$id]);$request=$q->fetch();if(!$request)pdg_answer(404,['error'=>'not_found']);
+ $q=$db->prepare("SELECT r.*,u.email,p.user_id FROM pdg_cad_project_requests r JOIN pdg_cad_projects p ON p.id=r.project_id JOIN pdg_users u ON u.id=p.user_id WHERE r.id=?");$q->execute([$id]);$request=$q->fetch();if(!$request)pdg_answer(404,['error'=>'not_found']);
  if($method==='POST')$db->beginTransaction();
  $row=pdg_my_project_owned($db,(int)$request['user_id'],(int)$request['project_id'],$method==='POST');if(!$row||$row['archived']){if($db->inTransaction())$db->rollBack();pdg_answer(404,['error'=>'not_found']);}
  if($method==='POST'){

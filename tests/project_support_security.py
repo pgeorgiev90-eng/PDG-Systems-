@@ -27,9 +27,12 @@ for editor,project in [('electric',{'version':2,'items':[],'busbars':[],'project
  check(req(a,'api/project-support.php',{**payload,'revision':3},ac)[0]==409,'new customer changes protected')
  check(req(u,'api/my-projects.php',{'action':'delete_selected','projects':[{'id':pid,'revision':4}]},uc)[0]==200,'customer deletion supported')
  check(req(a,'api/project-support.php?id='+str(rid))[0]==404,'deleted project cannot be edited through old support link')
-# A normal review request must not grant editing access.
+# Existing review requests also open in CAD for administrator correction.
 _,d=req(u,'api/my-projects.php',{'action':'save','editor':'solar','name':'Review only','project':{'version':1,'planes':[]}},uc);pid=d['meta']['id']
 req(u,'api/my-projects.php',{'action':'request','id':pid,'revision':1},uc)
 r=next(v for v in req(a,'api/project-requests.php')[1]['requests'] if int(v['project_id'])==pid)
-check(req(a,'api/project-support.php?id='+str(r['id']))[0]==404,'unshared review cannot be edited')
-print('PASS: both editors, owner sharing, bounded problem text, admin-only explicit save, CSRF, revisions, retained ownership/history, client attribution and deleted/unshared access protection')
+code,legacy=req(a,'api/project-support.php?id='+str(r['id']));check(code==200,'existing review opens in administrator CAD')
+code,edited=req(a,'api/project-support.php',{'support':int(r['id']),'revision':legacy['meta']['revision'],'editor':'solar','project':{**legacy['project'],'legacyFixed':True}},ac);check(code==200,'existing review can be corrected')
+check(req(u,'api/my-projects.php?id='+str(pid))[1]['project']['legacyFixed'],'legacy review correction returns to original owner')
+check(req(a,'api/project-support.php?id=999999999')[0]==404,'no arbitrary project access through missing request')
+print('PASS: both editors, owner sharing, bounded problem text, admin-only explicit save, CSRF, revisions, retained ownership/history, client attribution and deleted/missing request protection and existing review editing')
