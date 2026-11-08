@@ -63,6 +63,7 @@ jobs:
           Path('/tmp/intermetal-before.json').write_text(json.dumps(before))
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              print('Pricing helpers:',[n for n in ftp.nlst('api') if any(k in n.lower() for k in ['price','pricing','account','shop-common'])],flush=True)
               for name in files:
                   buffer=io.BytesIO()
                   try:ftp.retrbinary('RETR '+name,buffer.write)
@@ -70,6 +71,7 @@ jobs:
                       if str(e).startswith('550') and name!='api/schrack-shop-bootstrap.php':continue
                       raise
                   body=buffer.getvalue();target=Path('/tmp/intermetal-rollback')/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(body)
+                  print('Existing hash:',name,hashlib.sha256(body).hexdigest(),flush=True)
                   previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
                   assert body==Path(name).read_bytes() or (previous.returncode==0 and body==previous.stdout) or (name=='catalog.html' and hashlib.sha256(body).hexdigest()=='fe6ac2795ae8e478e88c09c06824a74dd5ee0f28827bd436dd32bbd8b8273c17'), 'Unexpected hosting file; nothing uploaded: '+name
           print('Existing production files verified; rollback copies retained')
