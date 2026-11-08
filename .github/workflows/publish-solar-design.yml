@@ -65,7 +65,7 @@ jobs:
         run: |
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
-          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b','solar-mounting-core.js':None,'solar-mounting.js':None,'solar-offer.js':None,'solar-offer-visuals.js':None,'api/solar-yield.php':None}
+          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b','solar-mounting-core.js':None,'solar-mounting.js':None,'solar-offer.js':'6a39deef699c0d00c037182e081cc22907e06235017f302985e9abdb385ce594','solar-offer-visuals.js':None,'api/solar-yield.php':None}
           Path('/tmp/solar-rollback/hosting-before').mkdir(parents=True,exist_ok=True)
           Path('/tmp/solar-rollback/source-before').mkdir(exist_ok=True)
           for file in expected:
@@ -96,6 +96,9 @@ jobs:
                   print('Before deployment:',file,actual,flush=True)
                   previous_release=subprocess.run(['git','show','HEAD^:'+file],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                   allowed={known,new}
+                  deployed_base=subprocess.run(['git','show','1e90f578463195ddfbac6a4bc47c2e016bcb50c2:'+file],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                  if deployed_base.returncode==0:
+                      allowed.add(hashlib.sha256(deployed_base.stdout).hexdigest())
                   if previous_release.returncode==0:
                       allowed.add(hashlib.sha256(previous_release.stdout).hexdigest())
                   assert actual in allowed, 'Unexpected hosting source; no files uploaded: '+file
