@@ -53,3 +53,16 @@ for(const [span,joints] of [[5.01,2],[9.98,2],[10.01,4]]){
 assert.equal(core.cutRails([4.98,4.98,1.2],5).splices,0);
 assert.equal(core.railExtent(5.00001,5,.05).length,5);
 console.log('PASS: no joints for fitting panel spans including gaps, capped end allowance, exact stock boundaries and minimum joints for longer runs');
+
+// Exercise the real shared/per-roof save handlers in both CAD pages.
+for(const file of ['roof-cad.php','solar-cad-preview.html']){
+ const source=fs.readFileSync(file,'utf8'),fields={mountScope:{value:'selected'},mountBrand:{value:'enerack'},roofType:{value:'tile'},mountSystem:{value:'tile'},saveMount:{click(){this.onclick()}}},ctx=require('node:vm').createContext({JSON,$:id=>fields[id],mountingSystems:{enerack:[{id:'tile',type:'tile',name:'Tile'},{id:'metal',type:'metal',name:'Metal'}]},render(){},msg(){}});
+ const run=s=>require('node:vm').runInContext(s,ctx),start=source.indexOf("$('saveMount').onclick=");
+ run('let selected=0,planes=[{mounting:{brand:"enerack",roofType:"tile",systemId:"tile",estimate:{span:1.2,components:{rail:"rail1"}}}},{mounting:{brand:"enerack",roofType:"metal",systemId:"metal"}}];'+source.slice(start,source.indexOf('\n',start)));
+ fields.saveMount.onclick();assert.equal(run('planes[1].mounting.roofType'),'metal','individual save preserves other roof');
+ fields.mountScope.value='all';fields.mountScope.onchange();assert.equal(run('planes[1].mounting.roofType'),'tile');assert.equal(run('planes[1].mounting.estimate.span'),1.2);
+ run('planes[0].mounting.estimate.components.rail="changed"');assert.equal(run('planes[1].mounting.estimate.components.rail'),'rail1','roofs own independent settings objects');
+ fields.mountScope.value='selected';fields.mountScope.onchange();fields.roofType.value='metal';fields.mountSystem.value='metal';fields.saveMount.onclick();assert.equal(run('planes[0].mounting.roofType'),'metal');assert.equal(run('planes[1].mounting.roofType'),'tile');
+ assert(source.includes("mountingScope:$('mountScope')?.value==='all'?'all':'selected'")&&source.includes("d.mountingScope==='all'?'all':'selected'"),'scope exported/restored with legacy per-roof default');
+ console.log('PASS:',file,'individual/shared mounting, changing back, deep-copied estimates and persisted scope');
+}
