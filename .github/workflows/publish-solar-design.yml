@@ -22,6 +22,7 @@ on:
       - 'tests/solar_project_start_test.js'
       - 'tests/solar_project_start_ui_test.js'
       - 'database/cad-panels.json'
+      - 'database/intermetal-panels.json'
       - 'api/cad-panels-bootstrap.php'
       - 'tests/solar_panel_catalog_test.js'
       - 'tests/solar_panel_catalog_ui_test.js'
@@ -106,10 +107,10 @@ jobs:
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
           changed=set(subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines())
-          allowed_files=['database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-project-format.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
+          allowed_files=['database/intermetal-panels.json','database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-project-format.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
           expected={name:None for name in allowed_files if name in changed}
           import json,urllib.request
-          if 'database/cad-panels.json' in changed:
+          if {'database/cad-panels.json','database/intermetal-panels.json'} & changed:
               with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?panels=before-'+os.environ['GITHUB_SHA'],timeout=45) as r:Path('/tmp/panels-before.json').write_bytes(r.read())
           Path('/tmp/solar-changed.json').write_text(json.dumps(list(expected)))
           Path('/tmp/solar-rollback/hosting-before').mkdir(parents=True,exist_ok=True)
@@ -198,7 +199,7 @@ jobs:
               detail=get('api/product-details.php?id='+str(matches[0]['id']))
               fields={f['label']:f['value'] for f in detail['fields']}
               for f in row['fields']:
-                  if f['label'] in ['Мощност (Wp)','Дължина (mm)','Ширина (mm)','Voc (V)','Vmp (V)','Imp (A)','Isc (A)']:assert fields[f['label']]==f['value']
+                  if f['label'] in ['Мощност (Wp)','Дължина (mm)','Ширина (mm)','Voc (V)','Vmp (V)','Imp (A)','Isc (A)','Температурен коефициент Voc (%/°C)','Технически лист']:assert fields[f['label']]==f['value']
               assert detail['product']['price'] is None
               print('Verified live panel:',matches[0]['id'],row['brand'],row['code'],flush=True)
           assert data['prices_visible'] is False

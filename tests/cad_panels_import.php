@@ -26,3 +26,15 @@ pdg_import_cad_panels($db);pdg_import_cad_panels($db);
 check((int)$db->query('SELECT COUNT(*) FROM products')->fetchColumn()===8,'Eight unique panels across CAD and store');
 check((int)$db->query("SELECT COUNT(*) FROM products WHERE code IN ('JKM440N-54HL4R-B','LR5-54HTH-435M')")->fetchColumn()===2,'Both old CAD models are store products');
 echo "PASS: both legacy CAD models added, existing six panels and prices preserved, no duplicates\n";
+
+$db->exec("UPDATE pdg_product_fields SET value='1' WHERE label='Voc (V)'");
+$db->exec('DELETE FROM pdg_catalog_migrations');
+pdg_import_cad_panels($db);
+foreach(array_merge($items,json_decode(file_get_contents(__DIR__.'/../database/cad-panels.json'),true)) as $item){
+ $q=$db->prepare('SELECT id,price FROM products WHERE brand=? AND code=?');$q->execute([$item['brand'],$item['code']]);$product=$q->fetch();
+ $q=$db->prepare('SELECT label,value FROM pdg_product_fields WHERE product_id=?');$q->execute([$product['id']]);$fields=$q->fetchAll(PDO::FETCH_KEY_PAIR);
+ foreach($item['fields'] as $field)check($fields[$field['label']]===$field['value'],'Official field corrected: '.$item['code'].' '.$field['label']);
+}
+check($db->query('SELECT price FROM products WHERE id=1')->fetchColumn()==='12.34','Official spec update preserves manual price');
+echo "PASS: official electrical fields corrected for all eight products; user prices retained
+";
