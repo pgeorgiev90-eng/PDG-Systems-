@@ -13,6 +13,9 @@ on:
       - 'solar-mounting.js'
       - 'solar-offer.js'
       - 'solar-offer-core.js'
+      - 'solar-inverter-match.js'
+      - 'tests/solar_inverter_match_test.js'
+      - 'tests/solar_inverter_match_ui_test.js'
       - 'solar-panel-catalog.js'
       - 'solar-project-start.js'
       - 'solar-project-format.js'
@@ -88,6 +91,8 @@ jobs:
           node tests/solar_location_test.js
           node tests/solar_offer_test.js
           node tests/solar_string_test.js
+          node tests/solar_inverter_match_test.js
+          PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_inverter_match_ui_test.js
           python - <<'PY'
           from pathlib import Path
           import re, subprocess
@@ -107,7 +112,7 @@ jobs:
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
           changed=set(subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines())
-          allowed_files=['database/intermetal-panels.json','database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-project-format.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
+          allowed_files=['database/intermetal-panels.json','database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-project-format.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-inverter-match.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
           expected={name:None for name in allowed_files if name in changed}
           import json,urllib.request
           if {'database/cad-panels.json','database/intermetal-panels.json'} & changed:

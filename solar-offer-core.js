@@ -87,7 +87,7 @@
           errors.push('Скат '+(i+1)+': липсва валидно Voc или температурен коефициент на панелите.');continue;
         }
         const coldVoc=g.voc*(1+g.coefficient/100*(temperature-25));
-        let maxPanels=Math.floor(spec.limit/coldVoc);while(maxPanels>0&&maxPanels*coldVoc>spec.limit)maxPanels--;
+        let maxPanels=Math.floor(spec.limit/coldVoc);while(maxPanels>0&&maxPanels*coldVoc>spec.limit)maxPanels--;const sample=roof.panels.find(p=>(p.model||'custom')===g.model&&p.power===g.power);if(spec.mpptMaxVoltage&&Number.isFinite(sample?.vmp)&&sample.vmp>0)maxPanels=Math.min(maxPanels,Math.floor(spec.mpptMaxVoltage/sample.vmp));
         if(maxPanels<1){errors.push('Скат '+(i+1)+': дори един панел надвишава лимита.');continue;}
         const count=Math.ceil(g.count/maxPanels),base=Math.floor(g.count/count),extra=g.count%count;
         const strings=Array.from({length:count},(_,j)=>base+(j<extra?1:0));
