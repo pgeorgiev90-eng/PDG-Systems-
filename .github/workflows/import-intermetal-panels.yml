@@ -11,7 +11,7 @@ permissions:
   contents: read
 concurrency:
   group: pdg-production-deploy
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   import:
     runs-on: ubuntu-latest
