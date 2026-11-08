@@ -85,7 +85,7 @@ jobs:
               for name in files:
                   p=backup/name;p.parent.mkdir(parents=True,exist_ok=True);data=io.BytesIO()
                   previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
-                  baseline=subprocess.run(['git','show','8e2bab90b0d57b0ca1a30d9ded990ca9e78b3b10:'+name],capture_output=True)
+                  baseline=subprocess.run(['git','show','b97dae80d28a606859c06189a2ff1592d0c24f63:'+name],capture_output=True)
                   try:ftp.retrbinary('RETR '+name,data.write)
                   except ftplib.error_perm as e:
                       if str(e).startswith('550') and baseline.returncode!=0:p.with_name(p.name+'.absent').write_text('New file');continue
