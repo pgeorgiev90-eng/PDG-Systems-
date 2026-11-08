@@ -1,0 +1,63 @@
+name: Revalidate shop search pages
+on:
+  push:
+    paths: ['.github/workflows/revalidate-shop-search.yml']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Preserve hosting rules and revalidate shop pages
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,urllib.request
+          from pathlib import Path
+          rules=b'''\n# BEGIN PDG SHOP REVALIDATE
+          <IfModule mod_headers.c>
+          <FilesMatch "^(shop\\.html|catalog\\.html|shop-search\\.js)$">
+          Header always set Cache-Control "no-cache, max-age=0, must-revalidate"
+          </FilesMatch>
+          </IfModule>
+          # END PDG SHOP REVALIDATE
+          '''
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              buffer=io.BytesIO()
+              ftp.retrbinary('RETR .htaccess',buffer.write)
+              original=buffer.getvalue()
+              Path('/tmp/shop-htaccess-backup').write_bytes(original)
+              updated=original if b'# BEGIN PDG SHOP REVALIDATE' in original else original+rules
+              ftp.storbinary('STOR .htaccess.pdg-upload',io.BytesIO(updated))
+              check=io.BytesIO()
+              ftp.retrbinary('RETR .htaccess.pdg-upload',check.write)
+              assert check.getvalue()==updated
+              ftp.rename('.htaccess.pdg-upload','.htaccess')
+              try:
+                  for path in ['shop.html','catalog.html','shop-search.js']:
+                      with urllib.request.urlopen('https://pdgsystems.bg/'+path+'?cachecheck='+os.environ['GITHUB_SHA'],timeout=60) as response:
+                          assert response.status==200
+                          assert 'no-cache' in response.headers.get('Cache-Control',''),path
+                          body=response.read()
+                          if path=='shop.html':assert b'shop-search.js?v=20261108' in body
+                  print('PASS: shop pages and search script revalidate instead of reusing stale copies')
+              except Exception:
+                  ftp.storbinary('STOR .htaccess',io.BytesIO(original))
+                  raise
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shop-hosting-rules-backup
+          path: /tmp/shop-htaccess-backup
+          retention-days: 14
