@@ -44,3 +44,23 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
  vm.runInContext('travel(redo,undo)',ctx);assert.equal(state.planes.length,1);
  console.log('PASS: actual undo restores empty workspace and redo restores project');
 }
+
+// The temporary tracing guide must never become part of the saved roof contour.
+{
+ const source=fs.readFileSync('roof-cad.php','utf8'),match=source.match(/<script data-pdg-roof-guide="[^"]+">([\s\S]*?)<\/script>/);assert.ok(match);
+ const events={},hostEvents={},windowEvents={},frames=[],bodyClasses=new Set(),hostClasses=new Set(),nodes=[];
+ const classes=set=>({contains:name=>set.has(name),toggle:(name,on)=>on?set.add(name):set.delete(name)});
+ const host={classList:classes(hostClasses),addEventListener:(name,fn)=>hostEvents[name]=fn,getBoundingClientRect:()=>({left:0,top:0})};
+ const layer={addTo(){return this},clearLayers(){nodes.length=0}},shape=(kind,points,options)=>({addTo(){nodes.push({kind,points,options});return this}});
+ let center={lat:3,lng:4};const map={getContainer:()=>host,on:(names,fn)=>names.split(' ').forEach(n=>events[n]=fn),getCenter:()=>center,containerPointToLatLng:p=>({lat:p.y,lng:p.x}),latLngToContainerPoint:p=>({x:p.lng,y:p.lat}),distance:(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1])};
+ const context=vm.createContext({map,mode:'roof',draft:[],window:{addEventListener:(n,fn)=>windowEvents[n]=fn},document:{body:{classList:classes(bodyClasses)},getElementById:()=>null},L:{layerGroup:()=>layer,marker:(p,o)=>shape('marker',p,o),polyline:(p,o)=>shape('line',p,o),divIcon:o=>o,point:(x,y)=>({x,y})},requestAnimationFrame:fn=>{frames.push(fn);return frames.length}});
+ const flush=()=>{while(frames.length)frames.shift()()};vm.runInContext(match[1],context);flush();assert(hostClasses.has('roof-tracing'));assert.equal(nodes.length,0);
+ events.mousemove({containerPoint:{x:2,y:1}});flush();assert.equal(nodes.length,1);
+ vm.runInContext('draft.push([0,0])',context);windowEvents['pdg-solar-mode']();flush();assert.equal(nodes.filter(n=>n.kind==='line').length,1);assert.equal(nodes.find(n=>n.kind==='line').points[1][1],2);
+ vm.runInContext('draft.push([0,1])',context);windowEvents['pdg-solar-mode']();flush();assert.equal(nodes.filter(n=>n.kind==='line').length,2);assert.equal(vm.runInContext('draft.length',context),2);
+ events.mouseout();flush();assert.equal(nodes.length,0);
+ bodyClasses.add('mobile-cad');context.window.PDGSolarPreciseMode=true;windowEvents['pdg-solar-mode']();flush();assert.equal(nodes.find(n=>n.kind==='line').points[1][0],3);center={lat:6,lng:7};events.move();flush();assert.equal(nodes.find(n=>n.kind==='line').points[1][1],7);
+ bodyClasses.add('cad-mode');windowEvents['pdg-solar-mode']();flush();assert.equal(nodes.length,0);assert(!hostClasses.has('roof-tracing'));
+ bodyClasses.delete('cad-mode');vm.runInContext("mode='idle'",context);windowEvents['pdg-solar-mode']();flush();assert.equal(nodes.length,0);assert.equal(vm.runInContext('draft.length',context),2);
+ console.log('PASS: crosshair, cursor-following dashed edge, closure preview, unchanged contour, mobile centre targeting and guide cleanup');
+}
