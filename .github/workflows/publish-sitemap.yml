@@ -1,0 +1,84 @@
+name: Publish sitemap and robots
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - sitemap.xml
+      - robots.txt
+      - .github/workflows/publish-sitemap.yml
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh sitemap from active public catalog
+        shell: python
+        run: |
+          import json, urllib.request, urllib.parse
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          base = 'https://pdgsystems.bg/'
+          request = urllib.request.Request(base + 'api/products.php', headers={'User-Agent': 'PDG-Sitemap/1.0'})
+          with urllib.request.urlopen(request, timeout=60) as response:
+              products = json.load(response)['products']
+          assert isinstance(products, list) and products, 'Refusing to publish an empty catalog'
+          ids = sorted({int(p['id']) for p in products})
+          assert all(i > 0 for i in ids)
+          categories = sorted({str(p['category']).strip() for p in products if p.get('category')})
+          urls = [base, base + 'shop.html', base + 'catalog.html']
+          urls += [base + 'catalog.html?category=' + urllib.parse.quote(c, safe='') for c in categories]
+          urls += [base + 'product.html?id=' + str(i) for i in ids]
+          ns = 'http://www.sitemaps.org/schemas/sitemap/0.9'
+          ET.register_namespace('', ns)
+          root = ET.Element('{'+ns+'}urlset')
+          for url in dict.fromkeys(urls):
+              ET.SubElement(ET.SubElement(root, '{'+ns+'}url'), '{'+ns+'}loc').text = url
+          assert len(urls) < 50000, 'Sitemap index required'
+          ET.indent(root, space='  ')
+          ET.ElementTree(root).write('sitemap.xml', encoding='UTF-8', xml_declaration=True)
+          print('Sitemap URLs:', len(urls), 'Active products:', len(ids), 'Categories:', len(categories))
+      - name: Validate, publish and verify sitemap files
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib, ssl, os, io, urllib.request
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          paths = ('sitemap.xml', 'robots.txt')
+          root = ET.fromstring(Path('sitemap.xml').read_bytes())
+          assert root.tag == '{http://www.sitemaps.org/schemas/sitemap/0.9}urlset'
+          locations = root.findall('{*}url/{*}loc')
+          assert locations and all(x.text.startswith('https://pdgsystems.bg/') for x in locations)
+          assert 'Sitemap: https://pdgsystems.bg/sitemap.xml' in Path('robots.txt').read_text()
+          with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=35) as ftp:
+              ftp.connect(os.environ['FTP_HOST'], 21)
+              ftp.login(os.environ['FTP_USER'], os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              for path in paths:
+                  data = Path(path).read_bytes()
+                  ftp.storbinary('STOR '+path+'.upload', io.BytesIO(data))
+                  check = io.BytesIO()
+                  ftp.retrbinary('RETR '+path+'.upload', check.write)
+                  assert check.getvalue() == data, path
+              for path in paths:
+                  ftp.rename(path+'.upload', path)
+                  print('Published:', path, flush=True)
+          for path in paths:
+              url = 'https://pdgsystems.bg/'+path+'?release='+os.environ['GITHUB_SHA']
+              with urllib.request.urlopen(url, timeout=40) as response:
+                  assert response.status == 200
+                  assert response.read() == Path(path).read_bytes(), path
+              print('Verified HTTP 200 and exact content:', path, flush=True)
