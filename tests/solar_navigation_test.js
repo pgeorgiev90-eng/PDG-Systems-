@@ -1,0 +1,14 @@
+'use strict';
+const {JSDOM}=require(process.env.PDG_JSDOM||'jsdom'),fs=require('node:fs'),assert=require('node:assert/strict');
+(async()=>{const dom=new JSDOM(fs.readFileSync('roof-cad.php','utf8'),{url:'https://pdgsystems.bg/roof-cad.php',runScripts:'outside-only'}),w=dom.window,d=w.document;
+const nav=d.querySelector('.studio-project-nav');nav.innerHTML='<button data-part="roof">Покрив</button><button data-part="panel">Соларни панели</button><button data-part="inverter">Инвертор</button><button data-part="battery">Батерия</button><button>Зарядни станции ›</button><button>Кабели и аксесоари ›</button><button>Монтажна конструкция ›</button>';
+let construction=0;nav.lastElementChild.onclick=()=>construction++;
+w.PDGSolarOfferCore={...require('../solar-offer-core.js')};w.PDGSolarProject={snapshot:()=>[],setTilt(){}};w.fetch=async()=>({ok:true,json:async()=>({products:[]})});
+w.HTMLElement.prototype.scrollIntoView=function(){};
+w.eval(fs.readFileSync('solar-offer.js','utf8'));await new Promise(r=>setTimeout(r,20));
+assert.deepEqual([...nav.children].map(b=>b.dataset.part),['roof','construction','panel','inverter','battery','charger','cables','labour']);
+assert.deepEqual([...nav.children].map(b=>b.firstChild.textContent.trim()),['Покрив','Конструкция','Соларни панели','Инвертор','Батерия','Зарядна станция','Кабели и аксесоари','Труд и материали']);
+nav.querySelector('[data-part="construction"]').click();assert.equal(construction,1);
+const dialog=d.createElement('dialog');dialog.showModal=function(){this.setAttribute('open','');};dialog.append(d.querySelector('#solar-offer-settings'));d.body.append(dialog);
+nav.querySelector('[data-part="labour"]').click();assert(dialog.open);assert.equal(nav.querySelector('[aria-pressed="true"]').dataset.part,'labour');
+console.log('PASS: exact eight-category order and labels, existing construction action preserved, labour opens pricing dialog and selected state updates');w.close();})().catch(e=>{console.error(e);process.exitCode=1});

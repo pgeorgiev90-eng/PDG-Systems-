@@ -2,6 +2,17 @@
   'use strict';
   const $=id=>document.getElementById(id),core=window.PDGSolarOfferCore;
   if(core?.quoteVersion!=='20261108-costs-4'){const notice=document.createElement('p');notice.className='note';notice.textContent='Заредена е стара версия на изчисленията. Обновете страницата, за да изчислите офертата.';$('solar-offer-settings').prepend(notice);$('offer-generate').disabled=true;return;}
+  function projectNavigation(){
+    const nav=document.querySelector('.studio-project-nav');if(!nav)return;
+    const existing=[...nav.querySelectorAll('button')],byPart=part=>existing.find(b=>b.dataset.part===part),byText=text=>existing.find(b=>b.textContent.trim().startsWith(text));
+    let construction=byPart('construction')||byText('Монтажна конструкция');
+    if(!construction){construction=document.createElement('button');construction.type='button';construction.onclick=()=>{const button=$('menu-construction');if(button)button.click();else{$('preview-advanced')?.click();const target=$('mountSection');if(target){const details=target.closest('details');if(details)details.open=true;target.scrollIntoView({block:'start'});}}};}
+    const labour=document.createElement('button');labour.type='button';labour.onclick=()=>{const target=$('offer-install-settings');if(!target)return;const dialog=target.closest('dialog');if(dialog&&!dialog.open)dialog.showModal();target.scrollIntoView({block:'start'});};
+    const entries=[['roof','Покрив',byPart('roof')],['construction','Конструкция',construction],['panel','Соларни панели',byPart('panel')],['inverter','Инвертор',byPart('inverter')],['battery','Батерия',byPart('battery')],['charger','Зарядна станция',byPart('charger')||byText('Зарядни станции')],['cables','Кабели и аксесоари',byPart('cables')||byText('Кабели и аксесоари')],['labour','Труд и материали',labour]];
+    const ordered=[];for(const [part,label,button]of entries){if(!button)continue;button.dataset.part=part;const arrow=document.createElement('span');arrow.textContent='›';button.replaceChildren(document.createTextNode(label+' '),arrow);ordered.push(button);}nav.replaceChildren(...ordered);
+    nav.addEventListener('click',event=>{const active=event.target.closest('button');if(active&&nav.contains(active))for(const button of nav.querySelectorAll('button'))button.setAttribute('aria-pressed',String(button===active));});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',projectNavigation);else queueMicrotask(projectNavigation);
   const ids=['client','site','inverter','inverterName','inverterKw','inverterQty','inverterPrice','panelPrice','mountPrice','installPrice','installMode','installPanelsPrice','installInverterPrice','installBatteryPrice','installCentsPerW','materialsPrice','loss','yieldMode','manualYield','minTemperature'];
   let products=[],generation=0,ready=false,electricalSpec=null,specSequence=0,restoredProduct='';
   const field=id=>$('offer-'+id);

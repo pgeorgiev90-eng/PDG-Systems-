@@ -19,6 +19,7 @@ on:
       - 'tests/solar_panel_catalog_test.js'
       - 'tests/solar_panel_catalog_ui_test.js'
       - 'tests/solar_quote_version_ui_test.js'
+      - 'tests/solar_navigation_test.js'
       - 'tests/solar_offer_test.js'
       - 'solar-offer-visuals.js'
       - 'api/solar-yield.php'
@@ -57,6 +58,7 @@ jobs:
           npm install --prefix /tmp/pdg-panel-ui --no-save --no-audit --no-fund jsdom@31.0.0
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_panel_catalog_ui_test.js
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_quote_version_ui_test.js
+          PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_navigation_test.js
           php -l api/solar-yield.php
           node --check solar-offer.js
           node --check solar-offer-visuals.js
