@@ -36,3 +36,11 @@ const fixed=costs(summary,{...base,installMode:'total',installPrice:'250'});
 assert.equal(fixed.rows.filter(r=>r.name.startsWith('Монтаж —')).length,1);
 assert.equal(fixed.rows.find(r=>r.name==='Монтаж — обща сума').total,25000);
 console.log('PASS: three labour subtotals, separate materials, exact eurocent/W arithmetic, one active mode, zero/unknown prices and legacy totals');
+
+// User regression: 16 x 620 W, labour 13 eurocent/W, other materials EUR 1,000.
+const screenshot=costs({count:16,kwp:9.92},{...base,installMode:'perW',installCentsPerW:'13',materialsPrice:'1000'});
+assert.equal(screenshot.rows.find(r=>r.name==='Монтаж — общо по мощност').total,128960);
+assert.equal(screenshot.rows.find(r=>r.name==='Останали материали').total,100000);
+assert(!screenshot.rows.some(r=>r.name==='Монтаж и останали материали'));
+const labourAndMaterials=screenshot.rows.filter(r=>r.name.startsWith('Монтаж —')||r.name==='Останали материали');assert.equal(labourAndMaterials.reduce((s,r)=>s+r.total,0),228960);
+console.log('PASS: user screenshot 9,920 W x 13 eurocent/W = EUR 1,289.60, plus EUR 1,000 separate materials');

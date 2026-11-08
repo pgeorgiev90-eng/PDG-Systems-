@@ -96,5 +96,5 @@
     });
     return {valid:errors.length===0&&rows.length>0,errors,rows,limit:spec.limit,policyLimit:spec.policyLimit,phase:spec.phase,temperature};
   }
-  const api={project,price,costs,electrical,stringPlan,panelElectrical};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarOfferCore=api;
+  const api={quoteVersion:'20261108-costs-4',project,price,costs,electrical,stringPlan,panelElectrical};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarOfferCore=api;
 })(typeof window==='object'?window:globalThis);

@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const $=id=>document.getElementById(id),core=window.PDGSolarOfferCore;
+  if(core?.quoteVersion!=='20261108-costs-4'){const notice=document.createElement('p');notice.className='note';notice.textContent='Заредена е стара версия на изчисленията. Обновете страницата, за да изчислите офертата.';$('solar-offer-settings').prepend(notice);$('offer-generate').disabled=true;return;}
   const ids=['client','site','inverter','inverterName','inverterKw','inverterQty','inverterPrice','panelPrice','mountPrice','installPrice','installMode','installPanelsPrice','installInverterPrice','installBatteryPrice','installCentsPerW','materialsPrice','loss','yieldMode','manualYield','minTemperature'];
   let products=[],generation=0,ready=false,electricalSpec=null,specSequence=0,restoredProduct='';
   const field=id=>$('offer-'+id);
@@ -102,6 +103,8 @@
       if(s.yieldMode==='manual'&&!(Number(s.manualYield)>0))throw Error('Въведете специфичен годишен добив за ръчната оценка.');
       if(summary.roofs.filter(r=>r.count).length>20)throw Error('Офертата поддържа до 20 ската с панели.');
       prices=core.costs(summary,s);
+      if(prices.rows.some(r=>r.name==='Монтаж и останали материали')||!prices.rows.some(r=>r.name==='Останали материали'))throw Error('Изчисленията са от стара версия. Обновете страницата и генерирайте офертата отново.');
+      if(s.installMode==='perW'&&s.installCentsPerW!==''&&prices.rows.find(r=>r.name==='Монтаж — общо по мощност')?.total!==Math.round(summary.kwp*1000*Number(s.installCentsPerW)))throw Error('Несъответствие в изчислението на монтажа. Обновете страницата.');
       strings=core.stringPlan(window.PDGSolarProject.snapshot(),electricalSpec,s.minTemperature);
     }catch(e){$('offer-inverter-status').textContent=e.message;return;}
     const run=++generation;ready=false;$('offer-print').disabled=$('offer-download').disabled=true;
