@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__.'/admin-common.php';
+require __DIR__.'/admin-common.php';require __DIR__.'/my-projects-common.php';
 
 try {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -30,6 +30,7 @@ try {
         KEY recent (updated_at,id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+    pdg_my_projects_schema($db);
     if ($method === 'POST') pdg_answer(410, ['error'=>'project_api_updated','message'=>'Обновете CAD страницата и използвайте Моите проекти.']);
 
     if (isset($_GET['id'])) {
@@ -49,11 +50,12 @@ try {
         pdg_answer(422, ['error'=>'invalid_filter']);
     }
     $offset = ($page - 1) * 30;
-    $q = $db->prepare("SELECT p.id,p.editor,p.project_name,p.updated_at,u.email FROM pdg_cad_projects p JOIN pdg_users u ON u.id=p.user_id
-        WHERE (?='' OR p.editor=?) AND (p.project_name LIKE ? OR u.email LIKE ?)
+    $archive=$_GET['archive']??'all';if(!in_array($archive,['all','active','archived'],true))pdg_answer(422,['error'=>'invalid_filter']);
+    $q = $db->prepare("SELECT p.id,p.editor,p.project_name,p.updated_at,u.email,COALESCE(m.archived,0) AS archived,COALESCE(m.customer_deleted,0) AS customer_deleted FROM pdg_cad_projects p JOIN pdg_users u ON u.id=p.user_id LEFT JOIN pdg_cad_project_meta m ON m.project_id=p.id
+        WHERE (?='' OR p.editor=?) AND (p.project_name LIKE ? OR u.email LIKE ?) AND (?='all' OR (?='archived' AND COALESCE(m.archived,0)=1) OR (?='active' AND COALESCE(m.archived,0)=0))
         ORDER BY p.updated_at DESC,p.id DESC LIMIT 31 OFFSET $offset");
     $term = '%'.trim($search).'%';
-    $q->execute([$editor,$editor,$term,$term]);
+    $q->execute([$editor,$editor,$term,$term,$archive,$archive,$archive]);
     $rows = $q->fetchAll();
     pdg_answer(200, ['projects'=>array_slice($rows,0,30),'more'=>count($rows)>30]);
 } catch (Throwable $e) {

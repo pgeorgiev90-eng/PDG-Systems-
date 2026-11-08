@@ -76,7 +76,7 @@ function connect(entry) {
 }
 const wireButton=button(toolbar,'Чертай връзка',()=>{
     if (wiring) {stopWire();redraw();status('Чертането на връзка е изключено.');return;}
-    setView('front'); placing=false; wiring=true;
+    if(view!=='front'&&view!=='schematic')setView('front'); placing=false; wiring=true;
     wireButton.setAttribute('aria-pressed','true');
     status('Избери първата клема. Щракни върху плочата за чупки и върху втора клема за край.');
     redraw();
@@ -166,6 +166,7 @@ $('drawing').addEventListener('click',event=>{
         if (entry) connect(entry);
         return;
     }
+    if(view==='schematic')return status('Избери клема на друг апарат за край на връзката.');
     if (!wireStart || event.target.closest('[data-device]') || wireBends.length>=24) return;
     const svg=$('drawing'), matrix=svg.getScreenCTM();
     if (!matrix) return;
@@ -238,10 +239,12 @@ function renderConnectionsSchematic() {
     svg.setAttribute('width',width);svg.setAttribute('height',height);svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
     node('rect',{x:0,y:0,width,height,fill:'#fff'});
     txt(44,42,'Схема на въведените връзки',23);
-    txt(44,69,'Г = горна клема · Д = долна клема. Показват се само въведените връзки.',13);
+    txt(44,69,'Чертай връзка: избери начална и крайна клема. Г = горна · Д = долна.',13);
     const ends=new Map();
     for(const {item,index,x,width} of blocks){
-        node('rect',{x,y:99,width,height:64,rx:6,fill:'#edf4fa',stroke:'#7d9cb9'});
+        const device=node('g',{'data-device':index});
+        node('rect',{x,y:99,width,height:64,rx:6,fill:'#edf4fa',stroke:'#7d9cb9'},device);
+        device.addEventListener('click',()=>{if(wiring)return;selected=index;active=-1;showSelection();});
         txt(x+8,120,'Q'+(index+1)+' · '+item.type,13);
         txt(x+8,142,(item.sku||item.rating||'').slice(0,16),11);
         const poles=W.poleCount(item);
@@ -250,16 +253,18 @@ function renderConnectionsSchematic() {
             for(let pole=0;pole<poles;pole++){
                 const px=x+width*(group*poles+pole+.5)/(poles*2);
                 ends.set(W.key({device:item.connectionId,side,pole}),px);
-                node('circle',{cx:px,cy:164,r:2.5,fill:'#185382'});
+                const end={device:item.connectionId,side,pole},chosen=wireStart&&W.key(wireStart)===W.key(end);
+                const terminal=node('circle',{cx:px,cy:164,r:6,fill:chosen?'#ffd166':'#185382','data-terminal':index+':'+side+':'+pole,tabindex:0,role:'button','aria-label':'Q'+(index+1)+' · '+(side==='top'?'горна ':'долна ')+(pole+1)});
+                terminal.addEventListener('keydown',e=>{if(wiring&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopPropagation();connect({index,end});}});
                 txt(px-5,183,(group?'Д':'Г')+(pole+1),8);
             }
         });
     }
     connections.forEach((connection,index)=>{
         const from=ends.get(W.key(connection.from)),to=ends.get(W.key(connection.to)),y=210+index*13;
-        wireShape('path',{d:`M ${from} 188 V ${y} H ${to} V 188`},connection,2);
+        wireShape('path',{d:`M ${from} 164 V ${y} H ${to} V 164`},connection,2);
     });
-    if (!connections.length) txt(44,220,'Няма начертани връзки. Добави ги в монтажния изглед.',13);
+    if (!connections.length) txt(44,220,'Няма връзки. Натисни „Чертай връзка“ и избери две клеми.',13);
     $('bom').textContent=items.map(it=>[it.sku,it.name,it.rating].filter(Boolean).join(' · ')).join(' | ');
     $('summary').textContent='Апарати: '+items.length+' · връзки: '+connections.length;
 }
@@ -270,17 +275,15 @@ redraw=function(){
     const ids=new Set(items.map(it=>it.connectionId).filter(Boolean));
     connections=connections.filter(link=>ids.has(link.from.device)&&ids.has(link.to.device));
     if (wireStart && !ids.has(wireStart.device)) {wireStart=null;wireBends=[];}
-    if (view==='schematic') {renderConnectionsSchematic();renderWireList();return;}
-    boardRender();
-    barsRender();
-    if (view==='front') drawWires(terminalEntries());
+    if (view==='schematic') renderConnectionsSchematic();
+    else {boardRender();barsRender();if (view==='front') drawWires(terminalEntries());}
     renderWireList();
     let state=$('quoteState');
     if (!state) {state=document.createElement('script');state.type='application/json';state.id='quoteState';document.body.append(state);}
     state.textContent=JSON.stringify(bars);
     window.dispatchEvent(new Event('pdg-cad-change'));
 };
-setView=function(v){stopWire();marking=false;groupButton.setAttribute('aria-pressed','false');view=v;draft=null;editing=false;moving=null;for(const [id,value] of [['frontView','front'],['singleLine','schematic'],['sideView','side'],['threeView','3d']])$(id).classList.toggle('primary',v===value);redraw();status(v==='front'?'Монтажен изглед.':'Изглед за преглед. За редакция избери монтажния изглед.')};
+setView=function(v){stopWire();marking=false;groupButton.setAttribute('aria-pressed','false');view=v;draft=null;editing=false;moving=null;for(const [id,value] of [['frontView','front'],['singleLine','schematic'],['sideView','side'],['threeView','3d']])$(id).classList.toggle('primary',v===value);redraw();status(v==='front'?'Монтажен изглед.':v==='schematic'?'Еднолинейна схема — свързвай клеми с „Чертай връзка“.':'Изглед за преглед. За редакция избери монтажния изглед.')};
 showSelection=function(){if(active<0||!bars[active]){oldSelection();return}const b=bars[active],el=$('selection');el.replaceChildren();const title=document.createElement('b');title.textContent='Шина '+(active+1)+' · '+Math.round(C.length(b))+' mm';el.append(title);for(const [key,label,min,max]of [['width','Ширина (mm)',2,100],['thickness','Дебелина (mm)',1,20]])field(el,label,'number',b[key],v=>{const n=Number(v);if(n>=min&&n<=max){b[key]=n;redraw()}else showSelection()},{min,max});field(el,'Цвят','color',b.color,v=>{b.color=v;redraw()});const sel=document.createElement('select');b.points.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent='Точка '+(i+1);sel.append(o)});vertex=Math.max(0,Math.min(vertex,b.points.length-1));sel.value=vertex;sel.onchange=()=>{vertex=Number(sel.value);showSelection();redraw()};el.append(sel);for(const key of ['x','y','z'])field(el,key.toUpperCase()+' (mm)','number',b.points[vertex][key],v=>{const n=Number(v),max=key==='z'?Math.min(300,cabinet.depthMm):key==='x'?usableW():usableH();if(n>=0&&n<=max){b.points[vertex][key]=n;redraw();showSelection()}else showSelection()},{min:0,max:key==='z'?Math.min(300,cabinet.depthMm):key==='x'?usableW():usableH()});
 field(el,'Диаметър на отвор (mm)','number',b.holes.find(h=>h.index===vertex)?.diameter||8,()=>{}, {id:'holeDiameter',min:2,max:30});button(el,'Добави / промени отвор в точката',()=>{const diameter=Number($('holeDiameter').value);if(diameter<2||diameter>30)return status('Диаметърът трябва да е 2–30 mm.');b.holes=b.holes.filter(h=>h.index!==vertex).concat({index:vertex,diameter});redraw()});button(el,'Добави болтово съединение',()=>{const diameter=Number($('holeDiameter').value);if(diameter>=2&&diameter<=30){b.holes=b.holes.filter(h=>h.index!==vertex).concat({index:vertex,diameter,bolt:true});redraw()}});button(el,'Премахни отвор',()=>{b.holes=b.holes.filter(h=>h.index!==vertex);redraw()});button(el,'Изтрий шина',()=>{bars.splice(active,1);active=-1;redraw();showSelection()});};
 $('drawing').addEventListener('click',e=>{if(suppressClick||editing){suppressClick=false;e.stopImmediatePropagation();e.preventDefault()}},true);

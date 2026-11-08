@@ -1,0 +1,21 @@
+exec(open('tests/my_projects_security.py').read().split('a,ac=login')[0])
+a,ac=login('admin@example.test','Admin-test-123456');u,uc=login('customer@example.test','Customer-test-123456')
+def create(c,csrf,name):
+ code,d=req(c,'api/my-projects.php',{'action':'save','editor':'electric','name':name,'project':{'version':2,'items':[],'busbars':[]}},csrf);check(code==200,'create fixture');return d['meta']
+p=create(u,uc,'Delete fixture 1');q=create(u,uc,'Delete fixture 2');other=create(a,ac,'Other owner fixture')
+def delete(c,csrf,projects):return req(c,'api/my-projects.php',{'action':'delete_selected','projects':[{'id':x['id'],'revision':x['revision']} for x in projects]},csrf)
+check(delete(u,None,[p])[0]==403,'delete requires CSRF')
+check(delete(u,uc,[p,other])[0]==404,'foreign owner blocked atomically')
+check(req(u,'api/my-projects.php?id='+str(p['id']))[0]==200,'failed mixed owner batch changes nothing')
+check(delete(u,uc,[p,{**q,'revision':999}])[0]==409,'stale revision blocks entire batch')
+check(delete(u,uc,[p,q])[0]==200,'selected projects deleted')
+for x in [p,q]:
+ pid=str(x['id']);check(req(u,'api/my-projects.php?id='+pid)[0]==404,'deleted data inaccessible to owner')
+ check(req(u,'api/my-projects.php?id='+pid+'&view=history')[0]==404,'deleted history inaccessible to owner')
+ check(all(v['id']!=x['id'] for v in req(u,'api/my-projects.php?archived=1')[1]['projects']),'deleted absent from customer archive')
+ check(req(u,'api/my-projects.php',{'action':'archive','id':x['id'],'revision':2,'archived':False},uc)[0]==404,'client cannot restore deleted item')
+ code,retained=req(a,'api/cad-projects.php?id='+pid);check(code==200 and retained['editor']=='electric','administrator retains full drawing')
+code,archive=req(a,'api/cad-projects.php?archive=archived');check(code==200,'admin archive available')
+check(all(any(int(v['id'])==x['id'] and int(v['customer_deleted'])==1 for v in archive['projects']) for x in [p,q]),'selected drawings retained in admin archive')
+check(delete(u,uc,[])[0]==422,'empty batch rejected')
+print('PASS: atomic selected deletion, CSRF, owner and revision checks, hidden customer drawings/history, administrator archive and retained snapshots')

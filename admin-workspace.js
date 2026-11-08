@@ -31,7 +31,7 @@
             rows.replaceChildren();
             for (const project of data.projects) {
                 const row = make('tr');
-                for (const value of [project.project_name,project.email,project.editor === 'solar' ? 'Solar CAD' : 'Electric CAD',project.updated_at]) row.append(make('td',value));
+                for (const value of [project.project_name+(Number(project.customer_deleted)?' · Архив (изтрит от клиента)':Number(project.archived)?' · Архив':''),project.email,project.editor === 'solar' ? 'Solar CAD' : 'Electric CAD',project.updated_at]) row.append(make('td',value));
                 const actions = make('td');
                 const download = make('button','JSON');
                 download.type = 'button';
