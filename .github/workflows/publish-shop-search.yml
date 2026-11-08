@@ -1,0 +1,65 @@
+name: Publish full shop product search
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-shop-search.yml']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript
+        run: |
+          node --check shop-search.js
+          python - <<'PY'
+          import re,subprocess
+          from pathlib import Path
+          for code in re.findall(r'<script[^>]*>(.*?)</script>',Path('shop.html').read_text(),re.S):
+              if code.strip():
+                  Path('/tmp/catalog.js').write_text(code)
+                  subprocess.run(['node','--check','/tmp/catalog.js'],check=True)
+          PY
+      - name: Publish and verify guest pricing
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,urllib.request,json
+          from pathlib import Path
+          files=['shop-search.js','shop.html']
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              for name in files:
+                  previous=io.BytesIO()
+                  try: ftp.retrbinary('RETR '+name,previous.write)
+                  except ftplib.error_perm as error:
+                      if not (name == 'shop-search.js' and str(error).startswith('550')): raise
+                  ftp.storbinary('STOR '+name+'.before-price-login',io.BytesIO(previous.getvalue()))
+                  body=Path(name).read_bytes()
+                  ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body))
+                  check=io.BytesIO()
+                  ftp.retrbinary('RETR '+name+'.pdg-upload',check.write)
+                  assert check.getvalue()==body,name
+              for name in files:
+                  ftp.rename(name+'.pdg-upload',name)
+          def get(path):
+              with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'price_login='+os.environ['GITHUB_SHA'],timeout=60) as response:
+                  return response.read()
+          for name in files:
+              assert get(name)==Path(name).read_bytes(),name
+          data=json.loads(get('api/products.php'))
+          assert data['prices_visible'] is False
+          assert all(p['price'] is None for p in data['products'])
+          assert b'shop-search.js?v=20261108' in get('shop.html')
+          print('PASS: deployed full product search and verified guest prices remain hidden')
