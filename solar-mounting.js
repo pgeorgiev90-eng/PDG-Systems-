@@ -29,7 +29,6 @@ for(const [key,id]of [['span','mount-span'],['endAllowance','mount-end-allowance
 for(const id of ['roofType','mountBrand','mountSystem'])$(id).addEventListener('change',()=>{$('saveMount').click()});
 for(const button of document.querySelectorAll('[data-roof]'))button.addEventListener('click',()=>{$('saveMount').click()});
 $('mount-refresh').onclick=refreshCatalog;
-const nav=document.createElement('button');nav.textContent='Монтажна конструкция ›';nav.onclick=()=>$('menu-construction').click();document.querySelector('.studio-project-nav').append(nav);
 window.addEventListener('pdg-solar-change',schedule);window.addEventListener('pdg-solar-mode',schedule);
 new MutationObserver(()=>{const estimate=result();paintMaterials(estimate,core.addCosts({rows:[]},estimate,window.PDGSolarOfferCore.price))}).observe($('studio-materials'),{childList:true});
 window.PDGSolarMounting={result,refreshCatalog};

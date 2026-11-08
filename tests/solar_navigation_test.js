@@ -11,4 +11,5 @@ assert.deepEqual([...nav.children].map(b=>b.firstChild.textContent.trim()),['П�
 nav.querySelector('[data-part="construction"]').click();assert.equal(construction,1);
 const dialog=d.createElement('dialog');dialog.showModal=function(){this.setAttribute('open','');};dialog.append(d.querySelector('#solar-offer-settings'));d.body.append(dialog);
 nav.querySelector('[data-part="labour"]').click();assert(dialog.open);assert.equal(nav.querySelector('[aria-pressed="true"]').dataset.part,'labour');
-console.log('PASS: exact eight-category order and labels, existing construction action preserved, labour opens pricing dialog and selected state updates');w.close();})().catch(e=>{console.error(e);process.exitCode=1});
+const duplicate=d.createElement('button');duplicate.textContent='Монтажна конструкция ›';nav.append(duplicate);await new Promise(r=>setTimeout(r,0));assert.equal(nav.children.length,8);assert(!nav.textContent.includes('Монтажна конструкция'));
+console.log('PASS: no late duplicate construction button; exact eight-category order and labels, existing construction action preserved, labour opens pricing dialog and selected state updates');w.close();})().catch(e=>{console.error(e);process.exitCode=1});
