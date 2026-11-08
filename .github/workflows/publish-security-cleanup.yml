@@ -13,6 +13,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: production
+    env:
+      PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: ubuntu24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,3 +56,4 @@ jobs:
             /tmp/pdg-browser.log
             assets/vendor/manifest.json
           retention-days: 30
+          include-hidden-files: true

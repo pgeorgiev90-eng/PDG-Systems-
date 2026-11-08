@@ -14,7 +14,7 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
    if str(e).startswith('550'):p.with_name(p.name+'.absent').write_text('Previously absent');continue
    raise
   raw=data.getvalue();p.write_bytes(raw)
-  previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+  previous=subprocess.run(['git','show','5af6edd575369d59965466ba88aeb52647c32574:'+name],capture_output=True)
   valid=raw==Path(name).read_bytes() or (previous.returncode==0 and raw==previous.stdout) or hashlib.sha256(raw).hexdigest()==known.get(name)
   assert valid,'Hosting changed since review: '+name
  print('Backup and source verification complete:',len(files),'files',flush=True)

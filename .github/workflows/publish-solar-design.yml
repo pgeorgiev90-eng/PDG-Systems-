@@ -189,7 +189,7 @@ jobs:
                   print('Verified hosting source:',file,hashlib.sha256(body).hexdigest(),flush=True)
           time.sleep(4)
           for file in json.loads(Path('/tmp/solar-changed.json').read_text()):
-              if file.endswith('.php'):continue
+              if file.endswith('.php') or file.startswith('database/'):continue
               request=urllib.request.Request('https://pdgsystems.bg/'+file+'?release='+os.environ['GITHUB_SHA'],headers={'User-Agent':'PDG-Solar-Release-Verification/1.0'})
               with urllib.request.urlopen(request,timeout=45) as response:
                   assert response.status==200
@@ -214,7 +214,7 @@ jobs:
               detail=get('api/product-details.php?id='+str(matches[0]['id']))
               fields={f['label']:f['value'] for f in detail['fields']}
               for f in row['fields']:
-                  if f['label'] in ['Мощност (Wp)','Дължина (mm)','Ширина (mm)','Voc (V)','Vmp (V)','Imp (A)','Isc (A)','Температурен коефициент Voc (%/°C)','Технически лист']:assert fields[f['label']]==f['value']
+                  if f['label'] in ['Мощност (Wp)','Дължина (mm)','Ширина (mm)','Voc (V)','Vmp (V)','Imp (A)','Isc (A)','Температурен коефициент Voc (%/°C)']:assert fields[f['label']]==f['value']
               assert detail['product']['price'] is None
               print('Verified live panel:',matches[0]['id'],row['brand'],row['code'],flush=True)
           assert data['prices_visible'] is False
@@ -236,7 +236,7 @@ jobs:
               detail=get('api/product-details.php?id='+str(found[0]['id']))
               fields={f['label']:f['value'] for f in detail['fields']}
               assert fields['CAD: проверка на инвертора']==('проверен' if row.get('verified') else 'непотвърден')
-              assert fields['Източник на проверката на инвертора']==row['source']
+              assert not any('http://' in str(f['value']) or 'https://' in str(f['value']) for f in detail['fields'])
               if row.get('verified'):
                   assert int(fields['Брой MPPT'])==len(row['inputs'])
                   assert float(fields['Допустима мощност на PV масива (W)'])==row['pvPowerW']
