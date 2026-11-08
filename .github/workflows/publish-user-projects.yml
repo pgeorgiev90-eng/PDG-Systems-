@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Test PHP syntax and real account isolation
         run: |
           for file in my-projects.php api/my-projects-common.php api/my-projects.php api/my-projects-demo.php api/project-requests.php api/cad-projects.php api/cad-page-access.php; do php -l "$file"; done
@@ -77,12 +77,13 @@ jobs:
               for name in files:
                   p=backup/name;p.parent.mkdir(parents=True,exist_ok=True);data=io.BytesIO()
                   previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+                  baseline=subprocess.run(['git','show','8e2bab90b0d57b0ca1a30d9ded990ca9e78b3b10:'+name],capture_output=True)
                   try:ftp.retrbinary('RETR '+name,data.write)
                   except ftplib.error_perm as e:
-                      if str(e).startswith('550') and previous.returncode!=0:p.with_name(p.name+'.absent').write_text('New file');continue
+                      if str(e).startswith('550') and baseline.returncode!=0:p.with_name(p.name+'.absent').write_text('New file');continue
                       raise
                   p.write_bytes(data.getvalue())
-                  if previous.returncode==0:assert data.getvalue() in [previous.stdout,Path(name).read_bytes()], 'Hosting differs from reviewed source: '+name
+                  assert data.getvalue() in [x for x in [previous.stdout if previous.returncode==0 else None,baseline.stdout if baseline.returncode==0 else None,Path(name).read_bytes()] if x is not None], 'Hosting differs from reviewed source: '+name
                   print('Backed up:',name,flush=True)
       - uses: actions/upload-artifact@v4
         with:

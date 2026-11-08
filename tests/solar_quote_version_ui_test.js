@@ -12,5 +12,5 @@ const html=fs.readFileSync('roof-cad.php','utf8'),script=fs.readFileSync('solar-
  w.eval(script);w.PDGSolarOffer.restore({inverterName:'Test',inverterKw:'10',inverterQty:'1',inverterPrice:'1541',panelPrice:'80',mountPrice:'450.52',installMode:'perW',installCentsPerW:'13',materialsPrice:'1000',yieldMode:'manual',manualYield:'1200',loss:'14',minTemperature:'-20'});
  await d.getElementById('offer-generate').onclick();
  const text=d.getElementById('solar-offer-report').textContent.replace(/\s/g,'');assert(text.includes('Монтаж—общопомощност'));assert(text.includes('1289,60'));assert(text.includes('Останалиматериали'));assert(text.includes('1000,00'));assert(!text.includes('Монтажиостаналиматериали'));
- assert(!d.getElementById('offer-download').disabled);console.log('PASS: stale calculator blocks quote; actual offer generation yields 1,289.60 EUR labour and 1,000 EUR materials for 16 x 620 W at 13 eurocent/W');w.close();
+ assert(!d.getElementById('offer-download').disabled);console.log('PASS: stale calculator blocks quote; actual offer generation yields 1,289.60 EUR labour and 1,000 EUR materials for 16 x 620 W at 13 eurocent/W');await new Promise(resolve=>setImmediate(resolve));w.close();
 })().catch(e=>{console.error(e);process.exitCode=1});
