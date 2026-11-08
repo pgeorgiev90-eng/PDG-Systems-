@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const types={tile:'Керемиди',metal:'Трапецовидна ламарина',standing:'Фалцова ламарина',flat:'Плосък покрив',ground:'Наземен монтаж'};
-const documents={tile:'https://www.enerack.com/uploadfile/downloads/Enerack%20tile%20roof%20solar%20mounting%20system%20installation%20manual.pdf',metal:'https://www.enerack.com/category/downloads/1_5',standing:'https://www.enerack.com/category/downloads/1_5',flat:'https://www.enerack.com/uploadfile/downloads/Enerack%20ballasted%20solar%20mounting%20system%20installation%20manual.pdf',ground:'https://www.enerack.com/uploadfile/downloads/Enerack%20Standard%20Ground%20Mounting%20System%20Installation%20Manual.pdf'};
+const documents={};
 const defaults={span:1.2,endAllowance:.05,joinGap:.04};
 const number=(value,fallback,min,max)=>Number.isFinite(Number(value))&&value!==''&&value!==null&&Number(value)>=min&&Number(value)<=max?Number(value):fallback;
 const settings=m=>({span:number(m?.estimate?.span,defaults.span,.2,6),endAllowance:number(m?.estimate?.endAllowance,defaults.endAllowance,.05,.5),joinGap:number(m?.estimate?.joinGap,defaults.joinGap,.005,.1),components:m?.estimate?.components&&typeof m.estimate.components==='object'?m.estimate.components:{}});

@@ -20,7 +20,7 @@ section.append(summary,label,input,hint,result);
 $('catalogSearch').before(section);
 function parse(buffer) {
     return new Promise((resolve,reject) => {
-        const worker=new Worker('electrical-dwg-worker.js',{type:'module'});
+        const worker=new Worker('electrical-dwg-worker.js?v=20261108-audit-1',{type:'module'});
         const finish=(callback,value)=>{clearTimeout(timer);worker.terminate();callback(value);};
         const timer=setTimeout(()=>finish(reject,Error('Четенето на DWG отне твърде дълго.')),45000);
         worker.onmessage=({data})=>data.error?finish(reject,Error(data.error)):finish(resolve,data);

@@ -1,0 +1,7 @@
+Options -Indexes
+<FilesMatch "(?i)\.(?:json|sql)$">
+Require all denied
+</FilesMatch>
+<FilesMatch "^(?:electrical-catalog-public|electrical-reference-prices-public)\.json$">
+Require all granted
+</FilesMatch>

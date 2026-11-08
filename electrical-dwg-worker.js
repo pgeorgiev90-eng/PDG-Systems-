@@ -1,5 +1,5 @@
 import { equipmentFromDwg } from './electrical-dwg-data.js';
-const library = 'https://cdn.jsdelivr.net/npm/@mlightcad/libredwg-web@0.8.4';
+const library = new URL('./assets/vendor/libredwg-0.8.4',import.meta.url).href;
 
 self.onmessage = async ({data}) => {
     try {
