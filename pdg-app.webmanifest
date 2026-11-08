@@ -1,0 +1,24 @@
+{
+  "id": "/pdg-systems-app",
+  "name": "PDG Systems",
+  "short_name": "PDG Systems",
+  "description": "Вашите проекти, PDG Solar CAD, PDG Electric CAD и магазинът на PDG Systems.",
+  "lang": "bg",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2f6fc",
+  "theme_color": "#087f6b",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {"src":"/assets/pdg-app-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/assets/pdg-app-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Моите проекти","url":"/my-projects.php"},
+    {"name":"PDG Solar CAD","url":"/roof-cad.php"},
+    {"name":"PDG Electric CAD","url":"/electrical-cad.php"},
+    {"name":"Магазин","url":"/shop.html"}
+  ],
+  "prefer_related_applications": false
+}

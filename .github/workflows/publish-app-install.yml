@@ -1,0 +1,83 @@
+name: Test and publish Android and iPhone web app
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-app-install.yml'
+      - 'pdg-app*'
+      - 'app-*'
+      - 'app.html'
+      - 'assets/pdg-app*'
+      - 'tests/app_install_test.cjs'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify app launch, installation and existing account pages
+        run: |
+          for file in app-install.js app-launch.js pdg-app-sw.js; do node --check "$file"; done
+          php -l my-projects.php
+          npm install --prefix /tmp/pdg-app-tests --no-audit --no-fund jsdom@26
+          export PDG_JSDOM=/tmp/pdg-app-tests/node_modules/jsdom
+          node tests/app_install_test.cjs
+          node tests/account_isolation_ui_test.js
+          node tests/my_projects_ui_test.js
+          node tests/project_support_ui_test.cjs
+          node tests/project_deletion_ui_test.cjs
+      - name: Reject an outdated release
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Back up and stage all application files; activate panel links last
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json
+          from pathlib import Path
+          files=['assets/pdg-app.svg','assets/pdg-app-192.png','assets/pdg-app-512.png','app-offline.html','pdg-app.webmanifest','pdg-app-sw.js','app-install.css','app-install.js','app-launch.js','app.html','app-download.html','auth.html','account-draft.html','my-projects.php','admin-dashboard.html','admin-electric.html','admin-orders.html','admin-products-draft.html','admin-preview.html','profile-preview.html']
+          Path('/tmp/pdg-app-files.json').write_text(json.dumps(files))
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              for index,name in enumerate(files):
+                  backup=io.BytesIO()
+                  try:ftp.retrbinary('RETR '+name,backup.write)
+                  except ftplib.error_perm as error:
+                      if not (index<11 and str(error).startswith('550')):raise
+                  else:
+                      path=Path('/tmp/app-rollback')/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(backup.getvalue())
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert check.getvalue()==body,name
+              for name in files:ftp.rename(name+'.pdg-upload',name)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: application-install-rollback
+          path: /tmp/app-rollback/
+          retention-days: 30
+      - name: Verify application files, service worker and account access on the domain
+        shell: python
+        run: |
+          import urllib.request,json,os
+          from pathlib import Path
+          root='https://pdgsystems.bg/'
+          for name in json.loads(Path('/tmp/pdg-app-files.json').read_text()):
+              if name.endswith('.php'):continue
+              with urllib.request.urlopen(root+name+'?app_release='+os.environ['GITHUB_SHA'],timeout=60) as r:
+                  assert r.status==200 and r.read()==Path(name).read_bytes(),name
+                  if name=='pdg-app-sw.js':assert 'javascript' in r.headers.get('Content-Type','')
+          with urllib.request.urlopen(root+'api/account-draft.php?action=session',timeout=60) as r:assert json.load(r)['user'] is None
+          with urllib.request.urlopen(root+'my-projects.php',timeout=60) as r:assert 'auth.html?next=my-projects.php' in r.url
+          print('PASS: app assets and panel installation links published; private account access remains protected')
