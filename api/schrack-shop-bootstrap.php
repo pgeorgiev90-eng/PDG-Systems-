@@ -10,6 +10,8 @@ function pdg_import_schrack_shop(PDO $db): void {
     pdg_import_intermetal_panels($db);
     require_once __DIR__ . '/cad-panels-bootstrap.php';
     pdg_import_cad_panels($db);
+    require_once __DIR__.'/official-inverters-bootstrap.php';
+    pdg_import_official_inverters($db);
     $path = dirname(__DIR__) . '/database/schrack-shop-catalog.json';
     $json = file_get_contents($path);
     if ($json === false) throw new RuntimeException('Schrack catalog unavailable');

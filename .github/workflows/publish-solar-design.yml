@@ -13,6 +13,11 @@ on:
       - 'solar-mounting.js'
       - 'solar-offer.js'
       - 'solar-offer-core.js'
+      - 'database/official-inverter-specs.json'
+      - 'api/official-inverters-bootstrap.php'
+      - 'api/product-details.php'
+      - 'tests/official_inverters_test.js'
+      - 'tests/official_inverters_import.php'
       - 'solar-inverter-match.js'
       - 'tests/solar_inverter_match_test.js'
       - 'tests/solar_inverter_match_ui_test.js'
@@ -64,6 +69,10 @@ jobs:
         run: |
           php -l api/cad-panels-bootstrap.php
           php tests/cad_panels_import.php
+          php -l api/official-inverters-bootstrap.php
+          php -l api/product-details.php
+          php tests/official_inverters_import.php
+          node tests/official_inverters_test.js
           node --check solar-project-start.js
           node tests/solar_project_start_test.js
           node tests/solar_house_roof_test.js
@@ -112,7 +121,7 @@ jobs:
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
           changed=set(subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines())
-          allowed_files=['database/intermetal-panels.json','database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-project-format.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-inverter-match.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
+          allowed_files=['database/official-inverter-specs.json','api/official-inverters-bootstrap.php','api/product-details.php','database/intermetal-panels.json','database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-project-format.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-inverter-match.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
           expected={name:None for name in allowed_files if name in changed}
           import json,urllib.request
           if {'database/cad-panels.json','database/intermetal-panels.json'} & changed:
@@ -210,3 +219,34 @@ jobs:
           assert data['prices_visible'] is False
           assert len(get('api/products.php')['products'])==len(products)
           print('PASS: all eight panel models in store, full technical fields, preserved catalogue, no duplicates and protected guest prices',flush=True)
+
+      - name: Verify all live inverter corrections and protected prices
+        shell: python
+        run: |
+          import json,urllib.request,os,concurrent.futures
+          from pathlib import Path
+          def get(path):
+              with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'verify='+os.environ['GITHUB_SHA'],timeout=45) as r:return json.load(r)
+          data=get('api/products.php');products=data['products']
+          expected=json.loads(Path('database/official-inverter-specs.json').read_text())
+          def verify(row):
+              found=[p for p in products if p['brand']==row['brand'] and p['code']==row['code']]
+              assert len(found)==1,(row['brand'],row['code'],len(found))
+              detail=get('api/product-details.php?id='+str(found[0]['id']))
+              fields={f['label']:f['value'] for f in detail['fields']}
+              assert fields['CAD: проверка на инвертора']==('проверен' if row.get('verified') else 'непотвърден')
+              assert fields['Източник на проверката на инвертора']==row['source']
+              if row.get('verified'):
+                  assert int(fields['Брой MPPT'])==len(row['inputs'])
+                  assert float(fields['Допустима мощност на PV масива (W)'])==row['pvPowerW']
+                  assert [float(v) for v in fields['Максимален входен ток на MPPT'].split('+')]==row['currents']
+                  assert [float(v) for v in fields['Максимален ток на късо съединение на MPPT'].split('+')]==row['shortCurrents']
+                  assert float(fields['Минимално MPPT напрежение (V)'])==row['minMppt']
+                  assert float(fields['Максимално MPPT напрежение (V)'])==row['maxMppt']
+                  assert fields['MPPT / стрингове на MPPT']==str(len(row['inputs']))+'/'+ '+'.join(str(v) for v in row['inputs'])
+              assert detail['product']['price'] is None and detail['prices_visible'] is False
+              return row['code']
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+              checked=list(pool.map(verify,expected))
+          assert len(checked)==115
+          print('PASS: all115 inverter corrections verified through live APIs;114 source-backed records and1 explicit pending variant; guest prices protected',flush=True)

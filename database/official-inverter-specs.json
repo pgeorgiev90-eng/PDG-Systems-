@@ -1,0 +1,3507 @@
+[
+  {
+    "brand": "SolaX",
+    "code": "X1-BOOST-5K-G4",
+    "phase": 1,
+    "acPowerKw": 5,
+    "pvPowerW": 10000,
+    "maxVoltage": 600,
+    "minMppt": 40,
+    "maxMppt": 560,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      22,
+      22
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-320101048406-x1-boost-g4-series-user-manual-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-BOOST-6K-G4",
+    "phase": 1,
+    "acPowerKw": 6,
+    "pvPowerW": 12000,
+    "maxVoltage": 600,
+    "minMppt": 40,
+    "maxMppt": 560,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      22,
+      22
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-320101048406-x1-boost-g4-series-user-manual-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-MIC-5K-G2",
+    "phase": 3,
+    "acPowerKw": 5,
+    "pvPowerW": 10000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 980,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      20,
+      20
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-mic-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-MIC-8K-G2",
+    "phase": 3,
+    "acPowerKw": 8,
+    "pvPowerW": 16000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 980,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      20,
+      20
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-mic-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-PRO-20K-G2",
+    "phase": 3,
+    "acPowerKw": 20,
+    "pvPowerW": 30000,
+    "maxVoltage": 1100,
+    "minMppt": 160,
+    "maxMppt": 980,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32
+    ],
+    "shortCurrents": [
+      40,
+      40
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-pro-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-PRO-25K-G2",
+    "phase": 3,
+    "acPowerKw": 25,
+    "pvPowerW": 37500,
+    "maxVoltage": 1100,
+    "minMppt": 160,
+    "maxMppt": 980,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      40,
+      40,
+      40
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-pro-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-PRO-30K-G2",
+    "phase": 3,
+    "acPowerKw": 30,
+    "pvPowerW": 45000,
+    "maxVoltage": 1100,
+    "minMppt": 160,
+    "maxMppt": 980,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      40,
+      40,
+      40
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-pro-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-MGA-40K-G2",
+    "phase": 3,
+    "acPowerKw": 40,
+    "pvPowerW": 60000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-mega-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-MGA-50K-G2",
+    "phase": 3,
+    "acPowerKw": 50,
+    "pvPowerW": 75000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-mega-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-MGA-60K-G2",
+    "phase": 3,
+    "acPowerKw": 60,
+    "pvPowerW": 90000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-mega-g2-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-80K",
+    "phase": 3,
+    "acPowerKw": 80,
+    "pvPowerW": 120000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/x3-forth-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-100K",
+    "phase": 3,
+    "acPowerKw": 100,
+    "pvPowerW": 150000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/x3-forth-datasheet-en.pdf",
+    "note": "Моделът се предлага с 9 или 12 MPPT. Подборът използва 9; вариантът с 12 се потвърждава по табелката.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-110K",
+    "phase": 3,
+    "acPowerKw": 110,
+    "pvPowerW": 165000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/x3-forth-datasheet-en.pdf",
+    "note": "Моделът се предлага с 9 или 12 MPPT. Подборът използва 9; вариантът с 12 се потвърждава по табелката.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-120K",
+    "phase": 3,
+    "acPowerKw": 120,
+    "pvPowerW": 180000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/x3-forth-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-125K",
+    "phase": 3,
+    "acPowerKw": 125,
+    "pvPowerW": 188000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/x3-forth-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-136K-MV",
+    "phase": 3,
+    "acPowerKw": 136,
+    "pvPowerW": 204000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://ua.solaxpower.com/uploads/file/solax-x3-forth-datasheet-for-au-en-cec.pdf",
+    "note": "MV вариант: мрежа 500/540 V; изисква проверка на присъединяването.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-FTH-150K-MV",
+    "phase": 3,
+    "acPowerKw": 150,
+    "pvPowerW": 225000,
+    "maxVoltage": 1100,
+    "minMppt": 180,
+    "maxMppt": 1000,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46,
+      46
+    ],
+    "source": "https://ua.solaxpower.com/uploads/file/solax-x3-forth-datasheet-for-au-en-cec.pdf",
+    "note": "MV вариант: мрежа 500/540 V; изисква проверка на присъединяването.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-GRD-300K-HV",
+    "phase": 3,
+    "acPowerKw": 300,
+    "pvPowerW": 450000,
+    "maxVoltage": 1500,
+    "minMppt": 500,
+    "maxMppt": 1500,
+    "inputs": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "currents": [
+      75,
+      75,
+      75,
+      75,
+      75,
+      75
+    ],
+    "shortCurrents": [
+      115,
+      115,
+      115,
+      115,
+      115,
+      115
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-grand-hv-datasheet-en.pdf",
+    "note": "HV вариант: номинална AC мрежа 800 V; изисква проверка на присъединяването.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-GRD-320K-HV",
+    "phase": 3,
+    "acPowerKw": 320,
+    "pvPowerW": 480000,
+    "maxVoltage": 1500,
+    "minMppt": 500,
+    "maxMppt": 1500,
+    "inputs": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "currents": [
+      75,
+      75,
+      75,
+      75,
+      75,
+      75
+    ],
+    "shortCurrents": [
+      115,
+      115,
+      115,
+      115,
+      115,
+      115
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-grand-hv-datasheet-en.pdf",
+    "note": "HV вариант: номинална AC мрежа 800 V; изисква проверка на присъединяването.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-GRD-333K-HV",
+    "phase": 3,
+    "acPowerKw": 333,
+    "pvPowerW": 499500,
+    "maxVoltage": 1500,
+    "minMppt": 500,
+    "maxMppt": 1500,
+    "inputs": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "currents": [
+      75,
+      75,
+      75,
+      75,
+      75,
+      75
+    ],
+    "shortCurrents": [
+      115,
+      115,
+      115,
+      115,
+      115,
+      115
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-grand-hv-datasheet-en.pdf",
+    "note": "HV вариант: номинална AC мрежа 800 V; изисква проверка на присъединяването.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-GRD-350K-HV",
+    "phase": 3,
+    "acPowerKw": 350,
+    "pvPowerW": 525000,
+    "maxVoltage": 1500,
+    "minMppt": 500,
+    "maxMppt": 1500,
+    "inputs": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "currents": [
+      75,
+      75,
+      75,
+      75,
+      75,
+      75
+    ],
+    "shortCurrents": [
+      115,
+      115,
+      115,
+      115,
+      115,
+      115
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-grand-hv-datasheet-en.pdf",
+    "note": "HV вариант: номинална AC мрежа 800 V; изисква проверка на присъединяването.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-VAST-5K",
+    "phase": 1,
+    "acPowerKw": 5,
+    "pvPowerW": 10000,
+    "maxVoltage": 600,
+    "minMppt": 40,
+    "maxMppt": 560,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-vast-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-VAST-6K",
+    "phase": 1,
+    "acPowerKw": 6,
+    "pvPowerW": 12000,
+    "maxVoltage": 600,
+    "minMppt": 40,
+    "maxMppt": 560,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-vast-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-VAST-8K",
+    "phase": 1,
+    "acPowerKw": 8,
+    "pvPowerW": 16000,
+    "maxVoltage": 600,
+    "minMppt": 40,
+    "maxMppt": 560,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-vast-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-VAST-10K",
+    "phase": 1,
+    "acPowerKw": 10,
+    "pvPowerW": 20000,
+    "maxVoltage": 600,
+    "minMppt": 40,
+    "maxMppt": 560,
+    "inputs": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-vast-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-8.0-P",
+    "phase": 3,
+    "acPowerKw": 8,
+    "pvPowerW": 16000,
+    "maxVoltage": 1000,
+    "minMppt": 110,
+    "maxMppt": 950,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-10.0-P",
+    "phase": 3,
+    "acPowerKw": 10,
+    "pvPowerW": 20000,
+    "maxVoltage": 1000,
+    "minMppt": 110,
+    "maxMppt": 950,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-12.0-P",
+    "phase": 3,
+    "acPowerKw": 12,
+    "pvPowerW": 24000,
+    "maxVoltage": 1000,
+    "minMppt": 110,
+    "maxMppt": 950,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-15.0-P",
+    "phase": 3,
+    "acPowerKw": 15,
+    "pvPowerW": 30000,
+    "maxVoltage": 1000,
+    "minMppt": 110,
+    "maxMppt": 950,
+    "inputs": [
+      1,
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20,
+      20
+    ],
+    "shortCurrents": [
+      25,
+      25,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-ULT-15K",
+    "phase": 3,
+    "acPowerKw": 15,
+    "pvPowerW": 30000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      45,
+      45
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-ultra-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-ULT-15KP",
+    "phase": 3,
+    "acPowerKw": 15,
+    "pvPowerW": 30000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      45,
+      45,
+      45
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-ultra-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-ULT-20K",
+    "phase": 3,
+    "acPowerKw": 20,
+    "pvPowerW": 40000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      45,
+      45
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-ultra-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-ULT-20KP",
+    "phase": 3,
+    "acPowerKw": 20,
+    "pvPowerW": 40000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      45,
+      45,
+      45
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-ultra-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-ULT-25K",
+    "phase": 3,
+    "acPowerKw": 25,
+    "pvPowerW": 50000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      45,
+      45,
+      45
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-ultra-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-ULT-30K",
+    "phase": 3,
+    "acPowerKw": 30,
+    "pvPowerW": 60000,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      45,
+      45,
+      45
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-ultra-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-AELIO-50K",
+    "phase": 3,
+    "acPowerKw": 50,
+    "pvPowerW": 100000,
+    "maxVoltage": 1000,
+    "minMppt": 160,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "shortCurrents": [
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-ess-aelio-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-AELIO-60K",
+    "phase": 3,
+    "acPowerKw": 60,
+    "pvPowerW": 120000,
+    "maxVoltage": 1000,
+    "minMppt": 160,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      40,
+      40,
+      40,
+      40,
+      40,
+      40
+    ],
+    "shortCurrents": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-ess-aelio-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-HYB-5.0-LV",
+    "phase": 1,
+    "acPowerKw": 5,
+    "pvPowerW": 10000,
+    "maxVoltage": 550,
+    "minMppt": 80,
+    "maxMppt": 520,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      20,
+      20
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-hybrid-lv-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-HYB-6.0-LV",
+    "phase": 1,
+    "acPowerKw": 6,
+    "pvPowerW": 12000,
+    "maxVoltage": 550,
+    "minMppt": 80,
+    "maxMppt": 520,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      20,
+      20
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-hybrid-lv-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-Lite-8K-LV",
+    "phase": 1,
+    "acPowerKw": 8,
+    "pvPowerW": 16000,
+    "maxVoltage": 600,
+    "minMppt": 50,
+    "maxMppt": 550,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32
+    ],
+    "shortCurrents": [
+      40,
+      40
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-lite-lv-datasheet-en.pdf",
+    "note": "Диапазон 50–550 V е публикуван като работен входен диапазон; температурният MPPT режим се проверява по ръководството.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-Lite-10K-LV",
+    "phase": 1,
+    "acPowerKw": 10,
+    "pvPowerW": 20000,
+    "maxVoltage": 600,
+    "minMppt": 50,
+    "maxMppt": 550,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32
+    ],
+    "shortCurrents": [
+      40,
+      40
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-lite-lv-datasheet-en.pdf",
+    "note": "Диапазон 50–550 V е публикуван като работен входен диапазон; температурният MPPT режим се проверява по ръководството.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-Lite-12K-LV",
+    "phase": 1,
+    "acPowerKw": 12,
+    "pvPowerW": 24000,
+    "maxVoltage": 600,
+    "minMppt": 50,
+    "maxMppt": 550,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      40,
+      40,
+      40
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-lite-lv-datasheet-en.pdf",
+    "note": "Диапазон 50–550 V е публикуван като работен входен диапазон; температурният MPPT режим се проверява по ръководството.",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-NEO-10K-LV",
+    "phase": 3,
+    "acPowerKw": 10,
+    "pvPowerW": 20000,
+    "maxVoltage": 1000,
+    "minMppt": 160,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      36,
+      18
+    ],
+    "shortCurrents": [
+      50,
+      25
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-neo-lv-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-NEO-12K-LV",
+    "phase": 3,
+    "acPowerKw": 12,
+    "pvPowerW": 24000,
+    "maxVoltage": 1000,
+    "minMppt": 160,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      50,
+      50
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-neo-lv-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-NEO-15K-LV",
+    "phase": 3,
+    "acPowerKw": 15,
+    "pvPowerW": 30000,
+    "maxVoltage": 1000,
+    "minMppt": 160,
+    "maxMppt": 950,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      50,
+      50
+    ],
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-neo-lv-datasheet-en.pdf",
+    "note": "",
+    "verified": "2026-11-08"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-07-0001",
+    "model": "SUN-M80G3-EU-Q0",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=421",
+    "verified": null,
+    "note": "Архивен G3 вариант: данните са от доставчика. Не е потвърден официален технически лист; не участва в автоматичния подбор.",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=421"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-07-0002",
+    "phase": 1,
+    "acPowerKw": 0.8,
+    "pvPowerW": 1120,
+    "maxVoltage": 60,
+    "minMppt": 25,
+    "maxMppt": 55,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      19.5,
+      19.5
+    ],
+    "source": "https://cn.deyeinverter.com/deyeinverter/2023/12/05/datasheet_sun-m60-80-100g4-eu-q0_231205_en.pdf",
+    "note": "Препоръчителни панели 210–560 W на вход; общо до 1120 W STC. AC изходът е 800 W.",
+    "verified": "2026-11-08",
+    "model": "SUN-M80G4-EU-Q0",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=1062"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-01-0097",
+    "phase": 3,
+    "acPowerKw": 6.0,
+    "pvPowerW": 7800,
+    "maxVoltage": 1000,
+    "minMppt": 120,
+    "maxMppt": 850,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      16,
+      16
+    ],
+    "shortCurrents": [
+      24,
+      24
+    ],
+    "source": "https://de.deyeinverter.com/deyeinverter/2023/12/22/sun-4-15k-g05-p-deye.pdf",
+    "note": "По-ранна версия от каталога: запазени по-ниските ограничения 1000 V, 16/24 A и 120–850 V. По-новата версия 1100 V, 20/30 A не се приема автоматично.",
+    "verified": "2026-11-08",
+    "model": "SUN-6K-G05-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=352"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0139_VT",
+    "phase": 1,
+    "acPowerKw": 3.6,
+    "pvPowerW": 7200,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      18,
+      18
+    ],
+    "shortCurrents": [
+      27,
+      27
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 5760,
+    "model": "SUN-3.6K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=810"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0139",
+    "phase": 1,
+    "acPowerKw": 3.6,
+    "pvPowerW": 7200,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      18,
+      18
+    ],
+    "shortCurrents": [
+      27,
+      27
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 5760,
+    "model": "SUN-3.6K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=837"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0140-VT",
+    "phase": 1,
+    "acPowerKw": 5.0,
+    "pvPowerW": 10000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      18,
+      18
+    ],
+    "shortCurrents": [
+      27,
+      27
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 8000,
+    "model": "SUN-5K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=865"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0132_VT",
+    "phase": 1,
+    "acPowerKw": 6.0,
+    "pvPowerW": 12000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      18,
+      18
+    ],
+    "shortCurrents": [
+      27,
+      27
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 9600,
+    "model": "SUN-6K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=776"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0132",
+    "phase": 1,
+    "acPowerKw": 6.0,
+    "pvPowerW": 12000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      18,
+      18
+    ],
+    "shortCurrents": [
+      27,
+      27
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 9600,
+    "model": "SUN-6K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=740"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0146",
+    "phase": 1,
+    "acPowerKw": 6.0,
+    "pvPowerW": 12000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      18,
+      18
+    ],
+    "shortCurrents": [
+      27,
+      27
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-3-6-4-5-6ksg06lp1eubm1-bm2.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 9600,
+    "model": "SUN-6K-SG06LP1-EU-BM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=1063"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0116-VT",
+    "phase": 1,
+    "acPowerKw": 5.0,
+    "pvPowerW": 6500,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      17,
+      17
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2023/12/11/datasheet_sun-3.6-6k-sg03lp1_231211_en.pdf",
+    "note": "",
+    "verified": "2026-11-08",
+    "model": "SUN-5K-SG03LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=351"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0116",
+    "phase": 1,
+    "acPowerKw": 5.0,
+    "pvPowerW": 6500,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      17,
+      17
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2023/12/11/datasheet_sun-3.6-6k-sg03lp1_231211_en.pdf",
+    "note": "",
+    "verified": "2026-11-08",
+    "model": "SUN-5K-SG03LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=301"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0137_VT",
+    "phase": 1,
+    "acPowerKw": 8.0,
+    "pvPowerW": 16000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32
+    ],
+    "shortCurrents": [
+      48,
+      48
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 12800,
+    "model": "SUN-8K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=801"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0137",
+    "phase": 1,
+    "acPowerKw": 8.0,
+    "pvPowerW": 16000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32
+    ],
+    "shortCurrents": [
+      48,
+      48
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun3-6-5-6-7-7-6-8-10ksg05lp1euam2p-3-610kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 12800,
+    "model": "SUN-8K-SG05LP1-EU-AM2-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=800"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0131",
+    "phase": 1,
+    "acPowerKw": 8.0,
+    "pvPowerW": 10400,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      34,
+      34
+    ],
+    "source": "https://de.deyeinverter.com/deyeinverter/2024/09/29/datasheet_sun-3.6-8k-sg05lp1_240929_de.pdf",
+    "note": "По-ранен вариант без суфикс AM2-P; запазен лимит 10400 W от доставчика. Не се смесва с новия AM2-P.",
+    "verified": "2026-11-08",
+    "model": "SUN-8K-SG05LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=724"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0103",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 13000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20
+    ],
+    "shortCurrents": [
+      30,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-10K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=304"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0103_VT",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 13000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20
+    ],
+    "shortCurrents": [
+      30,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-10K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=530"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0104",
+    "phase": 3,
+    "acPowerKw": 12.0,
+    "pvPowerW": 15600,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      20
+    ],
+    "shortCurrents": [
+      39,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-12K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=306"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0135_VT",
+    "phase": 1,
+    "acPowerKw": 10.0,
+    "pvPowerW": 20000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      60,
+      60,
+      60
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun7-6-8-10-12ksg02lp1euam2-am3p.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 16000,
+    "model": "SUN-10K-SG02LP1-EU-AM3-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=805"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0111",
+    "phase": 3,
+    "acPowerKw": 5.0,
+    "pvPowerW": 6500,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      17,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-5K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=314"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0123_VT",
+    "phase": 1,
+    "acPowerKw": 12.0,
+    "pvPowerW": 24000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26,
+      26
+    ],
+    "shortCurrents": [
+      44,
+      44,
+      44
+    ],
+    "source": "https://www.deyeinverter.com/product/hybrid-inverter-1/sun7-6-8-10-12ksg02lp1euam2-am3-7-612kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 19200,
+    "model": "SUN-12K-SG02LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=462"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0134_VT",
+    "phase": 1,
+    "acPowerKw": 12.0,
+    "pvPowerW": 24000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      60,
+      60,
+      60
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun7-6-8-10-12ksg02lp1euam2-am3p.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 19200,
+    "model": "SUN-12K-SG02LP1-EU-AM3-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=762"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0134",
+    "phase": 1,
+    "acPowerKw": 12.0,
+    "pvPowerW": 24000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      60,
+      60,
+      60
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun7-6-8-10-12ksg02lp1euam2-am3p.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 19200,
+    "model": "SUN-12K-SG02LP1-EU-AM3-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=1014"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0121_VT",
+    "phase": 1,
+    "acPowerKw": 10.0,
+    "pvPowerW": 20000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26,
+      26
+    ],
+    "shortCurrents": [
+      44,
+      44,
+      44
+    ],
+    "source": "https://www.deyeinverter.com/product/hybrid-inverter-1/sun7-6-8-10-12ksg02lp1euam2-am3-7-612kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 16000,
+    "model": "SUN-10K-SG02LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=452"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0121",
+    "phase": 1,
+    "acPowerKw": 10.0,
+    "pvPowerW": 20000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26,
+      26
+    ],
+    "shortCurrents": [
+      44,
+      44,
+      44
+    ],
+    "source": "https://www.deyeinverter.com/product/hybrid-inverter-1/sun7-6-8-10-12ksg02lp1euam2-am3-7-612kw-single-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 16000,
+    "model": "SUN-10K-SG02LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=453"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0135",
+    "phase": 1,
+    "acPowerKw": 10.0,
+    "pvPowerW": 20000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      32,
+      32,
+      32
+    ],
+    "shortCurrents": [
+      60,
+      60,
+      60
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun7-6-8-10-12ksg02lp1euam2-am3p.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 16000,
+    "model": "SUN-10K-SG02LP1-EU-AM3-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=764"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0112",
+    "phase": 3,
+    "acPowerKw": 6.0,
+    "pvPowerW": 7800,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      17,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-6K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=316"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0106_VT",
+    "phase": 3,
+    "acPowerKw": 20.0,
+    "pvPowerW": 26000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-20K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=578"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0125_VT",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 20000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-hybrid-inverter-1/sun3-4-5-6-8-10-12ksg05lp3eusm2-312kw-three-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 16000,
+    "model": "SUN-10K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=825"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0125",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 20000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-hybrid-inverter-1/sun3-4-5-6-8-10-12ksg05lp3eusm2-312kw-three-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 16000,
+    "model": "SUN-10K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=672"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0118",
+    "phase": 1,
+    "acPowerKw": 8.0,
+    "pvPowerW": 10400,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      44,
+      44
+    ],
+    "source": "https://cn.deyeinverter.com/deyeinverter/2024/06/05/datasheet_sun-8k-sg01lp1-eu_240605_cn.pdf",
+    "note": "",
+    "verified": "2026-11-08",
+    "model": "SUN-8K-SG01LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=303"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0101",
+    "phase": 3,
+    "acPowerKw": 6.0,
+    "pvPowerW": 7800,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20
+    ],
+    "shortCurrents": [
+      30,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-6K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=315"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0111_VT",
+    "phase": 3,
+    "acPowerKw": 5.0,
+    "pvPowerW": 6500,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      17,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-5K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=649"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0118_VT",
+    "phase": 1,
+    "acPowerKw": 8.0,
+    "pvPowerW": 10400,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      44,
+      44
+    ],
+    "source": "https://cn.deyeinverter.com/deyeinverter/2024/06/05/datasheet_sun-8k-sg01lp1-eu_240605_cn.pdf",
+    "note": "",
+    "verified": "2026-11-08",
+    "model": "SUN-8K-SG01LP1-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=378"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0113",
+    "phase": 3,
+    "acPowerKw": 8.0,
+    "pvPowerW": 10400,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-8K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=318"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0102",
+    "phase": 3,
+    "acPowerKw": 8.0,
+    "pvPowerW": 10400,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20
+    ],
+    "shortCurrents": [
+      30,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-8K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=317"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0133_VT",
+    "phase": 3,
+    "acPowerKw": 12.0,
+    "pvPowerW": 24000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-hybrid-inverter-1/sun3-4-5-6-8-10-12ksg05lp3eusm2-312kw-three-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 19200,
+    "model": "SUN-12K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=778"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0107",
+    "phase": 3,
+    "acPowerKw": 25.0,
+    "pvPowerW": 32500,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-25K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=310"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0112_VT",
+    "phase": 3,
+    "acPowerKw": 6.0,
+    "pvPowerW": 7800,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      13,
+      13
+    ],
+    "shortCurrents": [
+      17,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-6K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=384"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0128_VT",
+    "phase": 3,
+    "acPowerKw": 6.0,
+    "pvPowerW": 9000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      1,
+      1
+    ],
+    "currents": [
+      20,
+      20
+    ],
+    "shortCurrents": [
+      30,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/06/01/datasheet_sun-3-12k-sg05lp3-eu-sm2_240601_en.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "model": "SUN-6K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=689"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0105",
+    "phase": 3,
+    "acPowerKw": 15.0,
+    "pvPowerW": 19500,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      20
+    ],
+    "shortCurrents": [
+      39,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-15K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=308"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0133",
+    "phase": 3,
+    "acPowerKw": 12.0,
+    "pvPowerW": 24000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-hybrid-inverter-1/sun3-4-5-6-8-10-12ksg05lp3eusm2-312kw-three-phase-2-mppt-hybrid-inverter-lv-battery-supported.html",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 19200,
+    "model": "SUN-12K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=741"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0107_VT",
+    "phase": 3,
+    "acPowerKw": 25.0,
+    "pvPowerW": 32500,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-25K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=779"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0122_VT",
+    "phase": 3,
+    "acPowerKw": 15.0,
+    "pvPowerW": 22500,
+    "maxVoltage": 800,
+    "minMppt": 160,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      36,
+      20
+    ],
+    "shortCurrents": [
+      54,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/06/01/datasheet_sun-14-20k-sg05lp3-eu-sm2_240601_en.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "model": "SUN-15K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=454"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0122",
+    "phase": 3,
+    "acPowerKw": 15.0,
+    "pvPowerW": 22500,
+    "maxVoltage": 800,
+    "minMppt": 160,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      36,
+      20
+    ],
+    "shortCurrents": [
+      54,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/06/01/datasheet_sun-14-20k-sg05lp3-eu-sm2_240601_en.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "model": "SUN-15K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=601"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0138_VT",
+    "phase": 1,
+    "acPowerKw": 16.0,
+    "pvPowerW": 32000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun12-14-16-18ksg01lp1euam3p.html",
+    "note": "Техническият лист при доставчика е за AM3-P; проверете пълното означение на доставяното устройство.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 25600,
+    "model": "SUN-16K-SG01LP1-EU-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=807"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0114_OPT",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 13000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-10K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=777"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0114_VT",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 13000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-10K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=586"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0114",
+    "phase": 3,
+    "acPowerKw": 10.0,
+    "pvPowerW": 13000,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-10K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=305"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0106",
+    "phase": 3,
+    "acPowerKw": 20.0,
+    "pvPowerW": 26000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      26,
+      26
+    ],
+    "shortCurrents": [
+      39,
+      39
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/05/15/datasheet_sun-5-25k-sg01hp3-eu_240513_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; увеличеният лимит на новата ревизия не се прилага към този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-20K-SG01HP3-EU-AM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=309"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0113_VT",
+    "phase": 3,
+    "acPowerKw": 8.0,
+    "pvPowerW": 10400,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-8K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=591"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0145",
+    "phase": 3,
+    "acPowerKw": 16.0,
+    "pvPowerW": 32000,
+    "maxVoltage": 800,
+    "minMppt": 160,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2026/04/26/BDatasheetSUN-14-20K-SG05LP3-EU-SM220260424en-yjaB.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 25600,
+    "model": "SUN-16K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=1015"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0115_VT",
+    "phase": 3,
+    "acPowerKw": 12.0,
+    "pvPowerW": 15600,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-12K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=447"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0115",
+    "phase": 3,
+    "acPowerKw": 12.0,
+    "pvPowerW": 15600,
+    "maxVoltage": 800,
+    "minMppt": 200,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      26,
+      13
+    ],
+    "shortCurrents": [
+      34,
+      17
+    ],
+    "source": "https://de.deyeinverter.com/product/hybrid-inverter-1/sun5-6-8-10-12ksg04lp3.html",
+    "note": "По-ранна версия: запазена PV граница 130% от каталога; по-новото разрешено предоразмеряване не се прилага към стария вариант.",
+    "verified": "2026-11-08",
+    "model": "SUN-12K-SG04LP3-EU",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=307"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0144",
+    "phase": 1,
+    "acPowerKw": 18.0,
+    "pvPowerW": 36000,
+    "maxVoltage": 500,
+    "minMppt": 150,
+    "maxMppt": 425,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/product/single-phase-low-voltage-hybrid-inverter/sun12-14-16-18ksg01lp1euam3p.html",
+    "note": "Техническият лист при доставчика е за AM3-P; проверете пълното означение на доставяното устройство.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 28800,
+    "model": "SUN-18K-SG01LP1-EU-P",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=1011"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0122_B_VT",
+    "phase": 3,
+    "acPowerKw": 15.0,
+    "pvPowerW": 22500,
+    "maxVoltage": 800,
+    "minMppt": 160,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      1
+    ],
+    "currents": [
+      36,
+      20
+    ],
+    "shortCurrents": [
+      54,
+      30
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/06/01/datasheet_sun-14-20k-sg05lp3-eu-sm2_240601_en.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "model": "SUN-15K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=563"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0120_VT",
+    "phase": 3,
+    "acPowerKw": 20.0,
+    "pvPowerW": 40000,
+    "maxVoltage": 800,
+    "minMppt": 160,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2026/04/26/BDatasheetSUN-14-20K-SG05LP3-EU-SM220260424en-yjaB.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 32000,
+    "model": "SUN-20K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=448"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0120",
+    "phase": 3,
+    "acPowerKw": 20.0,
+    "pvPowerW": 40000,
+    "maxVoltage": 800,
+    "minMppt": 160,
+    "maxMppt": 650,
+    "inputs": [
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2026/04/26/BDatasheetSUN-14-20K-SG05LP3-EU-SM220260424en-yjaB.pdf",
+    "note": "Избран е техническият лист за токовата версия в каталога. При смяна на хардуерната ревизия потвърдете входовете и токовете.",
+    "verified": "2026-11-08",
+    "conversionPowerW": 32000,
+    "model": "SUN-20K-SG05LP3-EU-SM2",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=602"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0129_VT",
+    "phase": 3,
+    "acPowerKw": 30.0,
+    "pvPowerW": 60000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2025/07/22/rand/9917/datasheet_sun-25-30k-sg02hp3-eu-am3_20250721_en.pdf",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 48000,
+    "model": "SUN-30K-SG02HP3-EU-AM3",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=863"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0129",
+    "phase": 3,
+    "acPowerKw": 30.0,
+    "pvPowerW": 60000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2025/07/22/rand/9917/datasheet_sun-25-30k-sg02hp3-eu-am3_20250721_en.pdf",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 48000,
+    "model": "SUN-30K-SG02HP3-EU-AM3",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=717"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0108",
+    "phase": 3,
+    "acPowerKw": 30.0,
+    "pvPowerW": 39000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      55,
+      55,
+      55
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/07/22/datasheet_sun-29.9-50k-sg01hp3-eu-bm4_240722_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; запазено ограничението за този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-30K-SG01HP3-EU-BM3",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=311"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0109_VT",
+    "phase": 3,
+    "acPowerKw": 40.0,
+    "pvPowerW": 52000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      55,
+      55,
+      55,
+      55
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/07/22/datasheet_sun-29.9-50k-sg01hp3-eu-bm4_240722_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; запазено ограничението за този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-40K-SG01HP3-EU-BM4",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=815"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0110_P",
+    "phase": 3,
+    "acPowerKw": 50.0,
+    "pvPowerW": 65000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      55,
+      55,
+      55,
+      55
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/07/22/datasheet_sun-29.9-50k-sg01hp3-eu-bm4_240722_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; запазено ограничението за този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-50K-SG01HP3-EU-BM4",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=729"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0109",
+    "phase": 3,
+    "acPowerKw": 40.0,
+    "pvPowerW": 52000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      55,
+      55,
+      55,
+      55
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/07/22/datasheet_sun-29.9-50k-sg01hp3-eu-bm4_240722_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; запазено ограничението за този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-40K-SG01HP3-EU-BM4",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=312"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0110_VT",
+    "phase": 3,
+    "acPowerKw": 50.0,
+    "pvPowerW": 65000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      55,
+      55,
+      55,
+      55
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/07/22/datasheet_sun-29.9-50k-sg01hp3-eu-bm4_240722_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; запазено ограничението за този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-50K-SG01HP3-EU-BM4",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=603"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0110",
+    "phase": 3,
+    "acPowerKw": 50.0,
+    "pvPowerW": 65000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      55,
+      55,
+      55,
+      55
+    ],
+    "source": "https://www.deyeinverter.com/deyeinverter/2024/07/22/datasheet_sun-29.9-50k-sg01hp3-eu-bm4_240722_en.pdf",
+    "note": "По-ранна версия с PV лимит 130%; запазено ограничението за този артикул.",
+    "verified": "2026-11-08",
+    "model": "SUN-50K-SG01HP3-EU-BM4",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=313"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0127",
+    "phase": 3,
+    "acPowerKw": 60.0,
+    "pvPowerW": 120000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54,
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-high-voltage-hybrid-inverter/sun60-70-75-80ksg02hp3euem6.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 96000,
+    "model": "SUN-60K-SG02HP3-EU-EM6",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=683"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0126_VT",
+    "phase": 3,
+    "acPowerKw": 80.0,
+    "pvPowerW": 160000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54,
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-high-voltage-hybrid-inverter/sun60-70-75-80ksg02hp3euem6.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 128000,
+    "model": "SUN-80K-SG02HP3-EU-EM6",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=654"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0126",
+    "phase": 3,
+    "acPowerKw": 80.0,
+    "pvPowerW": 160000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      36,
+      36,
+      36,
+      36,
+      36,
+      36
+    ],
+    "shortCurrents": [
+      54,
+      54,
+      54,
+      54,
+      54,
+      54
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-high-voltage-hybrid-inverter/sun60-70-75-80ksg02hp3euem6.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 128000,
+    "model": "SUN-80K-SG02HP3-EU-EM6",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=889"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0142_VT",
+    "phase": 3,
+    "acPowerKw": 100.0,
+    "pvPowerW": 200000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42
+    ],
+    "shortCurrents": [
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-high-voltage-hybrid-inverter/sun100-125ksg02hp3eugm10.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 160000,
+    "model": "SUN-100K-SG02HP3-EU-GM10",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=913"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0143_VT",
+    "phase": 3,
+    "acPowerKw": 125.0,
+    "pvPowerW": 250000,
+    "maxVoltage": 1000,
+    "minMppt": 150,
+    "maxMppt": 850,
+    "inputs": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "currents": [
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42,
+      42
+    ],
+    "shortCurrents": [
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63,
+      63
+    ],
+    "source": "https://www.deyeinverter.com/product/three-phase-high-voltage-hybrid-inverter/sun100-125ksg02hp3eugm10.html",
+    "note": "",
+    "verified": "2026-11-08",
+    "conversionPowerW": 200000,
+    "model": "SUN-125K-SG02HP3-EU-GM10",
+    "supplierSource": "https://www.kameasolar.com/product_info.php?products_id=914"
+  }
+]
