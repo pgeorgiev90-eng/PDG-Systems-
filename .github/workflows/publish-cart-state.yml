@@ -85,8 +85,12 @@ jobs:
           import urllib.request,urllib.error,os,json
           from pathlib import Path
           root='https://pdgsystems.bg/'
-          for name in ['store.js','cart.html','catalog.html','product.html','shop.html']:
+          for name in ['store.js','cart.html','catalog.html','shop.html']:
               with urllib.request.urlopen(root+name+'?cart_release='+os.environ['GITHUB_SHA'],timeout=60) as r:assert r.read()==Path(name).read_bytes(),name
+          with urllib.request.urlopen(root+'api/products.php',timeout=60) as r:products=json.load(r)['products']
+          product_id=int(products[0]['id'])
+          with urllib.request.urlopen(root+'product.html?id='+str(product_id)+'&cart_release='+os.environ['GITHUB_SHA'],timeout=60) as r:
+              assert b'store.js?v=20261108-cart-1' in r.read()
           try:urllib.request.urlopen(root+'api/cart.php?cart_release='+os.environ['GITHUB_SHA'],timeout=60);raise AssertionError('Anonymous cart access')
           except urllib.error.HTTPError as error:
               assert error.code==401
