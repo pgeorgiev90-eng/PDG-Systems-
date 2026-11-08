@@ -13,7 +13,7 @@ try{
   $search=is_string($_GET['q']??null)?mb_substr(trim($_GET['q']),0,120):'';$editor=$_GET['editor']??'';$archived=($_GET['archived']??'0')==='1'?1:0;
   if(!in_array($editor,['','solar','electric'],true))pdg_answer(422,['error'=>'invalid_filter']);
   $page=filter_var($_GET['page']??1,FILTER_VALIDATE_INT,['options'=>['min_range'=>1,'max_range'=>10000]]);if(!$page)pdg_answer(422,['error'=>'invalid_filter']);$offset=($page-1)*30;
-  $q=$db->prepare("SELECT p.*,COALESCE(m.revision,1) AS revision,COALESCE(m.status,'draft') AS status,COALESCE(m.archived,0) AS archived FROM pdg_cad_projects p LEFT JOIN pdg_cad_project_meta m ON m.project_id=p.id WHERE p.user_id=? AND COALESCE(m.customer_deleted,0)=0 AND COALESCE(m.archived,0)=? AND (?='' OR p.editor=?) AND p.project_name LIKE ? ORDER BY p.updated_at DESC,p.id DESC LIMIT 31 OFFSET $offset");$q->execute([$user,$archived,$editor,$editor,'%'.$search.'%']);$rows=$q->fetchAll();pdg_answer(200,['projects'=>array_map('pdg_my_project_summary',array_slice($rows,0,30)),'more'=>count($rows)>30]);
+  $q=$db->prepare("SELECT p.*,m.last_admin_revision,m.last_admin_at,COALESCE(m.revision,1) AS revision,COALESCE(m.status,'draft') AS status,COALESCE(m.archived,0) AS archived FROM pdg_cad_projects p LEFT JOIN pdg_cad_project_meta m ON m.project_id=p.id WHERE p.user_id=? AND COALESCE(m.customer_deleted,0)=0 AND COALESCE(m.archived,0)=? AND (?='' OR p.editor=?) AND p.project_name LIKE ? ORDER BY p.updated_at DESC,p.id DESC LIMIT 31 OFFSET $offset");$q->execute([$user,$archived,$editor,$editor,'%'.$search.'%']);$rows=$q->fetchAll();pdg_answer(200,['projects'=>array_map('pdg_my_project_summary',array_slice($rows,0,30)),'more'=>count($rows)>30]);
  }
  $raw=file_get_contents('php://input',false,null,0,1048577);if(strlen($raw)>1048576)pdg_answer(413,['error'=>'project_too_large']);$v=json_decode($raw,true,128);if(!is_array($v))pdg_answer(422,['error'=>'invalid_project']);
  if(($v['action']??'')==='delete_selected'){
@@ -25,8 +25,9 @@ try{
   foreach($owned as $row){pdg_my_project_history($db,$row);$q=$db->prepare("INSERT INTO pdg_cad_project_meta(project_id,revision,status,archived,customer_deleted) VALUES(?,?,?,1,1) ON DUPLICATE KEY UPDATE revision=VALUES(revision),archived=1,customer_deleted=1");$q->execute([$row['id'],(int)$row['revision']+1,$row['status']]);}
   $db->commit();pdg_answer(200,['ok'=>true,'deleted'=>count($owned)]);
  }
- $action=$v['action']??'save';if(!in_array($action,['save','duplicate','archive','restore','request'],true))pdg_answer(422,['error'=>'invalid_action']);
+ $action=$v['action']??'save';if(!in_array($action,['save','duplicate','archive','restore','request','share'],true))pdg_answer(422,['error'=>'invalid_action']);
  if(isset($v['id'])&&!filter_var($v['id'],FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]))pdg_answer(422,['error'=>'invalid_project']);
+ if($action==='share'&&(!is_string($v['problem']??'')||mb_strlen($v['problem']??'')>4000))pdg_answer(422,['error'=>'invalid_request']);
  if($action==='archive'&&!is_bool($v['archived']??null))pdg_answer(422,['error'=>'invalid_request']);
  $id=filter_var($v['id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);$db->beginTransaction();$row=$id?pdg_my_project_owned($db,$user,(int)$id,true):null;
  if($id&&!$row){$db->rollBack();pdg_answer(404,['error'=>'not_found']);}
@@ -52,9 +53,9 @@ try{
    $project=json_decode($snapshot,true);if($row['editor']==='solar')$project['projectName']=$row['project_name'];else $project['project']=$row['project_name'];$snapshot=json_encode($project,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
    $q=$db->prepare('UPDATE pdg_cad_projects SET snapshot=? WHERE id=? AND user_id=?');$q->execute([$snapshot,$id,$user]);$status='draft';$archived=0;
   }
-  if($action==='request'){
-   if($archived){$db->rollBack();pdg_answer(409,['error'=>'project_archived']);}$status='review';
-   $q=$db->prepare("INSERT INTO pdg_cad_project_requests(project_id,revision) VALUES(?,?)");$q->execute([$id,$row['revision']]);
+  if($action==='request'||$action==='share'){
+   if($archived){$db->rollBack();pdg_answer(409,['error'=>'project_archived']);}$status=$action==='share'?'shared':'review';
+   $q=$db->prepare("INSERT INTO pdg_cad_project_requests(project_id,revision,request_kind,problem) VALUES(?,?,?,?)");$q->execute([$id,$row['revision'],$action==='share'?'assistance':'review',$action==='share'?trim($v['problem']??''):'']);
   }
   $q=$db->prepare('INSERT INTO pdg_cad_project_meta(project_id,revision,status,archived) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE revision=VALUES(revision),status=VALUES(status),archived=VALUES(archived)');$q->execute([$id,$revision,$status,$archived]);
   $q=$db->prepare('UPDATE pdg_cad_projects SET updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?');$q->execute([$id,$user]);

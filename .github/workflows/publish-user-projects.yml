@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0
       - name: Test PHP syntax and real account isolation
         run: |
-          for file in my-projects.php api/my-projects-common.php api/my-projects.php api/my-projects-demo.php api/project-requests.php api/cad-projects.php api/cad-page-access.php; do php -l "$file"; done
+          for file in my-projects.php api/my-projects-common.php api/my-projects.php api/my-projects-demo.php api/project-requests.php api/project-support.php api/cad-projects.php api/cad-page-access.php; do php -l "$file"; done
           php tests/bootstrap-account-ci.php
           php -l api/demo-account-bootstrap.php
           php -l api/account-draft.php
@@ -56,6 +56,7 @@ jobs:
           done
           python3 tests/my_projects_security.py
           python3 tests/project_deletion_security.py
+          python3 tests/project_support_security.py
           node -e "require('./electrical-busbar-core').validate(JSON.parse(require('fs').readFileSync('/tmp/pdg-demo-electric.json')));console.log('PASS: demo electric geometry validated by the real editor core')"
       - name: Test dashboards, account reopen, prices and CAD regressions
         run: |
@@ -63,6 +64,7 @@ jobs:
           export PDG_JSDOM=/tmp/pdg-profile-ui/node_modules/jsdom
           node tests/my_projects_ui_test.js
           node tests/project_deletion_ui_test.cjs
+          node tests/project_support_ui_test.cjs
           node tests/electrical_editor_regression_test.cjs
           node tests/cad_account_projects_test.js
           node tests/account_isolation_ui_test.js
@@ -80,7 +82,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io,json,subprocess
           from pathlib import Path
-          files=['electrical-catalog.js','admin-workspace.js','account-session-guard.js','api/demo-account-bootstrap.php','api/account-draft.php','api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php','solar-cad-preview.html']
+          files=['api/project-support.php','electrical-catalog.js','admin-workspace.js','account-session-guard.js','api/demo-account-bootstrap.php','api/account-draft.php','api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php','solar-cad-preview.html']
           Path('/tmp/profile-files.json').write_text(json.dumps(files))
           backup=Path('/tmp/profile-rollback');backup.mkdir()
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:

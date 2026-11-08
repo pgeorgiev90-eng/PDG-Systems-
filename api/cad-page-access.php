@@ -6,6 +6,7 @@ function pdg_require_cad_page(string $editor): void {
     try {
         $next=$editor;
         $args=[];if(in_array($editor,['roof-cad.php','electrical-cad.php'],true)){if(isset($_GET['project'])&&filter_var($_GET['project'],FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]))$args['project']=(int)$_GET['project'];if(in_array($_GET['prices']??'', ['current','saved'],true))$args['prices']=$_GET['prices'];if(($_GET['fresh']??'')==='1')$args['fresh']='1';}
+        if(isset($_GET['support'])&&filter_var($_GET['support'],FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]))$args['support']=(int)$_GET['support'];
         if($args)$next.='?'.http_build_query($args);
         [, $accountUserId]=pdg_account_session(false, '/auth.html?next='.rawurlencode($next));
         $GLOBALS['pdg_page_user_id']=$accountUserId;
