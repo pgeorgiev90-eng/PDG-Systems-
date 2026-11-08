@@ -7,6 +7,7 @@
   let total=0;
   return data.planes.every(p=>{
    if(!p||!Array.isArray(p.path)||p.path.length<3||p.path.length>200||!p.path.every(coordinate)||!finite(p.azimuth)||p.azimuth<0||p.azimuth>=360||!finite(p.tilt)||p.tilt<0||p.tilt>80)return false;
+   if(p.roofPlane!=null){const r=p.roofPlane;if(!r||!coordinate(r.origin)||![r.east,r.north,r.offset].every(finite))return false;}
    if(p.moduleTilt!=null&&(!finite(p.moduleTilt)||p.moduleTilt<0||p.moduleTilt>80))return false;
    if(p.manualArea!=null&&(!finite(p.manualArea)||p.manualArea<=0))return false;
    if(!Array.isArray(p.panels)||p.panels.length>1500)return false;
