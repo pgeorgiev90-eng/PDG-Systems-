@@ -10,9 +10,9 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
  assert.ok(run('planes[0].panels.length')>10,file+' rectangle fill');
  assert.ok(run('planes[0].panels.every(p=>panelFitsRoof(p,planes[0].path))'),file+' all panels inside');
  const count=run('planes[0].panels.length');run('autoFillRoof(true)');assert.equal(run('planes[0].panels.length'),count,file+' repeated fill cannot overlap');
- run('markedPanels=new Set([0,1]);const group=panelMoveGroup(0,0);const original=planes[0].panels.map(p=>({...p}));translatePanels(group,.001,.002)');
- assert.ok(run('planes[0].panels[0].lat===original[0].lat+.001&&planes[0].panels[1].lng===original[1].lng+.002&&planes[0].panels[2].lat===original[2].lat'),file+' group translation');
- run('translatePanels(group,0,0)');assert.ok(run('planes[0].panels[0].lat===original[0].lat'),file+' cancelled move rolls back');
+ run('markedPanels=new Set([0,1]);const group=panelMoveGroup(0,0);const original=planes[0].panels.map(p=>({...p}));translatePanels(group,.000001,.000001)');
+ assert.ok(run('planes[0].panels[0].lat===original[0].lat+.000001&&planes[0].panels[1].lng===original[1].lng+.000001&&planes[0].panels[2].lat===original[2].lat'),file+' group translation');
+ assert.equal(run('translatePanels(group,.001,.002)'),false,file+' outside group move rejected');assert.ok(run('planes[0].panels.every(p=>panelFitsRoof(p,planes[0].path))'));run('translatePanels(group,0,0)');assert.ok(run('planes[0].panels[0].lat===original[0].lat'),file+' cancelled move rolls back');
  assert.equal(run('panelMoveGroup(0,2).length'),1,file+' unmarked move');
  run('planes[0].panels=Array.from({length:1499},()=>({...original[0]}));autoFillRoof(true)');assert.equal(run('planes[0].panels.length'),1500,file+' maximum includes existing panels');
  run('autoFillRoof(true)');assert.equal(run('planes[0].panels.length'),1500,file+' cap remains stable');

@@ -24,5 +24,14 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
  svg.onpointerdown(event(3,0));svg.onpointercancel();svg.onpointerup(event(3,0));assert.equal(w.testRead('planes[0].panels.length'),1,'cancel does not add');
  svg.onpointerdown(event(3,0));svg.onpointerdown(event(4,0,2,false));svg.onpointerup(event(3,0));assert.equal(w.testRead('planes[0].panels.length'),1,'multitouch does not add');
  svg.onpointerdown(event(3,0));svg.onpointerup(event(3,0));assert.equal(w.testRead('planes[0].panels.length'),2,'next tap adds exactly one');assert(d.body.classList.contains('view-2d'));
+ w.testRead('mode="idle";planes.push({...JSON.parse(JSON.stringify(planes[0])),panels:[],azimuth:90});window.render2D()');
+ const second=d.querySelector('[data-roof-index="1"]');second.dispatchEvent(new w.MouseEvent('click',{bubbles:true}));
+ assert.equal(w.testRead('selected'),1);assert.equal(w.testRead('selectedPanel'),-1);
+ assert.equal(d.getElementById('preview-roof-picker').value,'1');
+ // Existing layout remains attached to its own plane.
+ assert.equal(w.testRead('planes[0].panels.length'),2);assert.equal(w.testRead('planes[1].panels.length'),0);
+ d.getElementById('preview-roof-picker').value='0';d.getElementById('preview-roof-picker').dispatchEvent(new w.Event('change'));
+ assert.equal(w.testRead('selected'),0);
+ assert(source.includes('selectedRoof:selected')&&source.includes('planes[data.selectedRoof]'),'active roof saved and restored');
  console.log('PASS:',file,'actual Add button stays in 2D; mouse/touch single placement, chosen orientation, overlap/outside rejection, drag/cancel/multitouch safety');w.close();
 }
