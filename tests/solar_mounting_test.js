@@ -11,7 +11,7 @@ assert.equal(result.roofs[0].runs,1);assert.equal(result.railMetres,6.28);assert
 result=core.calculate([roof([panel(0,0),panel(2.04,0)])],products);assert.equal(result.roofs[0].runs,2);assert.equal(qty(result,'EIC'),0);assert.equal(qty(result,'FEC3035'),8);
 result=core.calculate([roof([panel(0,0),panel(1.02,0),panel(0,2.02)])],products);assert.equal(result.roofs[0].runs,2);assert.equal(qty(result,'EIC'),2);
 result=core.calculate([roof([panel(0,0,90),panel(0,-1.02,90)])],products);assert.equal(result.roofs[0].runs,1);assert.equal(qty(result,'EIC'),2);
-const many=Array.from({length:6},(_,i)=>panel(i*1.02,0));result=core.calculate([roof(many)],products);assert.equal(qty(result,'R52-5000'),4);assert.equal(qty(result,'SFR-01'),2);
+const many=Array.from({length:6},(_,i)=>panel(i*1.02,0));result=core.calculate([roof(many)],products);assert.equal(qty(result,'R52-5000'),3);assert.equal(qty(result,'SFR-01'),2);
 input=roof(many);input.mounting.estimate={span:.6};const tighter=core.calculate([input],products);assert(tighter.roofs[0].supports>result.roofs[0].supports);
 for(const [type,system,code]of [['metal','lfeet','TRB-D01'],['metal','hanger','TRB-D03'],['standing','kliplok','TRB-C04'],['ground','ground','W45-3650']]){result=core.calculate([roof([panel(0,0)],type,system)],products);assert(qty(result,code)>0);assert.equal(qty(result,'TRH-T06'),0)}
 input=roof([panel(0,0)],'flat','tilt');input.moduleTilt=20;result=core.calculate([input],products);assert(qty(result,'ATP-1530')>0);assert(result.pending.length>0);
@@ -23,3 +23,14 @@ const cost=core.addCosts({rows:[{name:'Монтажна конструкция',
 const hidden=core.calculate([roof([panel(0,0)])],products.map(p=>({...p,price:null})));assert.equal(core.addCosts({rows:[]},hidden,x=>x===''?null:Number(x)*100).complete,false);
 assert.equal(core.calculate([],products).rows.length,0);
 console.log('PASS: roof-specific catalogue BOMs, row gaps, mixed rows, rotations, rail stock/joints, support spacing, multiple roofs, missing products/prices, unsupported ballast and no duplicated mounting cost');
+
+
+// Two 2.3 m rail lines fit in one 5 m stock bar, including saw kerf.
+assert.equal(core.cutRails([2.3,2.3],5).bars,1);
+assert.equal(core.cutRails([2.5,2.5],5).bars,2);
+assert.equal(core.cutRails([6.2,6.2],5).bars,3);
+assert.equal(core.cutRails([6.2,6.2],5).splices,2);
+for(const lengths of [[2.3,2.3],[6.2,6.2],[1.1,1.1,1.1,1.1]]){const cut=core.cutRails(lengths,5);assert(Math.abs(cut.cuts.flatMap(b=>b.pieces).reduce((s,v)=>s+v,0)-lengths.reduce((s,v)=>s+v,0))<1e-7);for(const b of cut.cuts)assert(b.pieces.reduce((s,v)=>s+v,0)+.003*(b.pieces.length-1)<=5+1e-7)}
+assert.equal(core.runs([panel(0,0),panel(1.02,.03),panel(2.04,0)]).length,1);
+assert.equal(core.runs([panel(0,0),panel(0,2.02)]).length,2);
+console.log('PASS: offcut reuse, kerf, long rail joints, conserved cut lengths and small alignment offsets');

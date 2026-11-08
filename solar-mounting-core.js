@@ -33,7 +33,7 @@ function runs(panels,maxGap=.04){
  const result=[];
  for(const items of groups.values()){
   items.sort((a,b)=>a.y-b.y||a.x-b.x);const rows=[];
-  for(const p of items){let row=rows.find(row=>Math.abs(row.y-p.y)<.015&&Math.abs(row.h-p.h)<.015);if(!row){row={y:p.y,h:p.h,items:[]};rows.push(row)}row.items.push(p)}
+  for(const p of items){let row=rows.find(row=>Math.abs(row.y-p.y)<=.05&&Math.abs(row.h-p.h)<.015);if(!row){row={y:p.y,h:p.h,items:[]};rows.push(row)}row.items.push(p)}
   for(const row of rows){row.items.sort((a,b)=>a.x-b.x);let run=null;
    for(const p of row.items){const left=p.x-p.w/2,right=p.x+p.w/2,gap=run?left-run.end:Infinity;
     if(!run||gap>maxGap+.001||gap<-.015){run={count:1,start:left,end:right,angle:p.angle,height:p.h};result.push(run)}else{run.count++;run.end=right}
@@ -41,6 +41,15 @@ function runs(panels,maxGap=.04){
   }
  }
  return result.map(r=>({...r,length:r.end-r.start}));
+}
+// First-fit decreasing cutting plan. Reuse offcuts within a roof; reserve 3 mm per cut.
+function cutRails(lengths,stock){
+ if(!(stock>0))return {bars:0,splices:0,cuts:[]};
+ const pieces=[];let splices=0;
+ for(const length of lengths){const n=Math.max(1,Math.ceil((length-1e-7)/stock));splices+=n-1;for(let i=0;i<n-1;i++)pieces.push(stock);pieces.push(length-(n-1)*stock)}
+ pieces.sort((a,b)=>b-a);const bins=[];
+ for(const piece of pieces){let bin=bins.find(b=>b.remaining+1e-7>=piece);if(!bin){bin={remaining:stock,pieces:[]};bins.push(bin)}bin.pieces.push(piece);bin.remaining=Math.max(0,bin.remaining-piece-.003)}
+ return {bars:bins.length,splices,cuts:bins.map(b=>({pieces:b.pieces,remainder:b.remaining}))};
 }
 function calculate(planes,products=[]){
  const roofs=[],aggregate=new Map();
@@ -51,11 +60,12 @@ function calculate(planes,products=[]){
   if(!p){pending.push(!mount?'Избери вид покрив и запази конструкцията за ската.':mount.brand!=='enerack'?'За тази система няма комплектовка с артикули от магазина.':mount.roofType==='flat'&&mount.systemId==='ballast'?'Крака, тави и баласт: необходима е монтажна схема за конкретната баластна система.':mount.roofType==='flat'?'За триподите избери наклон на панелите между 15° и 30°.':'Няма комплектовка за избраната система.');continue;}
   const chosen={};for(const role of Object.keys(p.roles))chosen[role]=productFor(p,role,products,opts);
   const stock=chosen.rail?Number(String(chosen.rail.code).match(/-(\d+)$/)?.[1])/1000:0;
-  let railBars=0,splices=0,ends=0,mids=0,supports=0;
+  let railBars=0,splices=0,ends=0,mids=0,supports=0;const lengths=[];
   for(const run of segments){const length=run.length+2*opts.endAllowance;info.railMetres+=2*length;ends+=4;mids+=2*(run.count-1);
-   if(stock>0){const bars=Math.max(1,Math.ceil((length-1e-7)/stock));railBars+=2*bars;splices+=2*(bars-1)}
+   lengths.push(length,length);
    const stations=Math.max(2,Math.ceil((length-2*opts.endAllowance-1e-7)/opts.span)+1);supports+=p.kind==='rail'?2*stations:stations;
   }
+  const cutting=cutRails(lengths,stock);railBars=cutting.bars;splices=cutting.splices;info.cutting=cutting;
   info.railMetres=Math.round(info.railMetres*1000)/1000;info.supports=supports;
   const quantities={rail:railBars,splice:splices,cap:4*segments.length,mid:mids,end:ends,foot:supports,fixing:p.fixings*supports,adapter:p.kind==='rail'?supports:2*supports,foundation:2*supports};
   for(const role of Object.keys(p.roles)){
@@ -64,7 +74,7 @@ function calculate(planes,products=[]){
    const row={id:String(product.id),code:product.code,name:product.name,qty,unit:'бр.',price:product.price??'',role,roofs:[index+1]};rows.push(row);
    const key=row.id,existing=aggregate.get(key);if(existing){existing.qty+=row.qty;if(!existing.roofs.includes(index+1))existing.roofs.push(index+1)}else aggregate.set(key,{...row,roofs:[index+1]});
   }
-  notes.push('2 релси на непрекъснат ред; '+opts.endAllowance+' m запас във всеки край. Релсите се закръглят поотделно за всяка линия, без повторно използване на отрезите.');
+  notes.push('2 релси на непрекъснат ред; '+opts.endAllowance+' m запас във всеки край. Отрезите се използват повторно в същия скат с резерв 3 mm за срез. Броят цели релси следва план за разкрояване.');
   notes.push('Опорите са по разчетна стъпка '+opts.span+' m; реалните носещи точки и допустимите разстояния се потвърждават по монтажната схема.');
   if(p.kind==='ground')pending.push('Диагонали, свързващ крепеж и фундаменти се уточняват по проекта на наземната конструкция.');
   if(p.kind==='tilt')pending.push('Закрепването на триподите към основата се уточнява по монтажна схема.');
@@ -77,5 +87,6 @@ function addCosts(costs,result,price){
  for(const name of result.pending)rows.push({name:'Конструкция · '+name,qty:1,unit:null,total:null});
  const subtotal=rows.reduce((sum,r)=>sum+(r.total||0),0),vat=Math.round(subtotal*.2);return {rows,complete:rows.every(r=>r.total!==null),subtotal,vat,total:subtotal+vat};
 }
-const api={types,documents,defaults,settings,profile,candidates,runs,calculate,addCosts,roleLabels};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarMountingCore=api;
+const api={types,documents,defaults,settings,profile,candidates,runs,cutRails,calculate,addCosts,roleLabels};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarMountingCore=api;
 })(typeof window==='object'?window:globalThis);
+
