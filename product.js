@@ -28,7 +28,7 @@
         const photo=document.createElement('div');photo.className='sprite';photo.style.backgroundPosition=(-150*(imageIndex%10))+'px '+(-150*Math.floor(imageIndex/10))+'px';photo.setAttribute('role','img');photo.setAttribute('aria-label',p.name);$('photo').append(photo);
       } else {$('photo').textContent='Снимка предстои';}
       if(!pricesVisible){
-        $('price').textContent='Влезте, за да видите цената';$('buy').hidden=true;$('inquiry').hidden=true;
+        $('price').textContent='Цена след регистрация';$('buy').hidden=true;$('inquiry').hidden=true;
         const links=document.createElement('span');links.style.cssText='display:flex;gap:14px;margin-top:10px';
         for(const [label,mode]of [['Създай акаунт','register'],['Вход','login']]){const a=document.createElement('a');a.textContent=label;a.href='auth.html?next='+encodeURIComponent('product.html?id='+p.id)+(mode==='register'?'&mode=register':'');links.append(a);}$('price').append(links);
       }else if(Number(p.price)>0) {
