@@ -32,6 +32,8 @@ jobs:
           fetch-depth: 2
       - name: Validate catalog and isolated idempotent import
         run: |
+          node --check product.js
+          php -l api/product-details.php
           php -l api/intermetal-panels-bootstrap.php
           php -l api/schrack-shop-bootstrap.php
           php tests/intermetal_panels_import.php
@@ -57,7 +59,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io,subprocess,json,urllib.request,hashlib,re
           from pathlib import Path
-          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','product.js','catalog.html','api/schrack-shop-bootstrap.php']
+          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','api/product-details.php','product.js','catalog.html','api/schrack-shop-bootstrap.php']
           with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?before='+os.environ['GITHUB_SHA'],timeout=40) as r:
               before=json.load(r)
           Path('/tmp/intermetal-before.json').write_text(json.dumps(before))
@@ -93,7 +95,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io
           from pathlib import Path
-          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','product.js','catalog.html','api/schrack-shop-bootstrap.php']
+          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','api/product-details.php','product.js','catalog.html','api/schrack-shop-bootstrap.php']
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
               for name in files:
@@ -127,5 +129,6 @@ jobs:
               print('Verified live panel:',p['id'],p['brand'],p['code'])
           again=json.loads(get('api/products.php'))['products'];assert len(again)==len(products),'Import produced duplicates'
           assert b'brand.replaceChildren' in get('catalog.html')
+          guest=json.loads(get('api/product-details.php?id=1'));assert guest['prices_visible'] is False and guest['product']['price'] is None
           assert get('assets/products/intermetal-pv-panel.jpg')==Path('assets/products/intermetal-pv-panel.jpg').read_bytes()
           print('PASS: six panels available with local image, specifications, empty prices and no duplicates')

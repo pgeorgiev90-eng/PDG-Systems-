@@ -14,9 +14,7 @@
       if(r.status===404){$('status').textContent='Този продукт вече не се предлага.';return;}
       if(!r.ok)throw Error();
       const data=await r.json(),p=data.product;
-      let pricesVisible=false;
-      try{const c=await fetch('api/products.php',{cache:'no-store'});if(c.ok){const catalog=await c.json(),item=catalog.products?.find(x=>String(x.id)===String(p.id));pricesVisible=catalog.prices_visible===true;if(item)p.price=item.price;}}catch{}
-      if(!pricesVisible)p.price=null;
+      const pricesVisible=data.prices_visible===true;
       document.title=p.name+' | PDG Systems';$('name').textContent=p.name;
       $('category').textContent=p.brand+' · '+p.category;$('code').textContent='Код: '+p.code;
       $('description').textContent=p.description||'';$('description-section').hidden=!p.description;

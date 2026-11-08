@@ -19,5 +19,9 @@ try{
  $product['description']='';$product['imageCaption']='';
  foreach($fields as $f){if(mb_strtolower(trim($f['label']),'UTF-8')==='описание')$product['description']=$f['value'];if(mb_strtolower(trim($f['label']),'UTF-8')==='бележка за снимката')$product['imageCaption']=$f['value'];}
  $fields=array_values(array_filter($fields,fn($f)=>!in_array(mb_strtolower(trim($f['label']),'UTF-8'),['описание','бележка за снимката'],true)));
- result(200,['product'=>$product,'fields'=>$fields]);
+ require_once __DIR__.'/customer-pricing.php';
+ $account=pdg_pricing_account($db);
+ $product['price']=pdg_product_price($product['price'],$account);
+ result(200,['product'=>$product,'fields'=>$fields,'prices_visible'=>$account!==null]);
 }catch(Throwable $e){result(503,['error'=>'service_unavailable']);}
+
