@@ -4,7 +4,7 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
  const source=fs.readFileSync(file,'utf8'),part=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
  const fields={panelW:{value:'1'},panelH:{value:'2'},panelPower:{value:'450'},panelGap:{value:'.02'},alignSouth:{checked:true},panelCatalog:{value:'custom'},panelVoc:{value:'40'},panelVmp:{value:'33'},panelVocCoefficient:{value:'-.25'},panelImp:{value:'13'},panelIsc:{value:'14'}};
  const ctx=vm.createContext({console,Math,Number,Set,document:{body:{classList:{contains:()=>true}}},window:{},$:(id)=>fields[id],render:()=>{},msg:()=>{}});
- vm.runInContext('let selected=0,markedPanels=new Set(),planes=[];'+part('function rad(','function actualArea(')+part('function contains(','function panelMoveGroup(')+part('function panelMoveGroup(','function choosePanel(')+part('function panelFitsRoof(','function roofPanelAngle(')+part('function roofPanelAngle(','function autoFillRoof(')+part('function autoFillRoof('," $('autoFill')"),ctx);
+ vm.runInContext('let selected=0,markedPanels=new Set(),planes=[],orientation="portrait";'+part('function rad(','function actualArea(')+part('function contains(','function panelMoveGroup(')+part('function panelMoveGroup(','function choosePanel(')+part('function panelFitsRoof(','function roofPanelAngle(')+part('function roofPanelAngle(','function autoFillRoof(')+part('function autoFillRoof('," $('autoFill')"),ctx);
  const run=s=>vm.runInContext(s,ctx);
  run("planes=[{path:[[0,0],[0,.0001],[.0001,.0001],[.0001,0]],panels:[]}];autoFillRoof(true)");
  assert.ok(run('planes[0].panels.length')>10,file+' rectangle fill');
@@ -20,6 +20,19 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
  run('const notch=[[0,0],[0,.0001],[.0001,.0001],[.0001,.00006],[.00004,.00006],[.00004,.00004],[.0001,.00004],[.0001,0]];const bridge={lat:.000065,lng:.00005,w:8,h:2,rotation:0}');
  assert.ok(run('panelCorners(bridge).every(c=>contains(c,notch))'));
  assert.equal(run('panelFitsRoof(bridge,notch)'),false,file+' concave roof edge crossing');
+ // Reproduce explicit landscape selection and replace a mixed existing layout.
+ run("planes=[{path:[[0,0],[0,.0001],[.0001,.0001],[.0001,0]],azimuth:180,roofPlane:{},panels:[]}];orientation='portrait';autoFillRoof(true,true)");
+ assert(run('planes[0].panels.every(p=>p.rotation===0)'));
+ run("orientation='landscape';autoFillRoof(true,true)");assert(run('planes[0].panels.length>0&&planes[0].panels.every(p=>p.rotation===90)'));
+ assert(run('planes[0].panels.every(p=>panelFitsRoof(p,planes[0].path))'));
+ const landscapeCount=run('planes[0].panels.length');run('autoFillRoof(true,true)');assert.equal(run('planes[0].panels.length'),landscapeCount);
+ fields.alignSouth.checked=false;
+ for(const face of require('../solar-project-start.js').houseRoofs({width:12,depth:8,count:4,aspect:180,tilt:20},{lat:42.7,lng:23.32})){
+  run('planes=['+JSON.stringify(face)+'];orientation="landscape";autoFillRoof(true,true)');
+  assert(run('planes[0].panels.length>0&&planes[0].panels.every(p=>p.rotation===selectedPanelAngle(planes[0]))'),file+' triangular/trapezoidal landscape relative to eave');
+  assert(run('planes[0].panels.every(p=>panelFitsRoof(p,planes[0].path))'));
+ }
+ console.log('PASS: '+file+' portrait/landscape fill, replacing old panels, repeat fill stability and triangular/hip roof orientation');
  console.log('PASS: '+file+' actual editor geometry, non-overlapping fill, concave edges, 1500 limit, group move and cancellation');
 }
 // Exercise the real autosave function against storage failures and unchanged saves.
