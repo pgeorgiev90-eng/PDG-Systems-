@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 function pdg_import_schrack_shop(PDO $db): void {
+    require_once __DIR__.'/intermetal-panels-bootstrap.php';
+    pdg_import_intermetal_panels($db);
     $path = dirname(__DIR__) . '/database/schrack-shop-catalog.json';
     $json = file_get_contents($path);
     if ($json === false) throw new RuntimeException('Schrack catalog unavailable');
@@ -48,3 +50,4 @@ function pdg_import_schrack_shop(PDO $db): void {
         $db->query("SELECT RELEASE_LOCK('pdg_schrack_shop')");
     }
 }
+

@@ -1,0 +1,124 @@
+name: Import Intermetal photovoltaic panels
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-intermetal-panels.yml'
+      - 'database/intermetal-panels.json'
+      - 'api/intermetal-panels-bootstrap.php'
+      - 'tests/intermetal_panels_import.php'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci-panels
+          MYSQL_DATABASE: pdg_panels
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-panels"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Validate catalog and isolated idempotent import
+        run: |
+          php -l api/intermetal-panels-bootstrap.php
+          php -l api/schrack-shop-bootstrap.php
+          php tests/intermetal_panels_import.php
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=json.loads(Path('database/intermetal-panels.json').read_text())
+          assert len(rows)==6 and len({(r['brand'],r['code']) for r in rows})==6
+          for r in rows:
+              assert r['price'] is None and r['category']=='Фотоволтаични панели'
+              fields={f['label']:f['value'] for f in r['fields']}
+              assert float(fields['Мощност (Wp)'])>0
+              assert float(fields['Voc (V)'])>0
+              assert float(fields['Дължина (mm)'])>0
+          print('Validated all published supplier panel models')
+          PY
+      - name: Back up existing catalog hook before uploading
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,subprocess,json,urllib.request
+          from pathlib import Path
+          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','api/schrack-shop-bootstrap.php']
+          with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?before='+os.environ['GITHUB_SHA'],timeout=40) as r:
+              before=json.load(r)
+          Path('/tmp/intermetal-before.json').write_text(json.dumps(before))
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  buffer=io.BytesIO()
+                  try:ftp.retrbinary('RETR '+name,buffer.write)
+                  except ftplib.error_perm as e:
+                      if str(e).startswith('550') and name!='api/schrack-shop-bootstrap.php':continue
+                      raise
+                  body=buffer.getvalue();target=Path('/tmp/intermetal-rollback')/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(body)
+                  previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+                  assert body==Path(name).read_bytes() or (previous.returncode==0 and body==previous.stdout), 'Unexpected hosting file; nothing uploaded: '+name
+          print('Existing production files verified; rollback copies retained')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: intermetal-panel-rollback-${{ github.sha }}
+          path: /tmp/intermetal-rollback/
+          retention-days: 30
+      - name: Publish verified panel data, photo and import hook
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io
+          from pathlib import Path
+          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','api/schrack-shop-bootstrap.php']
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert check.getvalue()==body,name
+              for name in files:
+                  ftp.rename(name+'.pdg-upload',name)
+                  check=io.BytesIO();ftp.retrbinary('RETR '+name,check.write);assert check.getvalue()==Path(name).read_bytes(),name
+                  print('Verified published file:',name)
+      - name: Trigger import and verify shop, details, prices and photo
+        shell: python
+        run: |
+          import urllib.request,json,os
+          from pathlib import Path
+          root='https://pdgsystems.bg/'
+          def get(path):
+              with urllib.request.urlopen(root+path+('&' if '?' in path else '?')+'release='+os.environ['GITHUB_SHA'],timeout=45) as r:return r.read()
+          expected=json.loads(Path('database/intermetal-panels.json').read_text())
+          before=json.loads(Path('/tmp/intermetal-before.json').read_text())['products']
+          products=json.loads(get('api/products.php'))['products']
+          live={(p['brand'],p['code']):p for p in products}
+          old={(p['brand'],p['code']):p for p in before}
+          assert {p['id'] for p in before}<={p['id'] for p in products}, 'Existing products missing'
+          for item in expected:
+              key=(item['brand'],item['code']);p=live[key]
+              assert p['category']==item['category'] and p['imageUrl']==item['image']
+              if key not in old:assert p['price'] is None,'New panel price must remain empty'
+              detail=json.loads(get('api/product-details.php?id='+str(p['id'])))
+              fields={f['label']:f['value'] for f in detail['fields']}
+              assert fields['Voc (V)']==next(f['value'] for f in item['fields'] if f['label']=='Voc (V)')
+              print('Verified live panel:',p['id'],p['brand'],p['code'])
+          again=json.loads(get('api/products.php'))['products'];assert len(again)==len(products),'Import produced duplicates'
+          assert get('assets/products/intermetal-pv-panel.jpg')==Path('assets/products/intermetal-pv-panel.jpg').read_bytes()
+          print('PASS: six panels available with local image, specifications, empty prices and no duplicates')
