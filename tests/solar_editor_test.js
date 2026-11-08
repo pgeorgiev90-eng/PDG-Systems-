@@ -37,14 +37,14 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
 }
 // Exercise the real autosave function against storage failures and unchanged saves.
 {
- const source=fs.readFileSync('solar-cad-preview.html','utf8'),data=new Map(),status={textContent:''};let project={version:1,planes:[],projectName:'One'};
+ const source=fs.readFileSync('solar-cad-preview.html','utf8'),data=new Map(),status={textContent:''};let project={version:1,planes:[{}],projectName:'One'};
  const ctx=vm.createContext({JSON,Date,Error,localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)},window:{PDGSolarProjectFormat:{validProject:d=>d?.version===1&&Array.isArray(d.planes)}},api:{project:()=>project,message:()=>{}},status,ready:true,restoring:false,storeKey:'test'});
  vm.runInContext(source.slice(source.indexOf('function save(show=false)'),source.indexOf('function schedule()',source.indexOf('function save(show=false)'))),ctx);
  vm.runInContext('save()',ctx);const first=data.get('test');
  project={...project,projectName:'Two'};vm.runInContext('save()',ctx);assert.equal(data.get('test-previous'),first);
  vm.runInContext('save()',ctx);assert.equal(data.get('test-previous'),first,'unchanged save preserves previous revision');
  data.set('test','broken');project={...project,projectName:'Three'};vm.runInContext('save()',ctx);assert.equal(data.get('test-previous'),first,'corrupt current cannot replace recovery');
- ctx.localStorage.setItem=()=>{throw Error('quota')};project={...project,projectName:'Four'};vm.runInContext('save()',ctx);assert.match(status.textContent,/Експорт/);
+ project={version:1,planes:[],projectName:'Empty'};vm.runInContext('save()',ctx);const recovery=data.get('test-previous');project={...project,projectName:'Empty again'};vm.runInContext('save()',ctx);assert.equal(data.get('test-previous'),recovery,'empty autosaves cannot erase last recoverable roof');ctx.localStorage.setItem=()=>{throw Error('quota')};project={...project,projectName:'Four'};vm.runInContext('save()',ctx);assert.match(status.textContent,/Експорт/);
  console.log('PASS: real autosave rotation, stable previous revision, corrupt current and storage quota failure');
 }
 {
