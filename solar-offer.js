@@ -163,3 +163,4 @@
 })();
 // The same shop-backed module picker is used by desktop and mobile CAD pages.
 (()=>{const script=document.createElement('script');script.src='solar-panel-catalog.js?v=20261108-store-panels';document.head.append(script);})();
+(()=>{const script=document.createElement('script');script.src='solar-project-start.js?v=20261108-start-1';document.head.append(script);})();

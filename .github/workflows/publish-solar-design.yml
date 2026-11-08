@@ -14,6 +14,9 @@ on:
       - 'solar-offer.js'
       - 'solar-offer-core.js'
       - 'solar-panel-catalog.js'
+      - 'solar-project-start.js'
+      - 'tests/solar_project_start_test.js'
+      - 'tests/solar_project_start_ui_test.js'
       - 'database/cad-panels.json'
       - 'api/cad-panels-bootstrap.php'
       - 'tests/solar_panel_catalog_test.js'
@@ -53,12 +56,15 @@ jobs:
         run: |
           php -l api/cad-panels-bootstrap.php
           php tests/cad_panels_import.php
+          node --check solar-project-start.js
+          node tests/solar_project_start_test.js
           node --check solar-panel-catalog.js
           node tests/solar_panel_catalog_test.js
           npm install --prefix /tmp/pdg-panel-ui --no-save --no-audit --no-fund jsdom@31.0.0
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_panel_catalog_ui_test.js
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_quote_version_ui_test.js
           PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_navigation_test.js
+          PDG_JSDOM=/tmp/pdg-panel-ui/node_modules/jsdom node tests/solar_project_start_ui_test.js
           php -l api/solar-yield.php
           node --check solar-offer.js
           node --check solar-offer-visuals.js
@@ -93,7 +99,7 @@ jobs:
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
           changed=set(subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines())
-          allowed_files=['database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
+          allowed_files=['database/cad-panels.json','api/cad-panels-bootstrap.php','api/schrack-shop-bootstrap.php','solar-panel-catalog.js','solar-project-start.js','solar-mounting-core.js','solar-mounting.js','solar-offer-core.js','solar-offer.js','solar-offer-visuals.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php']
           expected={name:None for name in allowed_files if name in changed}
           import json,urllib.request
           if 'database/cad-panels.json' in changed:
