@@ -1,1 +1,0 @@
-// Supabase public project URL and publishable/anon key. Never put a service_role or secret key here.\nwindow.CAD_CLOUD_AUTH = { url: '', anonKey: '' };\n
