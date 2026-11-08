@@ -9,7 +9,7 @@ const products=[
  {id:5,name:'Battery cable',category:'Аксесоари за батерии',price:'3'}
 ];
 const context=vm.createContext({window:{PDGCatalogSections:require('../catalog-sections.js')},catalogue:products,console});
-vm.runInContext(source.slice(source.indexOf('let equipment={'),source.indexOf('const storeKey=isDemo?')),context);
+vm.runInContext(source.slice(source.indexOf('let equipment={'),source.indexOf('const accountNamespace=')),context);
 const run=code=>vm.runInContext(code,context);
 assert.equal(run("equipmentProducts('charger').length"),1);
 assert.equal(run("equipmentProducts('cables').length"),2);
