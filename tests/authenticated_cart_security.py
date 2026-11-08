@@ -1,7 +1,9 @@
 exec(open('tests/my_projects_security.py').read().split('a,ac=login')[0])
 a,ac=login('admin@example.test','Admin-test-123456');u,uc=login('customer@example.test','Customer-test-123456')
 check(req(client(),'api/cart.php')[0]==401,'anonymous cart is protected')
-products=req(u,'api/products.php')[1]['products'];p=next(x for x in products if x['code']=='CART-CI-TEST');pid=int(p['id'])
+import subprocess
+fixture_id=subprocess.check_output(['php','-r',r'$s=require dirname(getcwd())."/pdg-shop-db.php";$d=new PDO("mysql:host=".$s["host"].";dbname=".$s["database"],$s["username"],$s["password"]);echo $d->query("SELECT id FROM products WHERE code=\"CART-CI-TEST\"")->fetchColumn();'],text=True)
+pid=int(fixture_id)
 code,cart=req(u,'api/cart.php');check(code==200 and cart['items']==[],'authenticated empty cart')
 check(req(u,'api/cart.php',{'action':'add','id':pid,'quantity':2})[0]==403,'cart CSRF required')
 code,cart=req(u,'api/cart.php',{'action':'add','id':pid,'quantity':2},cart['csrf']);check(code==200 and cart['items'][0]['quantity']==2,'authenticated add')
@@ -11,3 +13,4 @@ check(req(a,'api/cart.php')[1]['items']==[],'administrator and customer carts ar
 code,cart=req(u,'api/cart.php',{'action':'remove','id':pid,'quantity':1},cart['csrf']);check(code==200 and cart['items']==[] and not cart['can_checkout'],'remove and empty cart')
 check(req(u,'api/cart.php',{'action':'add','id':pid,'quantity':1000},cart['csrf'])[0]==422,'quantity bounds')
 print('PASS: authenticated customer cart, CSRF, server totals/VAT, quantity changes, removal and cross-account isolation')
+
