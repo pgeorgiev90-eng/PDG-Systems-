@@ -77,3 +77,19 @@ for(const file of ['roof-cad.php','solar-cad-preview.html']){
  bodyClasses.delete('cad-mode');vm.runInContext("mode='idle'",context);windowEvents['pdg-solar-mode']();flush();assert.equal(nodes.length,0);assert.equal(vm.runInContext('draft.length',context),2);
  console.log('PASS: crosshair, cursor-following dashed edge, closure preview, unchanged contour, mobile centre targeting and guide cleanup');
 }
+
+// Audit regression: rotations and bulk dimension changes must be transactional.
+for(const file of ['roof-cad.php','solar-cad-preview.html']){
+ const source=fs.readFileSync(file,'utf8'),part=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
+ const fields=Object.fromEntries(['context-edit','rotation','panelW','panelH','panelPower','panelCatalog','panelVoc','panelVmp','panelVocCoefficient','panelImp','panelIsc'].map(id=>[id,{value:''}]));
+ Object.assign(fields.panelW,{value:'40'});fields.panelH.value='2';fields.panelPower.value='550';fields.panelCatalog.value='custom';
+ const messages=[],ctx=vm.createContext({Math,Number,Set,window:{},$:id=>fields[id],render(){},msg:m=>messages.push(m),api:{message:m=>messages.push(m)}});
+ vm.runInContext('let selected=0,selectedPanel=0,markedPanels=new Set([0]),planes=[{path:[[0,0],[0,.0001],[.0001,.0001],[.0001,0]],panels:[{lat:.00005,lng:.000008,w:1,h:2,power:450,rotation:0}]}];'+part('function rad(','function actualArea(')+part('function contains(','function panelMoveGroup(')+part('function panelFitsRoof(','function roofPanelAngle(')+part('function rotateSelected(','function draw(')+part("$('context-edit').onclick=",'\nconst settings='),ctx);
+ const run=s=>vm.runInContext(s,ctx);
+ assert(run('panelFitsRoof(planes[0].panels[0],planes[0].path)'));
+ run('rotateSelected(90)');assert.equal(run('planes[0].panels[0].rotation'),0,'edge rotation rejected');
+ fields['context-edit'].onclick();assert.equal(run('planes[0].panels[0].w'),1,'oversize bulk resize rejected');assert.equal(run('planes[0].panels[0].power'),450,'rejected resize preserves power too');
+ fields.panelW.value='.5';fields.panelH.value='1';fields['context-edit'].onclick();assert.equal(run('planes[0].panels[0].w'),.5);assert.equal(run('planes[0].panels[0].power'),550);
+ run('rotateSelected(90)');assert.equal(run('planes[0].panels[0].rotation'),90,'valid rotation accepted');
+ console.log('PASS:',file,'transactional rotation and bulk resize: reject boundary overflow, retain specs, accept valid changes');
+}
