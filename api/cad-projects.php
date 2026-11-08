@@ -30,25 +30,7 @@ try {
         KEY recent (updated_at,id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-    if ($method === 'POST') {
-        $limit = 1048576;
-        $raw = file_get_contents('php://input', false, null, 0, $limit+1);
-        if (strlen($raw) > $limit) pdg_answer(413, ['error'=>'project_too_large']);
-        $data = json_decode($raw, true, 128);
-        $name = is_string($data['name'] ?? null) ? trim($data['name']) : '';
-        $editor = $data['editor'] ?? null;
-        $project = $data['project'] ?? null;
-        if ($name === '' || mb_strlen($name) > 120 || !in_array($editor, ['solar','electric'], true) || !is_array($project)) {
-            pdg_answer(422, ['error'=>'invalid_project']);
-        }
-        $valid = $editor === 'solar'
-            ? ($project['version'] ?? null) === 1 && is_array($project['planes'] ?? null) && count($project['planes']) > 0
-            : ($project['version'] ?? null) === 2 && is_array($project['items'] ?? null) && is_array($project['busbars'] ?? null);
-        if (!$valid) pdg_answer(422, ['error'=>'invalid_project']);
-        $save = $db->prepare('INSERT INTO pdg_cad_projects (user_id,editor,project_name,snapshot) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE snapshot=VALUES(snapshot),updated_at=CURRENT_TIMESTAMP');
-        $save->execute([$user,$editor,$name,json_encode($project, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE)]);
-        pdg_answer(200, ['ok'=>true]);
-    }
+    if ($method === 'POST') pdg_answer(410, ['error'=>'project_api_updated','message'=>'Обновете CAD страницата и използвайте Моите проекти.']);
 
     if (isset($_GET['id'])) {
         $id = filter_var($_GET['id'], FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);

@@ -1,0 +1,121 @@
+name: Test and publish personal project workspace
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-user-projects.yml'
+      - 'my-projects.php'
+      - 'my-projects.js'
+      - 'my-projects.css'
+      - 'api/my-projects*.php'
+      - 'api/project-requests.php'
+      - 'tests/my_projects*'
+      - 'tests/cad_account_projects_test.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: pdg_test
+          MYSQL_ROOT_PASSWORD: test-root-password
+          MYSQL_ROOT_HOST: '%'
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptest-root-password"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Test PHP syntax and real account isolation
+        run: |
+          for file in my-projects.php api/my-projects-common.php api/my-projects.php api/my-projects-demo.php api/project-requests.php api/cad-projects.php api/cad-page-access.php; do php -l "$file"; done
+          php tests/bootstrap-account-ci.php
+          php -d auto_prepend_file=/tmp/pdg-test-https.php -S 127.0.0.1:8199 -t . > /tmp/pdg-project-test.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS -o /dev/null 'http://127.0.0.1:8199/api/account-draft.php?action=session'; then break; fi
+            sleep 1
+          done
+          python3 tests/my_projects_security.py
+          node -e "require('./electrical-busbar-core').validate(JSON.parse(require('fs').readFileSync('/tmp/pdg-demo-electric.json')));console.log('PASS: demo electric geometry validated by the real editor core')"
+      - name: Test dashboards, account reopen, prices and CAD regressions
+        run: |
+          npm install --prefix /tmp/pdg-profile-ui --no-audit --no-fund jsdom@26
+          export PDG_JSDOM=/tmp/pdg-profile-ui/node_modules/jsdom
+          node tests/my_projects_ui_test.js
+          node tests/cad_account_projects_test.js
+          node --check cad-account-projects.js
+          node --check my-projects.js
+          node --check admin-project-requests.js
+          node --check electrical-busbar.js
+          for test in tests/solar*_test.js tests/electrical*_test.js; do node "$test"; done
+      - name: Back up hosting files and verify their current source
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,subprocess
+          from pathlib import Path
+          files=['api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php']
+          Path('/tmp/profile-files.json').write_text(json.dumps(files))
+          backup=Path('/tmp/profile-rollback');backup.mkdir()
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  p=backup/name;p.parent.mkdir(parents=True,exist_ok=True);data=io.BytesIO()
+                  previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+                  try:ftp.retrbinary('RETR '+name,data.write)
+                  except ftplib.error_perm as e:
+                      if str(e).startswith('550') and previous.returncode!=0:p.with_name(p.name+'.absent').write_text('New file');continue
+                      raise
+                  p.write_bytes(data.getvalue())
+                  if previous.returncode==0:assert data.getvalue() in [previous.stdout,Path(name).read_bytes()], 'Hosting differs from reviewed source: '+name
+                  print('Backed up:',name,flush=True)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: personal-project-workspace-rollback
+          path: /tmp/profile-rollback
+          retention-days: 30
+      - name: Publish verified personal workspace
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,urllib.request
+          from pathlib import Path
+          files=json.loads(Path('/tmp/profile-files.json').read_text())
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for name in files:
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name,io.BytesIO(body));check=io.BytesIO();ftp.retrbinary('RETR '+name,check.write);assert check.getvalue()==body,name
+                  print('Published and verified:',name,flush=True)
+          for name in files:
+              if name.endswith('.php'):continue
+              with urllib.request.urlopen('https://pdgsystems.bg/'+name+'?release='+os.environ['GITHUB_SHA'],timeout=45) as r:assert r.read()==Path(name).read_bytes(),name
+      - name: Verify live authentication boundaries
+        shell: python
+        run: |
+          import urllib.request,urllib.error,json
+          root='https://pdgsystems.bg/'
+          for endpoint in ['api/my-projects.php','api/project-requests.php']:
+              try:urllib.request.urlopen(root+endpoint,timeout=45);raise AssertionError('Guest access must be blocked')
+              except urllib.error.HTTPError as e:assert e.code==401,(endpoint,e.code)
+          with urllib.request.urlopen(root+'my-projects.php',timeout=45) as r:
+              assert '/auth.html?next=my-projects.php' in r.url
+              assert 'Моите проекти' in r.read().decode('utf-8')
+          print('PASS: live personal APIs require authentication and dashboard redirects guests to login',flush=True)
