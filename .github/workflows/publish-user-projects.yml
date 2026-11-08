@@ -77,7 +77,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io,json,subprocess
           from pathlib import Path
-          files=['account-session-guard.js','api/demo-account-bootstrap.php','api/account-draft.php','api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php']
+          files=['account-session-guard.js','api/demo-account-bootstrap.php','api/account-draft.php','api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php','solar-cad-preview.html']
           Path('/tmp/profile-files.json').write_text(json.dumps(files))
           backup=Path('/tmp/profile-rollback');backup.mkdir()
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
