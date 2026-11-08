@@ -95,22 +95,23 @@
     report.append(text('p',(prices.complete?'Общо без ДДС: ':'Междинна сума на оценените позиции без ДДС: ')+money(prices.subtotal)),text('p','ДДС 20%: '+money(prices.vat)),text('p',(prices.complete?'Общо с ДДС: ':'Междинна сума с ДДС: ')+money(prices.total),'offer-summary'));
     if(!prices.complete)report.append(text('p','Офертата е с непопълнени цени. Междинната сума не е крайна цена на системата.','offer-pending'));
     report.append(text('p','Предварителна оферта. Каталожните цени и ръчно въведените стойности подлежат на потвърждение от PDG Systems. Доставката не е включена. Конструкцията, отстоянията, електрическата схема и крайната съвместимост се уточняват за конкретния обект.','offer-fine'));
-    const active=summary.roofs.filter(r=>r.count);
+    let forecastResults=null;const active=summary.roofs.filter(r=>r.count);
     if(s.yieldMode==='manual'){
       const kwh=summary.kwp*Number(s.manualYield);yieldBox.append(text('p',number(kwh,0)+' kWh/година · '+number(kwh/1000,2)+' MWh/година','offer-summary'),text('p','Ръчна оценка: '+s.manualYield+' kWh/kWp годишно, въведени от потребителя. Не е изчисление от PVGIS и не моделира отделно ориентацията, наклона и засенчването.','offer-fine'));
     }else{
       const results=[];let next=0;
       async function worker(){while(next<active.length){const i=next++;if(run!==generation)return;try{results[i]=await forecast(active[i],Number(s.loss));}catch(e){results[i]=null;}if(run===generation)$('offer-progress').textContent='Прогноза: обработени '+results.filter(x=>x!==undefined).length+' от '+active.length+' ската.';}}
       await Promise.all([worker(),worker()]);if(run!==generation)return;
-      yieldBox.append(table(['Скат','Годишен добив','Специфичен добив'],active.map((r,i)=>['Скат '+r.number,results[i]?number(results[i].kwh,0)+' kWh':'Временно недостъпен',results[i]?number(results[i].annual_kwh_per_kwp,0)+' kWh/kWp':'—'])));
+      forecastResults=results;yieldBox.append(table(['Скат','Годишен добив','Специфичен добив'],active.map((r,i)=>['Скат '+r.number,results[i]?number(results[i].kwh,0)+' kWh':'Временно недостъпен',results[i]?number(results[i].annual_kwh_per_kwp,0)+' kWh/kWp':'—'])));
       if(results.every(Boolean)){const total=results.reduce((n,r)=>n+r.kwh,0);yieldBox.prepend(text('p',number(total,0)+' kWh/година · '+number(total/1000,2)+' MWh/година','offer-summary'));}
       else yieldBox.prepend(text('p','Няма пълна прогноза за всички скатове. Опитайте отново или изберете ръчна оценка.','offer-pending'));
       const sources=[...new Set(results.filter(Boolean).map(r=>(r.radiation_database||'PVGIS')+(r.year_min?' · '+r.year_min+'–'+r.year_max:'')))];
       yieldBox.append(text('p','Източник: PVGIS 5.3 / Европейска комисия, JRC. '+sources.join('; ')+'. Загуби: '+s.loss+'%. Кристален силиций, вентилиран монтаж и теренен хоризонт. Не се отчитат локални сенки от комини/дървета, редово засенчване, ограничения по износ и конкретното ограничаване от избрания инвертор. Стойностите са климатична прогноза, а не гаранция за производство.','offer-fine'));
     }
-    if(run!==generation)return;ready=true;$('offer-print').disabled=$('offer-download').disabled=false;$('offer-progress').textContent='Офертата е готова за преглед и печат.';
+    if(run!==generation)return;window.PDGSolarOfferVisuals?.build({report,summary,s,prices,strings,results:forecastResults});ready=true;$('offer-print').disabled=$('offer-download').disabled=false;$('offer-progress').textContent='Офертата е готова за преглед и печат.';
   };
   $('offer-close').onclick=()=>$('solarOfferDialog').close();
   $('offer-print').onclick=()=>{if(ready)window.print();};
-  $('offer-download').onclick=()=>{if(!ready)return;const doc='<!doctype html><html lang="bg"><meta charset="utf-8"><title>Оферта PDG Systems</title><style>body{font:15px/1.6 Arial;color:#183348;max-width:1000px;margin:30px auto;padding:20px}table{width:100%;border-collapse:collapse}td,th{text-align:left;border-bottom:1px solid #ccc;padding:10px;overflow-wrap:anywhere}h1{font-size:27px}.offer-summary{background:#e8f5ef;padding:15px}.offer-pending{color:#885d13}.offer-fine{font-size:12px}@media print{tr{break-inside:avoid}}</style>'+$('solar-offer-report').outerHTML+'</html>';const url=URL.createObjectURL(new Blob([doc],{type:'text/html;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='PDG-Solar-CAD-offer.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  $('offer-download').onclick=()=>{if(!ready)return;const doc='<!doctype html><html lang="bg"><meta charset="utf-8"><title>Оферта PDG Systems</title><style>body{font:15px/1.6 Arial;color:#183348;max-width:1000px;margin:30px auto;padding:20px}table{width:100%;border-collapse:collapse}td,th{text-align:left;border-bottom:1px solid #ccc;padding:10px;overflow-wrap:anywhere}h1{font-size:27px}.offer-summary{background:#e8f5ef;padding:15px}.offer-pending{color:#885d13}.offer-fine{font-size:12px}@media print{tr{break-inside:avoid}}</style><style>'+ (window.PDGSolarOfferVisuals?.css||'')+'</style>'+$('solar-offer-report').outerHTML+'</html>';const url=URL.createObjectURL(new Blob([doc],{type:'text/html;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='PDG-Solar-CAD-offer.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 })();
+

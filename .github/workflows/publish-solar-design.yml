@@ -11,6 +11,10 @@ on:
       - 'catalog-sections.js'
       - 'solar-mounting-core.js'
       - 'solar-mounting.js'
+      - 'solar-offer.js'
+      - 'solar-offer-visuals.js'
+      - 'api/solar-yield.php'
+      - 'tests/solar_offer_visuals_test.js'
       - 'tests/solar_mounting_test.js'
   workflow_dispatch:
 permissions:
@@ -28,6 +32,10 @@ jobs:
           fetch-depth: 0
       - name: Check PHP, editor geometry, mobile format, offers and strings
         run: |
+          php -l api/solar-yield.php
+          node --check solar-offer.js
+          node --check solar-offer-visuals.js
+          node tests/solar_offer_visuals_test.js
           php -l roof-cad.php
           php -l api/cad-page-access.php
           node tests/solar_editor_test.js
@@ -57,10 +65,12 @@ jobs:
         run: |
           import ftplib, ssl, os, hashlib, io, subprocess
           from pathlib import Path
-          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b','solar-mounting-core.js':None,'solar-mounting.js':None}
+          expected = {'roof-cad.php':'9c25c67badf8e06092317e9c7a55cea4afcf28dbc12ca4646e99743d84b8ece8','solar-cad-preview.html':'9eae88496b6a371adf5181bda181048774b1ca981c1a4a2268b6d0de4f2ec81b','solar-mounting-core.js':None,'solar-mounting.js':None,'solar-offer.js':None,'solar-offer-visuals.js':None,'api/solar-yield.php':None}
           Path('/tmp/solar-rollback/hosting-before').mkdir(parents=True,exist_ok=True)
           Path('/tmp/solar-rollback/source-before').mkdir(exist_ok=True)
           for file in expected:
+              for base in ('hosting-before','source-before'):
+                  Path('/tmp/solar-rollback/'+base+'/'+file).parent.mkdir(parents=True,exist_ok=True)
               previous=subprocess.run(['git','show','HEAD^:'+file],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
               if previous.returncode==0:
                   Path('/tmp/solar-rollback/source-before/'+file).write_bytes(previous.stdout)
@@ -106,16 +116,17 @@ jobs:
           with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
               ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']); ftp.prot_p(); ftp.cwd('/')
-              for file in ('solar-mounting-core.js','solar-mounting.js','solar-cad-preview.html','roof-cad.php'):
+              for file in ('solar-mounting-core.js','solar-mounting.js','solar-offer-visuals.js','solar-offer.js','api/solar-yield.php','solar-cad-preview.html','roof-cad.php'):
                   body=Path(file).read_bytes()
                   ftp.storbinary('STOR '+file,io.BytesIO(body))
                   check=io.BytesIO(); ftp.retrbinary('RETR '+file,check.write)
                   assert check.getvalue()==body, 'FTPS verification failed: '+file
                   print('Verified hosting source:',file,hashlib.sha256(body).hexdigest(),flush=True)
           time.sleep(4)
-          for file in ('solar-mounting-core.js','solar-mounting.js','solar-cad-preview.html'):
+          for file in ('solar-mounting-core.js','solar-mounting.js','solar-offer-visuals.js','solar-offer.js','solar-cad-preview.html'):
               request=urllib.request.Request('https://pdgsystems.bg/'+file+'?release='+os.environ['GITHUB_SHA'],headers={'User-Agent':'PDG-Solar-Release-Verification/1.0'})
               with urllib.request.urlopen(request,timeout=45) as response:
                   assert response.status==200
                   assert response.read()==Path(file).read_bytes(), 'Public response differs: '+file
           print('Verified public HTTPS Solar CAD assets',flush=True)
+

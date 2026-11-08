@@ -36,7 +36,7 @@ function runs(panels,maxGap=.04){
   for(const p of items){let row=rows.find(row=>Math.abs(row.y-p.y)<=.05&&Math.abs(row.h-p.h)<.015);if(!row){row={y:p.y,h:p.h,items:[]};rows.push(row)}row.items.push(p)}
   for(const row of rows){row.items.sort((a,b)=>a.x-b.x);let run=null;
    for(const p of row.items){const left=p.x-p.w/2,right=p.x+p.w/2,gap=run?left-run.end:Infinity;
-    if(!run||gap>maxGap+.001||gap<-.015){run={count:1,start:left,end:right,angle:p.angle,height:p.h};result.push(run)}else{run.count++;run.end=right}
+    if(!run||gap>maxGap+.001||gap<-.015){run={count:1,start:left,end:right,angle:p.angle,y:row.y,height:p.h};result.push(run)}else{run.count++;run.end=right}
    }
   }
  }

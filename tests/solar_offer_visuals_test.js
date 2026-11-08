@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{monthly}=require('../solar-offer-visuals.js');
+const data=Array.from({length:12},(_,i)=>({month:i+1,kwh_per_kwp:100+i}));
+assert.deepEqual(monthly([{monthly:data},{monthly:data}],[{kwp:2},{kwp:3}]),data.map(x=>x.kwh_per_kwp*5));
+for(const input of [null,[],[{monthly:data.slice(1)}],[{monthly:[...data.slice(1),data[1]]}],[{monthly:data.map(x=>({...x,kwh_per_kwp:NaN}))}]])assert.equal(monthly(input,[{kwp:2}]),null);
+class Node{constructor(tag){this.tag=tag;this.children=[];this.attrs={};this._text='';}set textContent(t){this._text=String(t);}get textContent(){return this._text+this.children.map(c=>c.textContent).join(' ');}get firstChild(){return this.children[0];}append(...nodes){for(const n of nodes){if(n.parent)n.parent.children.splice(n.parent.children.indexOf(n),1);n.parent=this;this.children.push(n);}}setAttribute(k,v){this.attrs[k]=v;}insertBefore(n,b){if(n.parent)n.parent.children.splice(n.parent.children.indexOf(n),1);n.parent=this;this.children.splice(this.children.indexOf(b),0,n);}}
+const R=6371008.8,lat=42.7,lng=23.32,at=(x,y)=>[lat+y/R*180/Math.PI,lng+x/(R*Math.cos(lat*Math.PI/180))*180/Math.PI],roof={path:[at(-1,-1),at(5,-1),at(5,5),at(-1,5)],tilt:10,azimuth:180,mounting:{brand:'enerack',roofType:'tile',systemId:'tile'},panels:[0,1,2].map(i=>({lat:at(i*1.02,0)[0],lng:at(i*1.02,0)[1],w:1,h:2,rotation:0,power:450,voc:40,vocCoefficient:-.25}))};
+const mount=require('../solar-mounting-core.js'),offer=require('../solar-offer-core.js'),products=['R52-5000','SFR-01','REC','EIC','FEC3035','TRH-T06','ST6.3x80'].map((code,id)=>({id,code,brand:'Enerack',category:'КЕРЕМИДА',name:code,price:'1'}));
+const window={document:{head:new Node('head'),createElement:t=>new Node(t),createElementNS:(_,t)=>new Node(t)},PDGSolarMountingCore:mount,PDGSolarMounting:{result:()=>mount.calculate([roof],products)},PDGSolarEditor:{project:()=>({planes:[roof]})},PDGSolarOfferCore:offer,PDGStringLayout:{assign:()=>[{id:'S01',roof:1,count:3,coldVoc:120,limit:750,color:'#1046ef',panels:roof.panels.map((p,index)=>({...p,index}))}]}};
+vm.runInNewContext(fs.readFileSync('solar-offer-visuals.js','utf8'),{window});
+const report=new Node('article');report.append(new Node('p'));const summary=offer.project([roof]);
+window.PDGSolarOfferVisuals.build({report,summary,s:{yieldMode:'pvgis',loss:'14',inverterName:'SolaX',inverterQty:'1'},prices:{complete:true,total:120000,subtotal:100000},strings:{temperature:-20},results:[{monthly:data,kwh:1800}]});
+assert.equal(report.children.length,4);assert.match(report.textContent,/План за разкрояване/);assert.match(report.textContent,/TRH-T06/);assert.match(report.textContent,/Стрингов план/);
+function walk(n){for(const v of Object.values(n.attrs))assert(!/NaN|undefined|Infinity/.test(String(v)),String(v));n.children.forEach(walk);}walk(report);
+console.log('PASS: monthly aggregation, missing/invalid month rejection, cover, real mounting BOM and cuts, rail coordinates, string sheet and safe SVG attributes');
