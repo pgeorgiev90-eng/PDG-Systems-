@@ -55,15 +55,19 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: python
         run: |
-          import ftplib,ssl,os,io,subprocess,json,urllib.request,hashlib
+          import ftplib,ssl,os,io,subprocess,json,urllib.request,hashlib,re
           from pathlib import Path
-          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','catalog.html','api/schrack-shop-bootstrap.php']
+          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','product.js','catalog.html','api/schrack-shop-bootstrap.php']
           with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?before='+os.environ['GITHUB_SHA'],timeout=40) as r:
               before=json.load(r)
           Path('/tmp/intermetal-before.json').write_text(json.dumps(before))
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
               print('Pricing helpers:',[n for n in ftp.nlst('api') if any(k in n.lower() for k in ['price','pricing','account','shop-common'])],flush=True)
+              for diagnostic in ('api/customer-pricing.php','api/products.php'):
+                  info=io.BytesIO();ftp.retrbinary('RETR '+diagnostic,info.write);source=info.getvalue().decode()
+                  for line in source.splitlines():
+                      if ('function ' in line or 'pdg_' in line and ('pric' in line or 'customer' in line)) and not any(k in line.lower() for k in ('password','secret','token')):print('Pricing signature:',line[:1000],flush=True)
               for name in files:
                   buffer=io.BytesIO()
                   try:ftp.retrbinary('RETR '+name,buffer.write)
@@ -73,7 +77,7 @@ jobs:
                   body=buffer.getvalue();target=Path('/tmp/intermetal-rollback')/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(body)
                   print('Existing hash:',name,hashlib.sha256(body).hexdigest(),flush=True)
                   previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
-                  assert body==Path(name).read_bytes() or (previous.returncode==0 and body==previous.stdout) or (name=='catalog.html' and hashlib.sha256(body).hexdigest()=='fe6ac2795ae8e478e88c09c06824a74dd5ee0f28827bd436dd32bbd8b8273c17'), 'Unexpected hosting file; nothing uploaded: '+name
+                  assert body==Path(name).read_bytes() or (previous.returncode==0 and body==previous.stdout) or (name=='product.js' and hashlib.sha256(body).hexdigest()=='48ee3ae198eb2f8b3eb849aa0105be9f656a22d11a6b9f918b7d1bae34f9720a') or (name=='catalog.html' and hashlib.sha256(body).hexdigest()=='b695f0bd505cbd338a31af4b30bc9c132143b30d79257d7d891e8a30fd55163c'), 'Unexpected hosting file; nothing uploaded: '+name
           print('Existing production files verified; rollback copies retained')
       - uses: actions/upload-artifact@v4
         with:
@@ -89,7 +93,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io
           from pathlib import Path
-          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','catalog.html','api/schrack-shop-bootstrap.php']
+          files=['assets/products/intermetal-pv-panel.jpg','database/intermetal-panels.json','api/intermetal-panels-bootstrap.php','product.js','catalog.html','api/schrack-shop-bootstrap.php']
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
               for name in files:

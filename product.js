@@ -14,6 +14,9 @@
       if(r.status===404){$('status').textContent='Този продукт вече не се предлага.';return;}
       if(!r.ok)throw Error();
       const data=await r.json(),p=data.product;
+      let pricesVisible=false;
+      try{const c=await fetch('api/products.php',{cache:'no-store'});if(c.ok){const catalog=await c.json(),item=catalog.products?.find(x=>String(x.id)===String(p.id));pricesVisible=catalog.prices_visible===true;if(item)p.price=item.price;}}catch{}
+      if(!pricesVisible)p.price=null;
       document.title=p.name+' | PDG Systems';$('name').textContent=p.name;
       $('category').textContent=p.brand+' · '+p.category;$('code').textContent='Код: '+p.code;
       $('description').textContent=p.description||'';$('description-section').hidden=!p.description;
@@ -26,7 +29,11 @@
       } else if(p.imageIndex!==null && Number.isInteger(imageIndex) && imageIndex>=0) {
         const photo=document.createElement('div');photo.className='sprite';photo.style.backgroundPosition=(-150*(imageIndex%10))+'px '+(-150*Math.floor(imageIndex/10))+'px';photo.setAttribute('role','img');photo.setAttribute('aria-label',p.name);$('photo').append(photo);
       } else {$('photo').textContent='Снимка предстои';}
-      if(Number(p.price)>0) {
+      if(!pricesVisible){
+        $('price').textContent='Влезте, за да видите цената';$('buy').hidden=true;$('inquiry').hidden=true;
+        const links=document.createElement('span');links.style.cssText='display:flex;gap:14px;margin-top:10px';
+        for(const [label,mode]of [['Създай акаунт','register'],['Вход','login']]){const a=document.createElement('a');a.textContent=label;a.href='auth.html?next='+encodeURIComponent('product.html?id='+p.id)+(mode==='register'?'&mode=register':'');links.append(a);}$('price').append(links);
+      }else if(Number(p.price)>0) {
         $('price').textContent=money(p.price)+' без ДДС';$('vat').textContent=money(Number(p.price)*1.2)+' с ДДС';$('buy').hidden=false;
         $('add').onclick=async()=>{if(!$('quantity').reportValidity())return;$('add').disabled=true;try{await window.PDGStore.add(p.id,Number($('quantity').value));}catch(e){}finally{$('add').disabled=false;}};
       } else {$('price').textContent='Цена по запитване';$('inquiry').hidden=false;}
