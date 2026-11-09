@@ -68,6 +68,9 @@ call(admin,{'action':'issue','title':'Fixture','priority':'high','stage':'verifi
 call(admin,{'action':'partner','id':3,'is_partner':True,'company':'Fixture Partner','vat_number':'TEST'},ac,path='api/admin-growth.php')
 check(call(other)['partner']['company']=='Fixture Partner','partner profile remains owner-scoped')
 check(call(user)['partner'] is None,'partner data not shared')
+warning=call(admin,{'action':'partner','id':3,'is_partner':True,'company':'Fixture Partner','vat_number':'TEST','discount_bp':3000},ac,path='api/admin-growth.php')
+check(warning['margin_warnings']==1,'administrator sees discount margin warning')
+call(admin,{'action':'partner','id':3,'is_partner':True,'company':'Fixture Partner','vat_number':'TEST','discount_bp':0},ac,path='api/admin-growth.php')
 # Concurrent checkouts cannot oversell an explicitly known stock count.
 from concurrent.futures import ThreadPoolExecutor
 prepared=[]

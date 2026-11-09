@@ -28,7 +28,7 @@ try {
   $q->execute([$id]); $who=$q->fetch();
   if (!$who || (int)$who['is_active']!==1 || $who['role']!=='admin') answer(403,['error'=>'forbidden']);
   if ($_SERVER['REQUEST_METHOD']==='GET') {
-    $q=$db->query('SELECT id,brand,category,code,name,price,active FROM products ORDER BY id DESC LIMIT 500');
+    $q=$db->query('SELECT id,brand,category,code,name,price,active FROM products ORDER BY id DESC LIMIT 5000');
     answer(200,['products'=>$q->fetchAll()]);
   }
   if ($_SERVER['REQUEST_METHOD']!=='POST') answer(405,['error'=>'method_not_allowed']);

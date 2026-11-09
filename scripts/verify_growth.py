@@ -11,7 +11,7 @@ def read(path):
     return urllib.request.urlopen(base + path + separator + 'release=' + os.environ['GITHUB_SHA'], timeout=40)
 
 for path in ['shopping-tools.html','admin-growth.html','help-center.html','panel-projects.html',
-             'shopping-tools.js','admin-growth.js','cad-document.js','cad-shopping.js','store.js']:
+             'auth.html','admin-preview.html','profile-preview.html','shopping-tools.js','admin-growth.js','cad-document.js','cad-shopping.js','store.js']:
     with read(path) as response:
         assert response.status == 200
         assert hashlib.sha256(response.read()).digest() == hashlib.sha256(Path(path).read_bytes()).digest(), path
