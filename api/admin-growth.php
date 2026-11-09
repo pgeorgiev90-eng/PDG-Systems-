@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/admin-common.php';
-require __DIR__.'/commerce-common.php';
+require_once __DIR__.'/commerce-common.php';
 function growth_text($v,int $max,bool $required=false): string {
     if(!is_string($v)||mb_strlen($v)>$max||($required&&trim($v)===''))throw new InvalidArgumentException('invalid_text');
     return trim($v);

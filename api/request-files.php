@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/admin-common.php';
-require __DIR__.'/commerce-common.php';
+require_once __DIR__.'/commerce-common.php';
 try {
     [$db,$user]=pdg_account_session(false);pdg_commerce_schema($db);
     if($_SERVER['REQUEST_METHOD']==='GET'){

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/shop-common.php';
-require __DIR__.'/commerce-common.php';
+require_once __DIR__.'/commerce-common.php';
 try {
     $db=shop_db();$account=pdg_pricing_account($db,true);
     if ($account===null) shop_answer(401,['error'=>'authentication_required']);

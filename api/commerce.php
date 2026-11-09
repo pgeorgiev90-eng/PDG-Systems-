@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/shop-common.php';
-require __DIR__.'/commerce-common.php';
+require_once __DIR__.'/commerce-common.php';
 try {
     if($_SERVER['REQUEST_METHOD']!=='GET')shop_answer(405,['error'=>'method_not_allowed']);
     $db=shop_db();pdg_commerce_schema($db);$account=pdg_pricing_account($db);
