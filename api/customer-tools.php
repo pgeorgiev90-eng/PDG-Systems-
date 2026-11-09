@@ -16,7 +16,8 @@ try {
         $q=$db->prepare('SELECT o.id,o.order_number,o.total_cents,o.status,o.created_at,x.delivery_method FROM pdg_orders o JOIN pdg_order_owners x ON x.order_id=o.id WHERE x.user_id=? ORDER BY o.id DESC LIMIT 30');$q->execute([$user]);$orders=$q->fetchAll();
         $q=$db->prepare('SELECT product_id AS id,quantity FROM pdg_order_items WHERE order_id=? ORDER BY id');
         foreach($orders as &$o){$q->execute([$o['id']]);$o['items']=array_map(fn($i)=>['id'=>(int)$i['id'],'quantity'=>(int)$i['quantity']],$q->fetchAll());}unset($o);
-        shop_answer(200,['lists'=>$lists,'requests'=>$requests,'orders'=>$orders,'csrf'=>$_SESSION['csrf']]);
+        $q=$db->prepare('SELECT is_partner,company,vat_number FROM pdg_partner_profiles WHERE user_id=?');$q->execute([$user]);$partner=$q->fetch()?:null;
+        shop_answer(200,['lists'=>$lists,'requests'=>$requests,'orders'=>$orders,'partner'=>$partner,'csrf'=>$_SESSION['csrf']]);
     }
     $v=shop_input();$action=$v['action']??'';
     if ($action==='save_list') {

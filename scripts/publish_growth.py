@@ -20,7 +20,7 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=60) as ftp:
     # Read all previous files before replacing anything. 550 is allowed only for new files.
     import subprocess
     for path in paths:
-        known = subprocess.run(['git', 'cat-file', '-e', 'HEAD^:' + path], capture_output=True).returncode == 0
+        known = subprocess.run(['git', 'cat-file', '-e', 'b87f1d6a81863d724d0d23c345f0602df3299078:' + path], capture_output=True).returncode == 0
         previous = io.BytesIO()
         try:
             ftp.retrbinary('RETR ' + path, previous.write)

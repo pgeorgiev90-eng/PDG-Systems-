@@ -43,6 +43,7 @@ try {
             } catch (PDOException $e) {
                 if ($e->getCode() !== '42S02') throw $e;
             }
+            $description=pdg_priority_description($p)??$description;
             $data = [
                 'title' => $p['name'].' | PDG Systems',
                 'description' => $description,

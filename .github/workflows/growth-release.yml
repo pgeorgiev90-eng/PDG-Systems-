@@ -17,6 +17,7 @@ jobs:
       - name: JavaScript and PHP syntax
         run: |
           for file in api/*.php social-page.php roof-cad.php electrical-cad.php; do php -l "$file"; done
+          php tests/product_copy_test.php
           for file in shopping-tools-core.js shopping-tools.js admin-growth.js cad-shopping.js cad-document.js product.js store.js; do node --check "$file"; done
       - name: Existing editor, catalogue, mobile and UI regressions
         run: |
@@ -45,7 +46,7 @@ jobs:
         run: |
           php tests/bootstrap-account-ci.php
           php -r '$s=require dirname(getcwd())."/pdg-shop-db.php";$d=new PDO("mysql:host=".$s["host"].";dbname=".$s["database"],$s["username"],$s["password"]);$d->exec("INSERT INTO products(brand,category,code,name,price) VALUES(\"Test\",\"Test\",\"CART-CI-TEST\",\"Cart test\",10.00),(\"Test\",\"Test\",\"NO-PRICE\",\"No price\",NULL)");$q=$d->prepare("INSERT INTO pdg_users(email,password_hash,role) VALUES(?,?,?)");$q->execute(["other@example.test",password_hash("Other-test-123456",PASSWORD_DEFAULT),"customer"]);'
-          php -d auto_prepend_file=/tmp/pdg-test-https.php -d "sendmail_path=/bin/sh $GITHUB_WORKSPACE/tests/capture-mail-ci.sh" -S 127.0.0.1:8199 -t . > /tmp/pdg-growth-server.log 2>&1 &
+          PHP_CLI_SERVER_WORKERS=4 php -d auto_prepend_file=/tmp/pdg-test-https.php -d "sendmail_path=/bin/sh $GITHUB_WORKSPACE/tests/capture-mail-ci.sh" -S 127.0.0.1:8199 -t . > /tmp/pdg-growth-server.log 2>&1 &
           trap 'cat /tmp/pdg-growth-server.log' EXIT
           for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:8199/api/account-draft.php?action=session && break; sleep 1; done
           python3 tests/commerce_security.py
@@ -90,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Require current production source
         run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
       - name: Back up and stage the complete coordinated release

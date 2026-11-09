@@ -20,13 +20,29 @@ try {
         foreach($requests as &$r){$r['details']=json_decode($r['details_json'],true);unset($r['details_json']);$photos->execute([$r['id']]);$r['photos']=$photos->fetchAll(PDO::FETCH_COLUMN);}unset($r);
         $bundles=$db->query('SELECT * FROM pdg_product_bundles ORDER BY id DESC LIMIT 100')->fetchAll();
         foreach($bundles as &$b){$b['items']=json_decode($b['items_json'],true);unset($b['items_json']);}unset($b);
-        pdg_answer(200,['products'=>$products,'requests'=>$requests,'bundles'=>$bundles,
+        $partners=$db->query("SELECT u.id,u.email,p.company,p.vat_number,COALESCE(p.is_partner,0) AS is_partner FROM pdg_users u LEFT JOIN pdg_partner_profiles p ON p.user_id=u.id WHERE u.role='customer' ORDER BY u.id DESC LIMIT 1000")->fetchAll();
+        $offers=[];$profits=[];
+        try{$offers=$db->query('SELECT e.id,e.public_ref,e.project_name,e.materials_cents,e.labour_cents,e.missing_prices,c.cost_cents FROM pdg_electric_enquiries e LEFT JOIN pdg_enquiry_costs c ON c.enquiry_id=e.id ORDER BY e.id DESC LIMIT 100')->fetchAll();}catch(PDOException $e){if($e->getCode()!=='42S02')throw $e;}
+        try{$profits=$db->query('SELECT o.id,o.order_number,o.status,o.subtotal_cents,SUM(CASE WHEN c.cost_cents IS NULL THEN 1 ELSE 0 END) AS missing_costs,SUM(i.quantity*c.cost_cents) AS cost_cents FROM pdg_orders o JOIN pdg_order_items i ON i.order_id=o.id LEFT JOIN pdg_order_costs c ON c.order_id=o.id AND c.product_id=i.product_id GROUP BY o.id ORDER BY o.id DESC LIMIT 30')->fetchAll();}catch(PDOException $e){if($e->getCode()!=='42S02')throw $e;}
+        pdg_answer(200,['products'=>$products,'requests'=>$requests,'bundles'=>$bundles,'partners'=>$partners,'offers'=>$offers,'profits'=>$profits,
             'issues'=>$db->query('SELECT * FROM pdg_development_issues ORDER BY id DESC LIMIT 100')->fetchAll(),'csrf'=>$_SESSION['csrf']]);
     }
     if($_SERVER['REQUEST_METHOD']!=='POST')pdg_answer(405,['error'=>'method_not_allowed']);
     if((int)($_SERVER['CONTENT_LENGTH']??0)>20000)pdg_answer(413,['error'=>'too_large']);
     $v=json_decode(file_get_contents('php://input',false,null,0,20001),true);if(!is_array($v))pdg_answer(422,['error'=>'invalid_input']);
     $action=$v['action']??'';
+    if($action==='enquiry_cost') {
+        $id=growth_int($v['id']??null,2147483647,false);$cost=growth_int($v['cost_cents']??null,1000000000);
+        $q=$db->prepare('SELECT id FROM pdg_electric_enquiries WHERE id=?');$q->execute([$id]);if(!$q->fetchColumn())pdg_answer(404,['error'=>'not_found']);
+        $q=$db->prepare('INSERT INTO pdg_enquiry_costs(enquiry_id,cost_cents) VALUES(?,?) ON DUPLICATE KEY UPDATE cost_cents=VALUES(cost_cents)');$q->execute([$id,$cost]);pdg_answer(200,['ok'=>true]);
+    }
+    if($action==='partner') {
+        $id=growth_int($v['id']??null,2147483647,false);$enabled=$v['is_partner']??null;
+        if(!is_bool($enabled))throw new InvalidArgumentException('invalid_input');
+        $company=growth_text($v['company']??'',160);$vat=growth_text($v['vat_number']??'',40);
+        $q=$db->prepare("SELECT id FROM pdg_users WHERE id=? AND role='customer'");$q->execute([$id]);if(!$q->fetchColumn())pdg_answer(404,['error'=>'not_found']);
+        $q=$db->prepare('INSERT INTO pdg_partner_profiles(user_id,is_partner,company,vat_number) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE is_partner=VALUES(is_partner),company=VALUES(company),vat_number=VALUES(vat_number)');$q->execute([$id,(int)$enabled,$company,$vat]);pdg_answer(200,['ok'=>true]);
+    }
     if($action==='operations') {
         $id=growth_int($v['id']??null,2147483647,false);if(!$id)throw new InvalidArgumentException('invalid_product');
         $cost=growth_int($v['cost_cents']??null,1000000000);$margin=growth_int($v['min_margin_bp']??0,9999,false);

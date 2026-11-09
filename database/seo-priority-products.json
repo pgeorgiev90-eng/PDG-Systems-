@@ -1,0 +1,62 @@
+[
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-8.0-P",
+    "description": "SolaX X3-HYB-8.0-P: трифазен инвертор 8 kW. Технически характеристики, избор за проект и индивидуална оферта от PDG Systems.",
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-10.0-P",
+    "description": "SolaX X3-HYB-10.0-P: трифазен инвертор 10 kW. Технически характеристики, избор за проект и индивидуална оферта от PDG Systems.",
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X3-HYB-12.0-P",
+    "description": "SolaX X3-HYB-12.0-P: трифазен инвертор 12 kW. Технически характеристики, избор за проект и индивидуална оферта от PDG Systems.",
+    "source": "https://www.solaxpower.com/uploads/file/solax-x3-hyb-g4-pro-datasheet-en.pdf"
+  },
+  {
+    "brand": "SolaX",
+    "code": "X1-HYB-6.0-LV",
+    "description": "SolaX X1-HYB-6.0-LV: монофазен инвертор 6 kW. Технически характеристики, избор за проект и индивидуална оферта от PDG Systems.",
+    "source": "https://www.solaxpower.com/uploads/file/solax-x1-hybrid-lv-datasheet-en.pdf"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0139",
+    "description": "Deye SUN-3.6K-SG05LP1-EU-AM2-P Хибриден Монофазен Инвертор 3.6KW (LV). Номинална AC мощност 3.6 kW. Характеристики и оферта от PDG Systems.",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=837"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0132",
+    "description": "Deye SUN-6K-SG05LP1-EU-AM2-P Хибриден Монофазен Инвертор 6KW (LV). Номинална AC мощност 6 kW. Характеристики и оферта от PDG Systems.",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=740"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0137",
+    "description": "Deye SUN-8K-SG05LP1-EU-AM2-P Хибриден Монофазен Инвертор 8KW (LV). Номинална AC мощност 8 kW. Характеристики и оферта от PDG Systems.",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=800"
+  },
+  {
+    "brand": "Deye",
+    "code": "8210-03-0131",
+    "description": "Deye SUN-8K-SG05LP1-EU Хибриден Монофазен Инвертор 8KW (LV). Номинална AC мощност 8 kW. Характеристики и оферта от PDG Systems.",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=724"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0100",
+    "description": "Батерия Dyness Tower S3 HV9637S 3.55KWh 96V IP54. Енергия 3.55 kWh. Проверка на съвместимост и оферта от PDG Systems.",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=1038"
+  },
+  {
+    "brand": "Dyness",
+    "code": "8230-01-0039",
+    "description": "Батерия Dyness Battery DL5.0C 5.12KWh LFP 51.2V LV Heating. Енергия 5.12 kWh. Проверка на съвместимост и оферта от PDG Systems.",
+    "source": "https://www.kameasolar.com/product_info.php?products_id=469"
+  }
+]

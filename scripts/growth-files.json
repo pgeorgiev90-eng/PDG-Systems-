@@ -22,6 +22,7 @@
   "cad-shopping.js",
   "cart.html",
   "catalog.html",
+  "database/seo-priority-products.json",
   "electrical-cad.php",
   "electrical-panels.html",
   "growth-tools.css",
@@ -37,6 +38,7 @@
   "shopping-tools-core.js",
   "shopping-tools.html",
   "shopping-tools.js",
+  "sitemap.xml",
   "social-page.php",
   "store.js"
 ]

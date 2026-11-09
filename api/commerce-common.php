@@ -23,6 +23,12 @@ function pdg_commerce_schema(PDO $db): void {
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         KEY owner_lists(user_id,id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $db->exec("CREATE TABLE IF NOT EXISTS pdg_partner_profiles (
+        user_id BIGINT UNSIGNED PRIMARY KEY,
+        is_partner TINYINT NOT NULL DEFAULT 0,
+        company VARCHAR(160) NOT NULL DEFAULT '',
+        vat_number VARCHAR(40) NOT NULL DEFAULT ''
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $db->exec("CREATE TABLE IF NOT EXISTS pdg_product_bundles (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(160) NOT NULL,
@@ -65,6 +71,16 @@ function pdg_commerce_schema(PDO $db): void {
         applied TINYINT NOT NULL DEFAULT 1,
         PRIMARY KEY(order_id,product_id)
     ) ENGINE=InnoDB");
+    $db->exec("CREATE TABLE IF NOT EXISTS pdg_order_costs (
+        order_id BIGINT UNSIGNED NOT NULL,
+        product_id BIGINT UNSIGNED NOT NULL,
+        cost_cents BIGINT UNSIGNED NULL,
+        PRIMARY KEY(order_id,product_id)
+    ) ENGINE=InnoDB");
+    $db->exec("CREATE TABLE IF NOT EXISTS pdg_enquiry_costs (
+        enquiry_id BIGINT UNSIGNED PRIMARY KEY,
+        cost_cents BIGINT UNSIGNED NULL
+    ) ENGINE=InnoDB");
     $db->exec("CREATE TABLE IF NOT EXISTS pdg_development_issues (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(200) NOT NULL,
@@ -81,7 +97,8 @@ function pdg_adjust_order_stock(PDO $db, int $orderId, bool $apply): void {
     foreach($q->fetchAll() as $row){
         if((bool)$row['applied']===$apply)continue;
         $lock=$db->prepare('SELECT stock_quantity FROM pdg_product_operations WHERE product_id=? FOR UPDATE');$lock->execute([$row['product_id']]);$op=$lock->fetch();
-        if($op && $op['stock_quantity']!==null){
+        if(!$op||$op['stock_quantity']===null)throw new InvalidArgumentException('inventory_configuration_changed');
+        if($op['stock_quantity']!==null){
             if($apply && (int)$op['stock_quantity']<(int)$row['quantity'])throw new InvalidArgumentException('stock_unavailable');
             $update=$db->prepare('UPDATE pdg_product_operations SET stock_quantity=stock_quantity+? WHERE product_id=?');$update->execute([($apply?-1:1)*(int)$row['quantity'],$row['product_id']]);
         }

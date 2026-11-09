@@ -50,7 +50,9 @@ try {
         foreach ($quote['items'] as $item) $q->execute([$id,$item['id'],$item['code'],$item['name'],$item['quantity'],$item['unit_cents'],$item['line_cents']]);
         $owner=$db->prepare('INSERT INTO pdg_order_owners(order_id,user_id,delivery_method) VALUES(?,?,?)');$owner->execute([$id,$account['id'],$delivery]);
         foreach($quote['items'] as $item){
-            $op=pdg_operations($db,$item['id']);if($op['stock_quantity']===null)continue;
+            $op=pdg_operations($db,$item['id']);
+            $cost=$db->prepare('INSERT INTO pdg_order_costs(order_id,product_id,cost_cents) VALUES(?,?,?)');$cost->execute([$id,$item['id'],$op['cost_cents']]);
+            if($op['stock_quantity']===null)continue;
             $stock=$db->prepare('UPDATE pdg_product_operations SET stock_quantity=stock_quantity-? WHERE product_id=? AND stock_quantity>=?');$stock->execute([$item['quantity'],$item['id'],$item['quantity']]);
             if(!$stock->rowCount())throw new RuntimeException('stock_changed');
             $stock=$db->prepare('INSERT INTO pdg_order_stock(order_id,product_id,quantity) VALUES(?,?,?)');$stock->execute([$id,$item['id'],$item['quantity']]);
