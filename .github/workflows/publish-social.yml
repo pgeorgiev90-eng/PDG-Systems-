@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
     paths:
+      - index.html
+      - shop.html
+      - robots.txt
       - social-page.php
       - api/social-metadata.php
       - assets/pdg-social.jpg
@@ -83,14 +86,15 @@ jobs:
               original = old.getvalue()
               backup = '.htaccess.pdg-social-backup-'+datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
               if original: ftp.storbinary('STOR '+backup, io.BytesIO(original))
-              rules = b'# BEGIN PDG SOCIAL\nRewriteEngine On\nRewriteRule ^(?:product|catalog)\\.html$ /social-page.php [L,QSA]\n# END PDG SOCIAL\n'
+              rules = b'# BEGIN PDG SOCIAL\nRewriteEngine On\nRewriteRule ^(?:product|catalog)\\.html$ /social-page.php [L,QSA]\n'
+              rules += b'<IfModule mod_headers.c>\n<FilesMatch "^(?:admin[^/]*|account-draft|auth|profile-preview|cart|setup-admin-draft|verify-account|app|app-offline|legacy-editor|solar-cad-preview)\\.(?:html|php)$">\nHeader always set X-Robots-Tag "noindex, nofollow"\n</FilesMatch>\n</IfModule>\n# END PDG SOCIAL\n'
               cleaned = re.sub(rb'# BEGIN PDG SOCIAL\n.*?# END PDG SOCIAL\n?', b'', original, flags=re.S)
               https_end = b'# END PDG HTTPS'
               if https_end in cleaned:
                   pos = cleaned.index(https_end)+len(https_end)
                   updated = cleaned[:pos]+b'\n\n'+rules+cleaned[pos:]
               else: updated = rules+b'\n'+cleaned
-              paths = ('assets/pdg-social.jpg','api/social-metadata.php','social-page.php','index.html','shop.html','catalog.html','product.html')
+              paths = ('robots.txt','assets/pdg-social.jpg','api/social-metadata.php','social-page.php','index.html','shop.html','catalog.html','product.html')
               for path in paths:
                   data = Path(path).read_bytes()
                   ftp.storbinary('STOR '+path+'.upload', io.BytesIO(data))
