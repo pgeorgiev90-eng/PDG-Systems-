@@ -15,7 +15,7 @@ $item = $data['item'] ?? '';
 $categories = ['all','solar','panels','inverters','batteries','mounting','electrical','protection','enclosures','accessories',
     'bms','battery_accessories','storage','chargers','energy_management','system_cabinets'];
 if (!in_array($source, ['google','facebook','direct','other'], true) ||
-    !in_array($event, ['visit','phone','enquiry','solar_cad','electric_cad','registration','category','product','cart_add'], true) ||
+    !in_array($event, ['visit','phone','enquiry','solar_cad','electric_cad','registration','category','product','cart_add','order'], true) ||
     !is_string($item) ||
     ($event === 'category' ? !in_array($item, $categories, true) :
         ($event === 'product' ? !preg_match('/^[1-9][0-9]{0,9}$/D', $item) : $item !== ''))) {

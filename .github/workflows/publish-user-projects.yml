@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
-    if: ${{ !contains(github.event.head_commit.message, '[pwa]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[growth]') && (!contains(github.event.head_commit.message, '[pwa]')) }}
     runs-on: ubuntu-latest
     environment: production
     services:

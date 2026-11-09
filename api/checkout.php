@@ -6,6 +6,7 @@ try {
     $account=pdg_pricing_account($db,true);
     if($account===null)shop_answer(401,['error'=>'authentication_required']);
     shop_customer_cart();
+    pdg_commerce_schema($db);
     $input=shop_input();
     $key=$input['checkout_key']??'';
     if (!is_string($key)||!preg_match('/^[a-f0-9]{64}$/D',$key)) shop_answer(422,['error'=>'invalid_input']);
@@ -19,6 +20,8 @@ try {
         $customer[$field]=trim($value);
     }
     if (!filter_var($customer['email'],FILTER_VALIDATE_EMAIL)||!preg_match('/^[+0-9() .-]{6,40}$/D',$customer['phone'])||($input['acknowledge']??false)!==true) shop_answer(422,['error'=>'invalid_customer']);
+    $delivery=$input['delivery_method']??'quote';
+    if(!in_array($delivery,['quote','courier','pickup','heavy'],true))shop_answer(422,['error'=>'invalid_delivery']);
     $db->exec(file_get_contents(dirname(__DIR__).'/database/orders-schema.sql'));
     // Serialize the per-IP counter independently of session cookies.
     $s=require dirname(__DIR__,2).'/pdg-shop-db.php';
@@ -33,6 +36,7 @@ try {
     $ids=array_keys($_SESSION['cart']);
     if (!$ids) {$db->rollBack();shop_answer(422,['error'=>'empty_cart']);}
     $q=$db->prepare('SELECT id FROM products WHERE id IN ('.implode(',',array_fill(0,count($ids),'?')).') FOR UPDATE');$q->execute($ids);$q->fetchAll();
+    $q=$db->prepare('SELECT product_id FROM pdg_product_operations WHERE product_id IN ('.implode(',',array_fill(0,count($ids),'?')).') ORDER BY product_id FOR UPDATE');$q->execute($ids);$q->fetchAll();
     $quote=shop_quote($db,$account);
     if (!$quote['can_checkout']||!is_string($input['revision']??null)||!hash_equals($quote['revision'],$input['revision'])) {$db->rollBack();shop_answer(409,['error'=>'cart_changed']);}
     $number='PDG-'.gmdate('Ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
@@ -44,6 +48,13 @@ try {
         $id=(int)$db->lastInsertId();
         $q=$db->prepare('INSERT INTO pdg_order_items (order_id,product_id,code,name,quantity,unit_cents,line_cents) VALUES (?,?,?,?,?,?,?)');
         foreach ($quote['items'] as $item) $q->execute([$id,$item['id'],$item['code'],$item['name'],$item['quantity'],$item['unit_cents'],$item['line_cents']]);
+        $owner=$db->prepare('INSERT INTO pdg_order_owners(order_id,user_id,delivery_method) VALUES(?,?,?)');$owner->execute([$id,$account['id'],$delivery]);
+        foreach($quote['items'] as $item){
+            $op=pdg_operations($db,$item['id']);if($op['stock_quantity']===null)continue;
+            $stock=$db->prepare('UPDATE pdg_product_operations SET stock_quantity=stock_quantity-? WHERE product_id=? AND stock_quantity>=?');$stock->execute([$item['quantity'],$item['id'],$item['quantity']]);
+            if(!$stock->rowCount())throw new RuntimeException('stock_changed');
+            $stock=$db->prepare('INSERT INTO pdg_order_stock(order_id,product_id,quantity) VALUES(?,?,?)');$stock->execute([$id,$item['id'],$item['quantity']]);
+        }
     } else {$number=$previous['order_number'];$quote['total_cents']=(int)$previous['total_cents'];}
     $db->commit();
     $receipt=['ok'=>true,'order_number'=>$number,'total_cents'=>$quote['total_cents'],'currency'=>'EUR'];

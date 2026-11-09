@@ -174,7 +174,7 @@
             refresh.disabled = false;
         }
     }
-    const metricsLabels = {
+    const metricsLabels = {order:'Поръчки',
         visit:'Посещения',phone:'Кликове върху телефона',enquiry:'Изпратени запитвания',
         solar_cad:'Отваряния на Solar CAD',electric_cad:'Отваряния на Electric CAD',
         registration:'Потвърдени регистрации',category:'Прегледи на категории',

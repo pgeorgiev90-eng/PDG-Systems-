@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/customer-pricing.php';
+require_once __DIR__.'/commerce-common.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
@@ -54,6 +55,7 @@ function shop_customer_cart(): void {
     $_SESSION['checkout_key']??=bin2hex(random_bytes(32));
 }
 function shop_quote(PDO $db, array $account): array {
+    pdg_commerce_schema($db);
     $items=[]; $subtotal=0; $unavailable=false;
     $ids=array_keys($_SESSION['cart']);
     if ($ids) {
@@ -64,9 +66,11 @@ function shop_quote(PDO $db, array $account): array {
             $p=$rows[$id]??null;
             $unit=$p && (int)$p['active']===1 ? shop_cents($p['price']) : null;
             $unit=$unit===null?null:pdg_discounted_cents($unit,$account['discount_bp']);
+            $op=pdg_operations($db,(int)$id);
+            $saleAllowed=pdg_sale_allowed($unit,$quantity,$op);
             $line=$unit===null ? 0 : $unit*$quantity;
-            if ($unit===null) $unavailable=true;
-            $items[]=['id'=>(int)$id,'code'=>$p['code']??'', 'name'=>$p['name']??'Продуктът вече не е достъпен', 'quantity'=>$quantity,'unit_cents'=>$unit,'line_cents'=>$line,'available'=>$unit!==null];
+            if (!$saleAllowed) $unavailable=true;
+            $items[]=['id'=>(int)$id,'code'=>$p['code']??'', 'name'=>$p['name']??'Продуктът вече не е достъпен', 'quantity'=>$quantity,'unit_cents'=>$unit,'line_cents'=>$line,'available'=>$saleAllowed,'availability'=>pdg_public_operations($op)];
             $subtotal+=$line;
         }
     }

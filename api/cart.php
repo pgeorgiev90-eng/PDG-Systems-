@@ -6,6 +6,7 @@ try {
     $account=pdg_pricing_account($db,true);
     if($account===null)shop_answer(401,['error'=>'authentication_required']);
     shop_customer_cart();
+    pdg_commerce_schema($db);
     $db->exec(file_get_contents(dirname(__DIR__).'/database/orders-schema.sql'));
     if ($_SERVER['REQUEST_METHOD']==='GET') shop_answer(200,shop_quote($db,$account));
     $input=shop_input();
@@ -22,6 +23,7 @@ try {
             if (!$p || shop_cents($p['price'])===null) shop_answer(422,['error'=>'product_unavailable']);
             $next=$action==='add' ? ($_SESSION['cart'][$id]??0)+$qty : $qty;
             if ($next>999 || (!isset($_SESSION['cart'][$id])&&count($_SESSION['cart'])>=50)) shop_answer(422,['error'=>'cart_limit']);
+            if(!pdg_sale_allowed(pdg_discounted_cents(shop_cents($p['price']),$account['discount_bp']),$next,pdg_operations($db,$id)))shop_answer(422,['error'=>'product_unavailable']);
             $_SESSION['cart'][$id]=$next;
         }
     } else shop_answer(422,['error'=>'invalid_action']);

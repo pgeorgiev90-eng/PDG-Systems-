@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/product-copy.php';
+require_once __DIR__.'/commerce-common.php';
 header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');header('X-Content-Type-Options: nosniff');
 function result(int $status,array $data): void {http_response_code($status);echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);exit;}
 $id=filter_input(INPUT_GET,'id',FILTER_VALIDATE_INT);
@@ -22,7 +24,9 @@ try{
  $fields=array_values(array_filter($fields,fn($f)=>!in_array(mb_strtolower(trim($f['label']),'UTF-8'),['описание','бележка за снимката'],true)));
  require_once __DIR__.'/public-product-fields.php';
  $fields=pdg_public_product_fields($fields);$product['description']=pdg_public_product_text($product['description']);
+ $product['description']=pdg_product_copy($product,$product['description']);
  $product['imageCaption']='';
+ pdg_commerce_schema($db);$product['availability']=pdg_public_operations(pdg_operations($db,(int)$product['id']));
  require_once __DIR__.'/customer-pricing.php';
  $account=pdg_pricing_account($db);
  $product['price']=pdg_product_price($product['price'],$account);

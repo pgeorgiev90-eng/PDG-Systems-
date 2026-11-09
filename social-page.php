@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/api/social-metadata.php';
+require_once __DIR__.'/api/product-copy.php';
 header('Content-Type: text/html; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-cache');
@@ -15,6 +16,7 @@ $data = [
     'description' => 'Инвертори, батерии, конструкции и електроапаратура. Технически характеристики и оборудване от PDG Systems.',
     'url' => $base.'catalog.html'
 ];
+$publicContent='';$structured=null;
 try {
     if ($productPage) {
         $rawId = $_GET['id'] ?? null;
@@ -49,6 +51,13 @@ try {
                 'alt' => $p['brand'].' '.$p['name'],
                 'type' => 'product'
             ];
+            $structured=['@context'=>'https://schema.org','@type'=>'Product','name'=>$p['name'],'sku'=>$p['code'],
+                'brand'=>['@type'=>'Brand','name'=>$p['brand']],'description'=>pdg_product_copy($p,$description),'url'=>$data['url']];
+            if($p['image_url']&&filter_var($p['image_url'],FILTER_VALIDATE_URL)&&str_starts_with($p['image_url'],'https://'))$structured['image']=$p['image_url'];
+            $related=$db->prepare('SELECT id,name FROM products WHERE active=1 AND category=? AND id<>? ORDER BY id LIMIT 12');$related->execute([$p['category'],$p['id']]);
+            $publicContent='<section class="tools-panel"><h2>Още от тази категория</h2><ul>';
+            foreach($related->fetchAll() as $r)$publicContent.='<li><a href="product.html?id='.(int)$r['id'].'">'.pdg_social_escape($r['name']).'</a></li>';
+            $publicContent.='</ul><p><a href="catalog.html?category='.rawurlencode($p['category']).'">Всички артикули от категорията</a> · <a href="shopping-tools.html#compare">Сравни продукти</a></p></section>';
         }
     } else {
         $sections = [
@@ -60,6 +69,7 @@ try {
         ];
         $params = []; $label = '';
         $section = $_GET['section'] ?? '';
+        if(!is_string($section))$section='';
         if (is_string($section) && isset($sections[$section])) {
             $params['section'] = $section;
             $label = $sections[$section];
@@ -77,6 +87,15 @@ try {
             $data['description'] = $label.' — продуктов каталог на PDG Systems. Разгледайте оборудването, техническите характеристики и снимките и изпратете запитване.';
             $data['url'] = $base.'catalog.html?'.http_build_query($params, '', '&', PHP_QUERY_RFC3986);
         }
+        $intro=[
+            'inverters'=>'Сравнете инверторите по фазност, мощност, MPPT входове и допустимо DC напрежение. За система с батерия проверете съвместимостта на конкретните модели.',
+            'batteries'=>'Системите за съхранение се избират по работно напрежение, енергия, допустим ток и съвместим BMS протокол. Капацитетът сам по себе си не потвърждава съвместимост.',
+            'panels'=>'Подберете фотоволтаичните панели според мощност, размери, Voc и температурен коефициент. В PDG Solar CAD използвайте характеристиките на точния модел.',
+            'electrical'=>'Изберете апаратура и корпуси по номинални параметри, прекъсвателна способност, размери и условия на монтаж. Разположението може да се подготви с PDG Electric CAD.',
+            'mounting'=>'Изберете крепежите според вида покрив, монтажната система и конкретните размери. Еднакъв код може да има различни варианти; проверете наименованието на артикула.'
+        ];
+        $text=$intro[$section]??'Разгледайте артикулите по производител, каталожен код и характеристики. Наличностите и сроковете без въведени данни се потвърждават преди поръчка.';
+        $publicContent='<section class="tools-panel"><h2>'.pdg_social_escape($label?:'Избор на оборудване').'</h2><p>'.pdg_social_escape($text).'</p><p><a href="shopping-tools.html#compare">Сравни продукти</a> · <a href="shopping-tools.html#quick-order">Бърза поръчка по кодове</a> · <a href="electrical-panels.html">Табла по поръчка</a> · <a href="photovoltaic-systems.html">Фотоволтаични системи</a></p></section>';
     }
 } catch (Throwable $e) {
     http_response_code(503);
@@ -84,4 +103,7 @@ try {
     header('X-Robots-Tag: noindex');
     $data['title'] = 'Каталогът временно е недостъпен | PDG Systems';
 }
-echo pdg_social_render($template, $data);
+$html=pdg_social_render($template, $data);
+if($structured)$html=str_replace('</head>','<script type="application/ld+json">'.json_encode($structured,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT).'</script></head>',$html);
+if($publicContent)$html=str_replace('</main>',$publicContent.'</main>',$html);
+echo $html;

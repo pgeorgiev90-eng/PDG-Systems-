@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict'),C=require('../shopping-tools-core');
+const p=[{id:1,code:'RAIL',brand:'Enerack'},{id:2,code:'RAIL',brand:'Enerack'},{id:3,code:'A',brand:'Schrack Technik'},{id:4,code:'B',brand:'Schrack Technik'}];
+assert.equal(C.parse('RAIL;1',p).errors.length,1);
+assert.deepEqual(C.parse('код;количество\n#1;2\nA;3\nA;2',p),{items:[{id:1,quantity:2},{id:3,quantity:5}],errors:[]});
+for(const text of ['A;0','A;1.5','A;-2','A;1000','MISSING;1','A;2;3'])assert.ok(C.parse(text,p).errors.length);
+assert.ok(C.parse('A;999\nA;1',p).errors.length);assert.throws(()=>C.parse('x'.repeat(100001),p));
+const solar=C.solar({planes:[{panels:[{model:'shop:1'},{model:'custom'}]}],offer:{inverter:'3',inverterQty:'2'},battery:{id:'4',name:'Battery',quantity:1},equipment:{cables:[{id:5,quantity:1.5,name:'Cable by metre'}]}},{rows:[{id:'2',qty:4}],pending:['fixings']});
+assert.deepEqual(solar.items,[{id:1,quantity:1},{id:3,quantity:2},{id:4,quantity:1},{id:2,quantity:4}]);
+assert.ok(solar.unresolved.includes('Cable by metre'));assert.ok(solar.unresolved.includes('Панел с ръчно въведен модел'));
+const electric=C.electric({cabinet:{sku:'A'},items:[{sku:'B',name:'MCB'},{type:'BLANK'},{sku:'MISSING',name:'Unknown'}],busbars:[{}],connections:[{}]},p);
+assert.deepEqual(electric.items,[{id:3,quantity:1},{id:4,quantity:1}]);assert.equal(electric.unresolved.length,3);
+console.log('PASS: unambiguous variants, exact aggregation, bounded CSV, fractional rejection, separate missing CAD materials and integer BOMs');

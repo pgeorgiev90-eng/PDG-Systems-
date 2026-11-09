@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/customer-pricing.php';
 require_once __DIR__.'/public-product-fields.php';
+require_once __DIR__.'/product-copy.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
@@ -44,7 +45,7 @@ try {
   pdg_import_schrack_shop($pdo);
   $rows=$pdo->query('SELECT id, brand, category, code, name, price, image_url AS imageUrl, image_index AS imageIndex, (SELECT value FROM pdg_product_fields WHERE product_id=products.id AND label=\'Описание\' ORDER BY id LIMIT 1) AS description, (SELECT value FROM pdg_product_fields WHERE product_id=products.id AND label=\'Бележка за снимката\' ORDER BY id LIMIT 1) AS imageCaption FROM products WHERE active=1 ORDER BY id')->fetchAll();
   $account=pdg_pricing_account($pdo);
-  foreach($rows as &$row){$row['price']=pdg_product_price($row['price'],$account);$row['description']=pdg_public_product_text((string)($row['description']??''));$row['imageCaption']='';}
+  foreach($rows as &$row){$row['price']=pdg_product_price($row['price'],$account);$row['description']=pdg_public_product_text(pdg_product_copy($row,(string)($row['description']??'')));$row['imageCaption']='';}
   unset($row);
   echo json_encode(['products'=>$rows,'prices_visible'=>$account!==null],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $e) { http_response_code(503); echo json_encode(['error'=>'catalog_unavailable']); }

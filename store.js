@@ -72,6 +72,7 @@
       const data=Object.fromEntries(new FormData(form));
       data.acknowledge=form.elements.acknowledge.checked;data.checkout_key=cart.checkout_key;data.revision=cart.revision;
       const receipt=await request('api/checkout.php',data);
+      window.PDGTrack?.('order');
       form.reset();form.hidden=true;root.replaceChildren();summary.replaceChildren();
       const confirmation=node('section',undefined,'order-success');confirmation.setAttribute('tabindex','-1');
       confirmation.append(node('h1','Поръчката е приета'),node('p','Номер: '+receipt.order_number),node('p','Продукти с ДДС: '+money(receipt.total_cents)),node('p','Запазете номера. Ще се свържем с вас за наличност, доставка и начин на плащане. На този етап не е извършено плащане.'));
