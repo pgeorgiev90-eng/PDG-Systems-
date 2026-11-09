@@ -3,6 +3,7 @@ declare(strict_types=1);
 // CI-only setup: use a throwaway MySQL service and known fixture credentials.
 $pdo=new PDO('mysql:host=127.0.0.1;dbname=pdg_test;charset=utf8mb4','root','test-root-password',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 foreach (['database/schema.sql','database/accounts-schema.sql'] as $file) $pdo->exec(file_get_contents($file));
+$pdo->exec("CREATE TABLE IF NOT EXISTS pdg_email_tokens (token_hash CHAR(64) NOT NULL,user_id BIGINT UNSIGNED NOT NULL,expires_at DATETIME NOT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY (token_hash),KEY idx_pdg_email_user (user_id),CONSTRAINT fk_pdg_token_user FOREIGN KEY (user_id) REFERENCES pdg_users(id) ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $q=$pdo->prepare('INSERT INTO pdg_users (email,password_hash,role) VALUES (?,?,?)');
 $q->execute(['admin@example.test',password_hash('Admin-test-123456',PASSWORD_DEFAULT),'admin']);
 $q->execute(['customer@example.test',password_hash('Customer-test-123456',PASSWORD_DEFAULT),'customer']);
