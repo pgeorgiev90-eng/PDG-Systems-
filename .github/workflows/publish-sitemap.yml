@@ -12,7 +12,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pdg-production-deploy
+  group: pdg-sitemap-deploy
   cancel-in-progress: false
 jobs:
   deploy:

@@ -7,6 +7,7 @@
     const next = element('pdg-project-next');
     const inbox = element('pdg-inbox-list');
     const detail = element('pdg-inbox-detail');
+    let workflowDirty = false;
     const make = (tag,text) => {
         const node = document.createElement(tag);
         if (text !== undefined) node.textContent = text;
@@ -90,6 +91,42 @@
                     make('p', enquiry.created_at + ' · № ' + enquiry.public_ref)
                 );
                 if (enquiry.message) detail.append(make('p', enquiry.message));
+                const workflow = make('form');
+                workflowDirty = false;
+                workflow.addEventListener('input', () => { workflowDirty = true; });
+                const stage = make('select');
+                stage.setAttribute('aria-label', 'Статус на запитването');
+                for (const [value, label] of Object.entries({new:'Ново',processing:'Обработва се',quoted:'Изпратена оферта',completed:'Приключено'})) {
+                    const option = make('option', label); option.value = value; stage.append(option);
+                }
+                stage.value = enquiry.stage || 'new';
+                const followUp = make('input'); followUp.type = 'date'; followUp.value = enquiry.follow_up || '';
+                followUp.setAttribute('aria-label', 'Дата за последващ контакт');
+                const reason = make('select'); reason.setAttribute('aria-label', 'Причина за отказ');
+                for (const [value, label] of Object.entries({'':'Няма отбелязан отказ',price:'Цена',delivery:'Срок',equipment:'Неподходящо оборудване',other:'Друго'})) {
+                    const option = make('option', label); option.value = value; reason.append(option);
+                }
+                reason.value = enquiry.decline_reason || '';
+                const note = make('textarea'); note.maxLength = 2000; note.value = enquiry.note || '';
+                note.setAttribute('aria-label', 'Вътрешна бележка'); note.placeholder = 'Вътрешна бележка';
+                const save = make('button', 'Запази обработката'); save.type = 'submit'; save.className = 'btn';
+                const feedback = make('p'); feedback.setAttribute('role', 'status');
+                for (const [label, input] of [['Статус',stage],['Следващ контакт',followUp],['Причина за отказ',reason],['Вътрешна бележка',note]]) {
+                    const field = make('label', label + ' '); field.style.display = 'block';
+                    input.style.display = 'block'; input.style.width = '100%'; field.append(input); workflow.append(field);
+                }
+                workflow.append(save, feedback);
+                workflow.addEventListener('submit', async event => {
+                    event.preventDefault(); save.disabled = true;
+                    try {
+                        const payload = {action:'workflow',reference:enquiry.public_ref,stage:stage.value,follow_up:followUp.value,decline_reason:reason.value,note:note.value};
+                        const response = await fetch(inboxApi, {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':data.csrf},body:JSON.stringify(payload)});
+                        if (!response.ok) throw Error('unavailable');
+                        Object.assign(enquiry,payload); workflowDirty = false; feedback.textContent = 'Обработката е запазена.';
+                    } catch { feedback.textContent = 'Промените не са запазени. Опитайте отново.'; }
+                    finally { save.disabled = false; }
+                });
+                detail.append(workflow);
                 if (enquiry.source === 'electric') {
                     const link = make('a', 'Отвори материалите и цените');
                     link.href = 'admin-electric.html';
@@ -181,7 +218,7 @@
         element('pdg-inbox-refresh').addEventListener('click', enquiries);
         setInterval(() => {
             if (document.hidden) return;
-            if (!element('pdg-inbox-refresh').disabled && !inbox.contains(document.activeElement)) enquiries();
+            if (!workflowDirty && !element('pdg-inbox-refresh').disabled && !inbox.contains(document.activeElement) && !detail.contains(document.activeElement)) enquiries();
             siteMetrics();
         }, 30000);
     }

@@ -64,3 +64,17 @@ request(visitor, 'site-metrics.php', event, {'Origin':ORIGIN,'Cookie':'pdg_stati
 metrics = request(admin, 'admin-site-metrics.php')
 assert any(row['event_name']=='enquiry' and row['source']=='google' and int(row['total'])==1 for row in metrics['events'])
 print('PASS: contact form, unread count, explicit read, repeat read, consent and admin-only metrics')
+
+workflow = {'action':'workflow','reference':ref,'stage':'quoted','follow_up':'2026-11-20','decline_reason':'price','note':'Вътрешна бележка <script>test</script>'}
+request(visitor, 'enquiry-inbox.php', workflow, expected=401)
+request(admin, 'enquiry-inbox.php', workflow, expected=403)
+request(admin, 'enquiry-inbox.php', workflow, {'X-CSRF-Token':inbox['csrf']})
+row = next(row for row in request(admin, 'enquiry-inbox.php')['enquiries'] if row['public_ref'] == ref)
+for key in ['stage','follow_up','decline_reason','note']:
+    assert row[key] == workflow[key], (key, row)
+for changed in [{'stage':'admin'}, {'follow_up':'2026-02-30'}, {'decline_reason':'untrusted'}, {'note':'x'*2001}]:
+    request(admin, 'enquiry-inbox.php', {**workflow, **changed}, {'X-CSRF-Token':inbox['csrf']}, expected=422)
+request(admin, 'enquiry-inbox.php', {**workflow,'stage':'completed','follow_up':'','decline_reason':'','note':''}, {'X-CSRF-Token':inbox['csrf']})
+row = next(row for row in request(admin, 'enquiry-inbox.php')['enquiries'] if row['public_ref'] == ref)
+assert row['stage'] == 'completed' and row['follow_up'] is None and not row['decline_reason'] and not row['note']
+print('PASS: admin-only workflow, CSRF, exact follow-up dates, safe notes, invalid input rejection and clearing metadata')
