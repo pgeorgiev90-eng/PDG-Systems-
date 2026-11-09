@@ -1,5 +1,13 @@
 (() => {
     const form = document.getElementById('contactForm');
+    if (!form) return;
+    document.querySelectorAll('[data-panel-enquiry]').forEach(link => link.addEventListener('click', () => {
+        document.getElementById('panel-projects-dialog')?.close();
+        const message = form.elements.namedItem('message');
+        if (!message.value.trim()) message.value = 'Запитване за електрическо табло по поръчка\nНаселено място: \nВид обект: \nНеобходимо оборудване / задание: \nПредпочитан срок: \nТелефон за връзка (по желание): ';
+        form.scrollIntoView({block: 'center'});
+        form.elements.namedItem('name').focus({preventScroll: true});
+    }));
     const status = document.getElementById('contactStatus');
     const button = form.querySelector('button[type="submit"]');
     let ticket;
