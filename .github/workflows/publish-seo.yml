@@ -1,0 +1,40 @@
+name: Publish and verify technical SEO
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-seo.yml', 'api/seo-render.php', 'tests/seo_render.php', 'scripts/publish_seo.py', 'scripts/seo-files.json']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate server rendering and existing metadata
+        run: |
+          php -l social-page.php
+          php -l api/seo-render.php
+          php tests/seo_render.php
+          php tests/social_metadata.php
+          node --check product.js
+          python -m py_compile scripts/publish_seo.py
+          python -m pip install Pillow
+      - name: Require latest production source
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Publish and verify SEO corrections with rollback
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python scripts/publish_seo.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seo-production-backup-${{ github.run_id }}
+          path: production-backup/
+          include-hidden-files: true
+          retention-days: 30

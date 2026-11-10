@@ -81,7 +81,7 @@ jobs:
           for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:8199/api/account-draft.php?action=session && break; sleep 1; done
           python3 "tests/$SUITE.py"
   publish:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[seo-only]')
     needs: [frontend, commerce, accounts]
     runs-on: ubuntu-latest
     environment: production

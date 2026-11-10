@@ -5,5 +5,21 @@
   "shopping-tools.html",
   "admin-growth.html",
   "help-center.html",
-  "panel-projects.html"
+  "panel-projects.html",
+  "admin-orders.html",
+  "solar-cad-preview.html",
+  "cart.html",
+  "setup-admin-draft.html",
+  "shop.html",
+  "account-draft.html",
+  "product.html",
+  "auth.html",
+  "admin-products-draft.html",
+  "index.html",
+  "admin-electric.html",
+  "catalog.html",
+  "verify-account.html",
+  "api/seo-render.php",
+  "social-page.php",
+  "product.js"
 ]

@@ -20,6 +20,7 @@
       $('description').textContent=p.description||'';$('description-section').hidden=!p.description;
       $('image-caption').textContent=p.imageCaption||(p.imageUrl?'Изображение на продуктовата серия.':'');
       $('image-caption').hidden=!$('image-caption').textContent;
+      $('photo').replaceChildren();$('specs').replaceChildren();
       const imageIndex=Number(p.imageIndex);
       if(p.imageUrl && /^https?:\/\//i.test(p.imageUrl)) {
         const img=document.createElement('img');img.className='product-image';img.src=p.imageUrl;img.alt=p.name;img.referrerPolicy='no-referrer';
@@ -40,7 +41,7 @@
       const tools=document.createElement('p');for(const [label,hash] of [['Сравни с друг продукт','compare'],['Запази в списък / бърза поръчка','quick-order']]){const a=document.createElement('a');a.href='shopping-tools.html#'+hash;a.textContent=label;a.style.marginRight='16px';tools.append(a);}$('product').append(tools);
       for(const f of data.fields)row(f.label,f.value);
       $('empty').hidden=data.fields.length>0;$('status').hidden=true;$('product').hidden=false;
-    } catch(e) {$('status').textContent='Продуктът временно не може да се зареди. Презаредете страницата, за да опитате отново.';}
+    } catch(e) {if($('product').dataset.serverRendered==='true')return;$('status').textContent='Продуктът временно не може да се зареди. Презаредете страницата, за да опитате отново.';}
   }
   load();
 })();

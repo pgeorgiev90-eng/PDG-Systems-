@@ -2,6 +2,8 @@
 declare(strict_types=1);
 require_once __DIR__.'/api/social-metadata.php';
 require_once __DIR__.'/api/product-copy.php';
+require_once __DIR__.'/api/public-product-fields.php';
+require_once __DIR__.'/api/seo-render.php';
 header('Content-Type: text/html; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-cache');
@@ -25,7 +27,7 @@ try {
         $p = false;
         if ($id !== false) {
             $db = pdg_social_db();
-            $q = $db->prepare('SELECT id,brand,category,code,name,image_url FROM products WHERE id=? AND active=1');
+            $q = $db->prepare('SELECT id,brand,category,code,name,image_url,image_index FROM products WHERE id=? AND active=1');
             $q->execute([$id]);
             $p = $q->fetch();
         }
@@ -34,27 +36,33 @@ try {
             header('X-Robots-Tag: noindex');
             $data['title'] = 'Продуктът не е намерен | PDG Systems';
         } else {
+            $fields=[]; $full='';
             $description = trim($p['brand'].' · '.$p['category'].' · Код: '.$p['code'].'. Технически характеристики и запитване към PDG Systems.');
             try {
-                $q = $db->prepare("SELECT value FROM pdg_product_fields WHERE product_id=? AND label='Описание' ORDER BY sort_order,id LIMIT 1");
+                $q=$db->prepare('SELECT label,value FROM pdg_product_fields WHERE product_id=? ORDER BY sort_order,id');
                 $q->execute([$id]);
-                $full = trim(strip_tags((string)$q->fetchColumn()));
-                if ($full !== '') $description = mb_substr(preg_replace('/\\s+/u', ' ', $full), 0, 200, 'UTF-8');
+                $allFields=$q->fetchAll();
+                foreach($allFields as $f)if(mb_strtolower(trim($f['label']),'UTF-8')==='описание')$full=trim(strip_tags($f['value']));
+                $fields=pdg_public_product_fields(array_values(array_filter($allFields,static fn($f)=>!in_array(mb_strtolower(trim($f['label']),'UTF-8'),['описание','бележка за снимката','източник за фазност','източник на фазност','phase source','source of phase','source of phases'],true))));
+                if($full!=='')$description=$full;
             } catch (PDOException $e) {
                 if ($e->getCode() !== '42S02') throw $e;
             }
-            $description=pdg_priority_description($p)??$description;
+            $full=pdg_product_copy($p,pdg_public_product_text($full?:$description));
+            $description=pdg_seo_excerpt(pdg_priority_description($p)??$full);
+            $image=pdg_seo_image($p);
+            $template=pdg_seo_product($template,$p,$full,$fields,$image);
             $data = [
                 'title' => $p['name'].' | PDG Systems',
                 'description' => $description,
                 'url' => $base.'product.html?id='.$p['id'],
-                'image' => $p['image_url'] ?: $base.'assets/pdg-social.jpg',
+                'image' => $image ?: $base.'assets/pdg-social.jpg',
                 'alt' => $p['brand'].' '.$p['name'],
                 'type' => 'product'
             ];
             $structured=['@context'=>'https://schema.org','@type'=>'Product','name'=>$p['name'],'sku'=>$p['code'],
-                'brand'=>['@type'=>'Brand','name'=>$p['brand']],'description'=>pdg_product_copy($p,$description),'url'=>$data['url']];
-            if($p['image_url']&&filter_var($p['image_url'],FILTER_VALIDATE_URL)&&str_starts_with($p['image_url'],'https://'))$structured['image']=$p['image_url'];
+                'brand'=>['@type'=>'Brand','name'=>$p['brand']],'description'=>$full,'url'=>$data['url']];
+            if($image)$structured['image']=$image;
             $related=$db->prepare('SELECT id,name FROM products WHERE active=1 AND category=? AND id<>? ORDER BY id LIMIT 12');$related->execute([$p['category'],$p['id']]);
             $publicContent='<section class="tools-panel"><h2>Още от тази категория</h2><ul>';
             foreach($related->fetchAll() as $r)$publicContent.='<li><a href="product.html?id='.(int)$r['id'].'">'.pdg_social_escape($r['name']).'</a></li>';
@@ -88,6 +96,7 @@ try {
             $data['description'] = $label.' — продуктов каталог на PDG Systems. Разгледайте оборудването, техническите характеристики и снимките и изпратете запитване.';
             $data['url'] = $base.'catalog.html?'.http_build_query($params, '', '&', PHP_QUERY_RFC3986);
         }
+        if($label!=='')$template=preg_replace_callback('~(<h1[^>]*>).*?(</h1>)~s',static fn($m)=>$m[1].pdg_social_escape($label).$m[2],$template,1);
         $intro=[
             'inverters'=>'Сравнете инверторите по фазност, мощност, MPPT входове и допустимо DC напрежение. За система с батерия проверете съвместимостта на конкретните модели.',
             'batteries'=>'Системите за съхранение се избират по работно напрежение, енергия, допустим ток и съвместим BMS протокол. Капацитетът сам по себе си не потвърждава съвместимост.',

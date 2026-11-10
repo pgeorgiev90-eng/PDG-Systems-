@@ -79,7 +79,7 @@ concurrency:
 jobs:
   deploy:
     needs: inbox-tests
-    if: ${{ !contains(github.event.head_commit.message, '[growth]') && !contains(github.event.head_commit.message, '[profiles]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[growth]') && !contains(github.event.head_commit.message, '[profiles]') && !contains(github.event.head_commit.message, '[seo-only]') }}
     runs-on: ubuntu-latest
     environment: production
     steps:
