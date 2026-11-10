@@ -6,10 +6,13 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pdg-production-deploy
+  group: pdg-seo-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   seo:
+    concurrency:
+      group: pdg-production-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment: production
     steps:
