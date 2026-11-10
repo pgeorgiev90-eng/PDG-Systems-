@@ -1,0 +1,8 @@
+<?php
+// Place OUTSIDE public_html, next to pdg-shop-db.php. Never commit a real key.
+return [
+    'enabled' => false,
+    'key_id' => 'pdg-nas-1',
+    'secret' => 'REPLACE_WITH_64_HEX_CHARACTERS_GENERATED_ON_NAS',
+];
+
