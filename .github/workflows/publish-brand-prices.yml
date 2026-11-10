@@ -1,0 +1,70 @@
+name: Apply approved SolaX and Enerack price increases
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-brand-prices.yml', 'api/brand-price-revision-20261110.php', 'tests/brand_price_revision.php']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-brand-price-revision
+  cancel-in-progress: false
+jobs:
+  prices:
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: pdg-production-deploy
+      cancel-in-progress: false
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: pdg_test
+          MYSQL_ROOT_PASSWORD: test-root-password
+          MYSQL_ROOT_HOST: '%'
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptest-root-password"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact one-time price changes
+        run: |
+          php -l api/brand-price-revision-20261110.php
+          php -l api/products.php
+          php tests/brand_price_revision.php
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Publish and apply revision with database readback
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,urllib.request
+          from pathlib import Path
+          files=['api/brand-price-revision-20261110.php','api/products.php']
+          backup=Path('production-backup');backup.mkdir(exist_ok=True)
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              previous=io.BytesIO();ftp.retrbinary('RETR api/products.php',previous.write)
+              (backup/'products.php').write_bytes(previous.getvalue())
+              for path in files:
+                  body=Path(path).read_bytes();ftp.storbinary('STOR '+path+'.price-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR '+path+'.price-upload',check.write);assert check.getvalue()==body,path
+              for path in files:ftp.rename(path+'.price-upload',path)
+          def get():
+              with urllib.request.urlopen('https://pdgsystems.bg/api/products.php?price_release='+os.environ['GITHUB_SHA'],timeout=90) as r:return json.load(r)
+          first=get();revision=first['price_revision']
+          assert revision['verified'] is True and revision['version']=='brand_prices_20261110_solax26_enerack33'
+          assert revision['counts']['SolaX']>0 and revision['counts']['Enerack']>0
+          assert first['prices_visible'] is False and all(p['price'] is None for p in first['products'])
+          second=get();assert second['price_revision']==revision
+          print('Applied and verified one-time price increases:',json.dumps(revision),flush=True)
+          print('Guest prices remain hidden; a repeat request did not reapply the revision.',flush=True)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brand-price-source-backup-${{ github.run_id }}
+          path: production-backup/
+          retention-days: 30
