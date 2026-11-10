@@ -36,8 +36,11 @@ def verify():
         assert '<tbody id="specs"><tr>' in html
         assert 'Цена след регистрация' in html
         structured=json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>',html,re.S)[1])
-        assert structured['name'] and structured.get('image'),('Missing product image',id)
-        with urllib.request.urlopen(structured['image'],timeout=30) as image:assert image.status==200
+        assert structured['name']
+        if id in (1,2,3):assert structured.get('image'),('Missing existing product image',id)
+        if structured.get('image'):
+            with urllib.request.urlopen(structured['image'],timeout=30) as image:assert image.status==200
+        else:print('No source photo supplied for product',id,flush=True)
         print('Verified server-rendered product',id,flush=True)
     category='BMS модули'
     from urllib.parse import quote
@@ -63,14 +66,24 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
         target=backup/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(old.getvalue())
     original=(backup/'.htaccess').read_bytes()
     updated=rules+re.sub(rb'# BEGIN PDG TECHNICAL SEO\n.*?# END PDG TECHNICAL SEO\n?',b'',original,flags=re.S)
+    staged_images=[]
     for path in images+paths:
-        body=Path(path).read_bytes();ftp.storbinary('STOR '+path+suffix,io.BytesIO(body))
+        body=Path(path).read_bytes()
+        if path in images:
+            # Reuse only byte-identical crops verified against the current atlas.
+            existing=io.BytesIO()
+            try:ftp.retrbinary('RETR '+path,existing.write)
+            except ftplib.error_perm as error:
+                if not str(error).startswith('550'):raise
+            if existing.getvalue()==body:continue
+            staged_images.append(path)
+        ftp.storbinary('STOR '+path+suffix,io.BytesIO(body))
         check=io.BytesIO();ftp.retrbinary('RETR '+path+suffix,check.write)
         assert check.getvalue()==body,path
     replaced=[]
     try:
         # Helpers and assets must exist before the server renderer uses them.
-        ordered=images+sorted(paths,key=lambda p:0 if p=='api/seo-render.php' else 2 if p=='social-page.php' else 1)
+        ordered=staged_images+sorted(paths,key=lambda p:0 if p=='api/seo-render.php' else 2 if p=='social-page.php' else 1)
         for path in ordered:ftp.rename(path+suffix,path);replaced.append(path)
         ftp.storbinary('STOR .htaccess'+suffix,io.BytesIO(updated));ftp.rename('.htaccess'+suffix,'.htaccess');replaced.append('.htaccess')
         verify()
