@@ -31,3 +31,5 @@ jobs:
           path: ${{ runner.temp }}/nas-integration-delivery/
           retention-days: 3
 
+
+# Narrow API-only release; do not run the coordinated full-site publisher.
