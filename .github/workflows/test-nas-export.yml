@@ -1,0 +1,30 @@
+name: Test NAS read-only export
+on:
+  pull_request:
+    paths: ['api/nas-export.php', 'tests/test_nas_export.py', 'tests/nas-fixture.sql', '.github/workflows/test-nas-export.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-root-only
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptest-root-only" --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PHP runtime
+        run: php -v && php -m | grep -q pdo_mysql && php -l api/nas-export.php
+      - name: Create isolated fixture with SELECT-only account
+        env:
+          MYSQL_PWD: test-root-only
+        run: mysql -h 127.0.0.1 -u root < tests/nas-fixture.sql
+      - name: Test API contract, authorization and MySQL reads
+        env:
+          NAS_TEST_MYSQL_HOST: 127.0.0.1
+        run: python3 tests/test_nas_export.py -v
+
