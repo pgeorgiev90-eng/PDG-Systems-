@@ -10,8 +10,8 @@ def read(path):
     separator = '&' if '?' in path else '?'
     return urllib.request.urlopen(base + path + separator + 'release=' + os.environ['GITHUB_SHA'], timeout=40)
 
-for path in ['solax-support.html','assets/solax-partner-certificate-2026.webp','index.html','assets/solax-power-logo.png','shopping-tools.html','admin-growth.html','help-center.html','panel-projects.html',
-             'auth.html','admin-preview.html','profile-preview.html','shopping-tools.js','admin-growth.js','cad-document.js','cad-shopping.js','store.js']:
+for path in dict.fromkeys(json.loads(Path('scripts/growth-files.json').read_text()) + ['solax-support.html','assets/solax-partner-certificate-2026.webp','index.html','assets/solax-power-logo.png','shopping-tools.html','admin-growth.html','help-center.html','panel-projects.html',
+             'auth.html','admin-preview.html','profile-preview.html','shopping-tools.js','admin-growth.js','cad-document.js','cad-shopping.js','store.js']):
     with read(path) as response:
         assert response.status == 200
         assert hashlib.sha256(response.read()).digest() == hashlib.sha256(Path(path).read_bytes()).digest(), path
