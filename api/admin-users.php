@@ -6,6 +6,7 @@ try {
   [$db,$actor]=pdg_admin_session();
   pdg_discount_schema($db);
   if($_SERVER['REQUEST_METHOD']==='GET'){
+    try{require_once __DIR__.'/registration-notifications.php';pdg_registration_notice_schema($db);pdg_registration_notices($db);}catch(Throwable $noticeError){error_log('PDG registration notice retry failed');}
     $q=$db->query("SELECT u.id,u.email,u.role,u.is_active,u.created_at,COALESCE(d.discount_bp,0) AS discount_bp,EXISTS(SELECT 1 FROM pdg_email_tokens t WHERE t.user_id=u.id) AS verification_pending FROM pdg_users u LEFT JOIN pdg_customer_discounts d ON d.user_id=u.id ORDER BY u.created_at DESC,u.id DESC LIMIT 500");
     pdg_answer(200,['users'=>$q->fetchAll()]);
   }

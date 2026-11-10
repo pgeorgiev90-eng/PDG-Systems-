@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 // New CAD accounts require email verification.
+require_once __DIR__.'/registration-notifications.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
@@ -21,6 +22,7 @@ try {
   $s=require $path;
   if (!is_array($s) || ($s['cad_registration_enabled']??true)!==true) response(503,['error'=>'registration_unavailable']);
   $db=new PDO('mysql:host='.($s['host']??'localhost').';dbname='.($s['database']??'').';charset=utf8mb4',$s['username']??'',$s['password']??'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
+  pdg_registration_notice_schema($db);
   if (!in_array($action,['register','verify'],true)) response(404,['error'=>'not_found']);
   $key=hash('sha256','registration:'.$action.':'.($_SERVER['REMOTE_ADDR']??'unknown'));
   $db->beginTransaction();
@@ -53,6 +55,7 @@ try {
     $passwordHash=password_hash($password,PASSWORD_DEFAULT);
     $q->execute([$email,$passwordHash]);
     $user=['id'=>(int)$db->lastInsertId()];
+    $db->prepare('INSERT INTO pdg_registration_notices(user_id) VALUES(?)')->execute([$user['id']]);
   } elseif ((int)$user['is_active']===0 && $user['role']==='customer') {
     $q=$db->prepare('SELECT 1 FROM pdg_email_tokens WHERE user_id=? LIMIT 1');
     $q->execute([$user['id']]);
@@ -68,6 +71,7 @@ try {
     $q=$db->prepare("INSERT INTO pdg_email_tokens(token_hash,user_id,expires_at) VALUES (?,?,DATE_ADD(NOW(),INTERVAL 30 MINUTE))");$q->execute([hash('sha256',$token),$user['id']]);
   }
   $db->commit();
+  try{pdg_registration_notices($db);}catch(Throwable $noticeError){error_log('PDG registration notice pending retry');}
   if (isset($token)){
     $url='https://pdgsystems.bg/verify-account.html#token='.$token;
     $body="Здравейте,\n\nПотвърдете имейла си в PDG Systems чрез линка:\n".$url."\n\nЛинкът е валиден 30 минути. Ако не сте заявявали регистрация, игнорирайте това съобщение.";

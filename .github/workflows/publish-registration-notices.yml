@@ -1,0 +1,82 @@
+name: Publish registration notifications and personal discounts
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-registration-notices.yml','api/registration-notifications.php','tests/registration_notices.php']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-registration-notices
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: pdg-production-deploy
+      cancel-in-progress: false
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: pdg_test
+          MYSQL_ROOT_PASSWORD: test-root-password
+          MYSQL_ROOT_HOST: '%'
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptest-root-password"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify registration notices and personal discounts
+        run: |
+          php -l api/registration-notifications.php
+          php -l api/registration-draft.php
+          php -l api/admin-users.php
+          php tests/bootstrap-account-ci.php
+          php tests/registration_notices.php
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          p=Path('admin-dashboard.html').read_text()
+          for i,code in enumerate(re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',p,re.S)):
+              if not code.strip():continue
+              target=Path('/tmp/admin-inline-'+str(i)+'.js');target.write_text(code);subprocess.run(['node','--check',str(target)],check=True)
+          assert 'Запази %' in p and 'discount_bp:Math.round' in p
+          PY
+      - name: Publish approved registration changes
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,urllib.request,urllib.error
+          from pathlib import Path
+          paths=['api/registration-notifications.php','api/registration-draft.php','api/admin-users.php','admin-dashboard.html']
+          backup=Path('production-backup');backup.mkdir(exist_ok=True)
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
+              for p in paths:
+                  data=io.BytesIO()
+                  try:ftp.retrbinary('RETR '+p,data.write)
+                  except ftplib.error_perm as e:
+                      if p=='api/registration-notifications.php' and str(e).startswith('550'):continue
+                      raise
+                  target=backup/p;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data.getvalue())
+              for p in paths:
+                  body=Path(p).read_bytes();ftp.storbinary('STOR '+p+'.registration-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR '+p+'.registration-upload',check.write);assert check.getvalue()==body
+              for p in paths:ftp.rename(p+'.registration-upload',p)
+          root='https://pdgsystems.bg/'
+          with urllib.request.urlopen(root+'admin-dashboard.html?registration='+os.environ['GITHUB_SHA'],timeout=40) as r:assert r.read()==Path('admin-dashboard.html').read_bytes()
+          try:urllib.request.urlopen(root+'api/admin-users.php',timeout=40)
+          except urllib.error.HTTPError as e:assert e.code==401
+          else:raise AssertionError('Admin access exposed')
+          print('PASS: deployed exact admin UI; anonymous access remains forbidden')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: registration-source-backup-${{ github.run_id }}
+          path: production-backup/
+          retention-days: 30
