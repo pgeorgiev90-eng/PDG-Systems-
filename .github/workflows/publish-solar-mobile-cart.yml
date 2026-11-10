@@ -1,0 +1,59 @@
+name: Publish Solar CAD mobile materials button
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-solar-mobile-cart.yml'
+      - 'cad-shopping.js'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check changed JavaScript and PHP
+        run: |
+          node --check cad-shopping.js
+          php -l roof-cad.php
+      - name: Back up and publish only mobile button files
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io
+          from pathlib import Path
+          files=['cad-shopping.js','roof-cad.php']
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              for name in files:
+                  original=io.BytesIO();ftp.retrbinary('RETR '+name,original.write)
+                  backup=Path('/tmp/solar-mobile-cart-rollback')/name;backup.parent.mkdir(parents=True,exist_ok=True);backup.write_bytes(original.getvalue())
+                  body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert check.getvalue()==body,name
+              for name in files:
+                  ftp.rename(name+'.pdg-upload',name)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: solar-mobile-cart-rollback
+          path: /tmp/solar-mobile-cart-rollback/
+          retention-days: 14
+      - name: Verify published mobile button
+        shell: python
+        run: |
+          import urllib.request,os
+          from pathlib import Path
+          url='https://pdgsystems.bg/cad-shopping.js?release='+os.environ['GITHUB_SHA']
+          with urllib.request.urlopen(url,timeout=60) as response:
+              assert response.read()==Path('cad-shopping.js').read_bytes()
+          print('Verified mobile materials button on pdgsystems.bg')
