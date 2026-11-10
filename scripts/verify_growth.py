@@ -10,7 +10,7 @@ def read(path):
     separator = '&' if '?' in path else '?'
     return urllib.request.urlopen(base + path + separator + 'release=' + os.environ['GITHUB_SHA'], timeout=40)
 
-for path in ['solax-support.html','assets/solax-support-inverter.webp','index.html','assets/solax-power-logo.png','shopping-tools.html','admin-growth.html','help-center.html','panel-projects.html',
+for path in ['solax-support.html','assets/solax-support-logo.png','index.html','assets/solax-power-logo.png','shopping-tools.html','admin-growth.html','help-center.html','panel-projects.html',
              'auth.html','admin-preview.html','profile-preview.html','shopping-tools.js','admin-growth.js','cad-document.js','cad-shopping.js','store.js']:
     with read(path) as response:
         assert response.status == 200
