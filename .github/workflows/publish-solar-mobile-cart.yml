@@ -57,3 +57,5 @@ jobs:
           with urllib.request.urlopen(url,timeout=60) as response:
               assert response.read()==Path('cad-shopping.js').read_bytes()
           print('Verified mobile materials button on pdgsystems.bg')
+
+# Retry after the shared production deployment queue completed.
