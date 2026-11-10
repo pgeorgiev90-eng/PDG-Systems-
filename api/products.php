@@ -45,6 +45,8 @@ try {
   pdg_import_schrack_shop($pdo);
   require_once __DIR__.'/brand-price-revision-20261110.php';
   $priceRevision=pdg_brand_price_revision_20261110($pdo);
+  require_once __DIR__.'/brand-price-reduction-20261110.php';
+  $priceRevision=pdg_brand_price_reduction_20261110($pdo);
   $rows=$pdo->query('SELECT id, brand, category, code, name, price, image_url AS imageUrl, image_index AS imageIndex, (SELECT value FROM pdg_product_fields WHERE product_id=products.id AND label=\'Описание\' ORDER BY id LIMIT 1) AS description, (SELECT value FROM pdg_product_fields WHERE product_id=products.id AND label=\'Бележка за снимката\' ORDER BY id LIMIT 1) AS imageCaption FROM products WHERE active=1 ORDER BY id')->fetchAll();
   $account=pdg_pricing_account($pdo);
   foreach($rows as &$row){$row['price']=pdg_product_price($row['price'],$account);$row['description']=pdg_public_product_text(pdg_product_copy($row,(string)($row['description']??'')));$row['imageCaption']='';}
