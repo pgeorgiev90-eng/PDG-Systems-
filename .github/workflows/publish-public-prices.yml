@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pdg-production-deploy
+  group: pdg-public-prices-launch
   cancel-in-progress: false
 jobs:
   publish:
