@@ -1,0 +1,70 @@
+name: Publish public prices and launch offer
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-public-prices.yml']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check pricing and SEO
+        run: |
+          for f in api/customer-pricing.php api/products.php api/product-details.php api/commerce.php api/electric-catalog.php api/seo-render.php social-page.php; do php -l "$f"; done
+          php tests/seo_render.php
+          php -d zend.assertions=1 -d assert.exception=1 -r 'require "api/customer-pricing.php"; assert(pdg_product_price("100",null)==="100.00"); assert(pdg_product_price("100",["discount_bp"=>500])==="95.00"); assert(pdg_product_price(null,null)===null);'
+      - name: Reject outdated release
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Publish scoped files and verify live prices
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,json,urllib.request
+          from pathlib import Path
+          paths=['api/customer-pricing.php','api/products.php','api/product-details.php','api/commerce.php','api/electric-catalog.php','api/seo-render.php','social-page.php','auth.html','index.html']
+          backup=Path('production-backup')
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              for path in paths:
+                  old=io.BytesIO()
+                  ftp.retrbinary('RETR /'+path,old.write)
+                  dest=backup/path
+                  dest.parent.mkdir(parents=True,exist_ok=True)
+                  dest.write_bytes(old.getvalue())
+              for path in paths:
+                  body=Path(path).read_bytes()
+                  ftp.storbinary('STOR /'+path+'.launch-upload',io.BytesIO(body))
+                  check=io.BytesIO()
+                  ftp.retrbinary('RETR /'+path+'.launch-upload',check.write)
+                  assert body==check.getvalue(),path
+                  ftp.rename('/'+path+'.launch-upload','/'+path)
+          def get(path):
+              with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'launch='+os.environ['GITHUB_SHA'],timeout=60) as response:
+                  return response.read()
+          data=json.loads(get('api/products.php'))
+          assert data['prices_visible'] is True
+          priced=[p for p in data['products'] if p['price'] is not None and float(p['price'])>0]
+          assert priced
+          p=priced[0]
+          detail=json.loads(get('api/product-details.php?id='+str(p['id'])))
+          assert detail['prices_visible'] is True and detail['product']['price'] is not None
+          for path in ['index.html','auth.html']:
+              assert get(path)==Path(path).read_bytes(),path
+          print('PASS: launch banner live; guest list and product prices visible; priced products:',len(priced))
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: before-public-prices-${{ github.run_id }}
+          path: production-backup/
+          retention-days: 30

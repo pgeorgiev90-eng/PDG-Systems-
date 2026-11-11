@@ -41,8 +41,8 @@ function pdg_discounted_cents(int $cents, int $discount): int {
 }
 
 function pdg_product_price($price, ?array $account): ?string {
-    if ($account===null || $price===null || (float)$price<=0) return null;
-    $cents=pdg_discounted_cents((int)round((float)$price*100),$account['discount_bp']);
+    if ($price===null || (float)$price<=0) return null;
+    $cents=pdg_discounted_cents((int)round((float)$price*100),($account['discount_bp']??0));
     return intdiv($cents,100).'.'.str_pad((string)($cents%100),2,'0',STR_PAD_LEFT);
 }
 

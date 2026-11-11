@@ -30,6 +30,6 @@ try{
  require_once __DIR__.'/customer-pricing.php';
  $account=pdg_pricing_account($db);
  $product['price']=pdg_product_price($product['price'],$account);
- result(200,['product'=>$product,'fields'=>$fields,'prices_visible'=>$account!==null]);
+ result(200,['product'=>$product,'fields'=>$fields,'prices_visible'=>true]);
 }catch(Throwable $e){result(503,['error'=>'service_unavailable']);}
 

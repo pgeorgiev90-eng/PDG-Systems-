@@ -51,5 +51,5 @@ try {
   $account=pdg_pricing_account($pdo);
   foreach($rows as &$row){$row['price']=pdg_product_price($row['price'],$account);$row['description']=pdg_public_product_text(pdg_product_copy($row,(string)($row['description']??'')));$row['imageCaption']='';}
   unset($row);
-  echo json_encode(['products'=>$rows,'prices_visible'=>$account!==null,'price_revision'=>$priceRevision],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
+  echo json_encode(['products'=>$rows,'prices_visible'=>true,'price_revision'=>$priceRevision],JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $e) { http_response_code(503); echo json_encode(['error'=>'catalog_unavailable']); }

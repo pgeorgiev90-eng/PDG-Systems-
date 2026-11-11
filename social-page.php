@@ -27,7 +27,7 @@ try {
         $p = false;
         if ($id !== false) {
             $db = pdg_social_db();
-            $q = $db->prepare('SELECT id,brand,category,code,name,image_url,image_index FROM products WHERE id=? AND active=1');
+            $q = $db->prepare('SELECT id,brand,category,code,name,price,image_url,image_index FROM products WHERE id=? AND active=1');
             $q->execute([$id]);
             $p = $q->fetch();
         }

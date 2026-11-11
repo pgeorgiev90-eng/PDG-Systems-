@@ -27,7 +27,7 @@ function pdg_seo_product(string $template,array $p,string $description,array $fi
     $e='pdg_social_escape';
     $template=str_replace('<article id="product" hidden>','<article id="product" data-server-rendered="true">',$template);
     $template=preg_replace('~<p id="status"[^>]*>.*?</p>~s','<p id="status" role="status" hidden></p>',$template,1);
-    foreach(['name'=>$p['name'],'category'=>$p['brand'].' · '.$p['category'],'code'=>'Код: '.$p['code'],'price'=>'Цена след регистрация','description'=>$description] as $id=>$text)$template=pdg_seo_fill($template,$id,$e($text));
+    foreach(['name'=>$p['name'],'category'=>$p['brand'].' · '.$p['category'],'code'=>'Код: '.$p['code'],'price'=>isset($p['price'])&&(float)$p['price']>0?number_format((float)$p['price'],2,',',' ').' € без ДДС':'Цена по запитване','description'=>$description] as $id=>$text)$template=pdg_seo_fill($template,$id,$e($text));
     if($description!=='')$template=str_replace('<section id="description-section" hidden>','<section id="description-section">',$template);
     if($image)$template=pdg_seo_fill($template,'photo','<img class="product-image" src="'.$e($image).'" alt="'.$e($p['name']).'" referrerpolicy="no-referrer">');
     $rows='';
