@@ -1,0 +1,6 @@
+<?php
+$db=new PDO('mysql:host=127.0.0.1;dbname=pdg_test;charset=utf8mb4','root','test-root-password',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$db->exec(file_get_contents('database/orders-schema.sql'));
+$db->exec("CREATE TABLE pdg_electric_enquiries (id BIGINT PRIMARY KEY,status VARCHAR(30)); CREATE TABLE pdg_enquiry_reads (enquiry_id BIGINT PRIMARY KEY); CREATE TABLE pdg_site_metrics (day DATE,event_name VARCHAR(30),total INT); CREATE TABLE pdg_cad_project_requests (status VARCHAR(30));");
+$db->exec("INSERT INTO pdg_orders(order_number,request_key,customer_name,email,phone,city,address,subtotal_cents,vat_cents,total_cents,status,created_at) VALUES ('TEST-NEW',REPEAT('a',64),'Test customer','test@example.test','0','City','Address',100,20,120,'new',NOW()),('TEST-OLD',REPEAT('b',64),'Old customer','old@example.test','0','City','Address',200,40,240,'processing',NOW()-INTERVAL 3 DAY),('TEST-DONE',REPEAT('c',64),'Done customer','done@example.test','0','City','Address',100,20,120,'completed',NOW());");
+$db->exec("INSERT INTO pdg_electric_enquiries VALUES (1,'new'),(2,'reviewed'),(3,'new');INSERT INTO pdg_enquiry_reads VALUES (3);INSERT INTO pdg_cad_project_requests VALUES ('review'),('admin_edited');INSERT INTO pdg_site_metrics VALUES (CURDATE(),'visit',11),(CURDATE(),'product',7),(CURDATE()-INTERVAL 2 DAY,'visit',5)");
