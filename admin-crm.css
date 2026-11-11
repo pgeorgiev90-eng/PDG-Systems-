@@ -1,3 +1,4 @@
+/* Release 20261111-2: refresh cached administrator styles. */
 /* Approved PDG Control Center visual system. Loaded only by administrator pages. */
 :root{color-scheme:dark;--crm-bg:#0b1018;--crm-side:#101720;--crm-card:#161e2a;--crm-border:#283344;--crm-text:#edf2f8;--crm-muted:#94a3b8;--crm-mint:#5bd9ba}
 body.crm-admin{margin:0;background:var(--crm-bg)!important;color:var(--crm-text)!important;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
