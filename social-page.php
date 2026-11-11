@@ -96,6 +96,38 @@ try {
             $data['description'] = $label.' — продуктов каталог на PDG Systems. Разгледайте оборудването, техническите характеристики и снимките и изпратете запитване.';
             $data['url'] = $base.'catalog.html?'.http_build_query($params, '', '&', PHP_QUERY_RFC3986);
         }
+        // Crawlable category navigation and bounded product directory, independent of JS.
+        $db = $db ?? pdg_social_db();
+        $directory = '<section class="tools-panel" aria-label="Каталожен указател"><h2>Каталожен указател</h2><p>Категории с директни връзки към продуктите:</p><ul>';
+        $categories = $db->query('SELECT DISTINCT category FROM products WHERE active=1 ORDER BY category')->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($categories as $categoryName) {
+            $directory .= '<li><a href="catalog.html?category='.rawurlencode($categoryName).'">'.pdg_social_escape($categoryName).'</a></li>';
+        }
+        $directory .= '</ul>';
+        // Section pages lead to the category directory; exact category/brand pages list products.
+        if (isset($params['category']) || isset($params['brand']) || !isset($params['section'])) {
+            $where = ['active=1']; $values = [];
+            foreach (['brand','category'] as $filter) if (isset($params[$filter])) {
+                $where[] = $filter.'=?'; $values[] = $params[$filter];
+            }
+            $rawPage = $_GET['page'] ?? '1';
+            $page = is_string($rawPage) && preg_match('/^[1-9][0-9]{0,4}$/D', $rawPage) ? (int)$rawPage : 1;
+            $counter = $db->prepare('SELECT COUNT(*) FROM products WHERE '.implode(' AND ', $where));
+            $counter->execute($values); $total = (int)$counter->fetchColumn();
+            $pages = max(1, (int)ceil($total/60)); $page = min($page, $pages);
+            $query = $db->prepare('SELECT id,name FROM products WHERE '.implode(' AND ', $where).' ORDER BY id LIMIT 60 OFFSET '.(($page-1)*60));
+            $query->execute($values);
+            $directory .= '<h3>Продукти'.(isset($params['category']) ? ': '.pdg_social_escape($params['category']) : '').'</h3><ul>';
+            foreach ($query->fetchAll() as $item) $directory .= '<li><a href="product.html?id='.(int)$item['id'].'">'.pdg_social_escape($item['name']).'</a></li>';
+            $directory .= '</ul><nav aria-label="Страници на указателя">';
+            foreach ([$page-1=>'Предишна страница', $page+1=>'Следваща страница'] as $target=>$caption) if ($target>=1 && $target<=$pages) {
+                $url = 'catalog.html?'.http_build_query(array_merge($params,['page'=>$target]), '', '&', PHP_QUERY_RFC3986);
+                $directory .= '<a href="'.pdg_social_escape($url).'">'.$caption.'</a> ';
+            }
+            $directory .= '</nav><p>Страница '.$page.' от '.$pages.'</p>';
+            if ($page>1) { $data['url'] .= (str_contains($data['url'],'?') ? '&' : '?').'page='.$page; $data['title'] .= ' — страница '.$page; }
+        }
+        $directory .= '</section>';
         if($label!=='')$template=preg_replace_callback('~(<h1[^>]*>).*?(</h1>)~s',static fn($m)=>$m[1].pdg_social_escape($label).$m[2],$template,1);
         $intro=[
             'inverters'=>'Сравнете инверторите по фазност, мощност, MPPT входове и допустимо DC напрежение. За система с батерия проверете съвместимостта на конкретните модели.',
@@ -105,7 +137,7 @@ try {
             'mounting'=>'Изберете крепежите според вида покрив, монтажната система и конкретните размери. Еднакъв код може да има различни варианти; проверете наименованието на артикула.'
         ];
         $text=$intro[$section]??'Разгледайте артикулите по производител, каталожен код и характеристики. Наличностите и сроковете без въведени данни се потвърждават преди поръчка.';
-        $publicContent='<section class="tools-panel"><h2>'.pdg_social_escape($label?:'Избор на оборудване').'</h2><p>'.pdg_social_escape($text).'</p><p><a href="shopping-tools.html#compare">Сравни продукти</a> · <a href="shopping-tools.html#quick-order">Бърза поръчка по кодове</a> · <a href="electrical-panels.html">Табла по поръчка</a> · <a href="photovoltaic-systems.html">Фотоволтаични системи</a></p></section>';
+        $publicContent=$directory.'<section class="tools-panel"><h2>'.pdg_social_escape($label?:'Избор на оборудване').'</h2><p>'.pdg_social_escape($text).'</p><p><a href="shopping-tools.html#compare">Сравни продукти</a> · <a href="shopping-tools.html#quick-order">Бърза поръчка по кодове</a> · <a href="electrical-panels.html">Табла по поръчка</a> · <a href="photovoltaic-systems.html">Фотоволтаични системи</a></p></section>';
     }
 } catch (Throwable $e) {
     http_response_code(503);

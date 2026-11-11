@@ -1,0 +1,36 @@
+name: Publish catalog crawlability
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/catalog-seo.yml', 'scripts/publish_catalog_seo.py']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate renderer and metadata regression checks
+        run: |
+          php -l social-page.php
+          php tests/seo_render.php
+          php tests/social_metadata.php
+          python -m py_compile scripts/publish_catalog_seo.py
+      - name: Require latest source
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Publish only catalog renderer and verify live results
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python scripts/publish_catalog_seo.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-seo-backup-${{ github.run_id }}
+          path: production-backup/
+          retention-days: 30
