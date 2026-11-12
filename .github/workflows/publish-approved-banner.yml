@@ -2,7 +2,7 @@ name: Publish approved homepage carousel
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/publish-approved-banner.yml']
+    paths: ['.github/workflows/publish-approved-banner.yml', 'homepage-carousel.js']
 permissions:
   contents: read
 concurrency:
@@ -14,6 +14,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - name: Check carousel JavaScript
+        run: node --check homepage-carousel.js
       - name: Check pricing and SEO
         run: |
           for f in api/customer-pricing.php api/products.php api/product-details.php api/commerce.php api/electric-catalog.php api/seo-render.php social-page.php; do php -l "$f"; done
