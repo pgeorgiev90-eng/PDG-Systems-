@@ -17,7 +17,7 @@ try {
         $q=$db->prepare('SELECT product_id AS id,quantity FROM pdg_order_items WHERE order_id=? ORDER BY id');
         foreach($orders as &$o){$q->execute([$o['id']]);$o['items']=array_map(fn($i)=>['id'=>(int)$i['id'],'quantity'=>(int)$i['quantity']],$q->fetchAll());}unset($o);
         $q=$db->prepare('SELECT is_partner,company,vat_number FROM pdg_partner_profiles WHERE user_id=?');$q->execute([$user]);$partner=$q->fetch()?:null;
-        shop_answer(200,['lists'=>$lists,'requests'=>$requests,'orders'=>$orders,'partner'=>$partner,'csrf'=>$_SESSION['csrf']]);
+        shop_answer(200,['lists'=>$lists,'requests'=>$requests,'orders'=>$orders,'partner'=>$partner,'discount_bp'=>$account['discount_bp'],'active_orders'=>(int)(function()use($db,$user){$q=$db->prepare("SELECT COUNT(*) FROM pdg_orders o JOIN pdg_order_owners x ON x.order_id=o.id WHERE x.user_id=? AND o.status IN ('new','confirmed','processing')");$q->execute([$user]);return $q->fetchColumn();})(),'csrf'=>$_SESSION['csrf']]);
     }
     $v=shop_input();$action=$v['action']??'';
     if ($action==='save_list') {

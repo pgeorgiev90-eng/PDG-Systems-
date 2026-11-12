@@ -1,0 +1,7 @@
+exec(open('tests/my_projects_security.py').read().split('a,ac=login')[0])
+u,uc=login('customer@example.test','Customer-test-123456');a,ac=login('admin@example.test','Admin-test-123456')
+check(req(client(),'api/my-projects.php?view=overview')[0]==401,'overview requires session')
+code,listing=req(u,'api/my-projects.php');code,overview=req(u,'api/my-projects.php?view=overview');check(code==200,'overview succeeds');check(overview['total']==len(listing['projects']),'exact owner active count');check(all(p['id'] in [x['id'] for x in listing['projects']] for p in overview['recent']),'recent owner scoped')
+check(req(a,'api/my-projects.php?view=overview')[1]['total']==len(req(a,'api/my-projects.php')[1]['projects']),'admin personal overview owner scoped')
+code,d=req(u,'api/my-projects.php?shared=1');check(code==200 and all(p['status'] in ['shared','review','admin_edited'] or p.get('lastAdminAt') for p in d['projects']),'shared filtering')
+print('PASS: overview counts, recent records, shared filters and guest isolation')

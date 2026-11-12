@@ -1,14 +1,6 @@
 name: Test and publish Android and iPhone web app
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/publish-app-install.yml'
-      - 'pdg-app*'
-      - 'app-*'
-      - 'app.html'
-      - 'assets/pdg-app*'
-      - 'tests/app_install_test.cjs'
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -16,7 +8,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
-    if: ${{ !contains(github.event.head_commit.message, '[native-app]') }}
+    if: ${{ false }} # Installation promotions have been retired.
     runs-on: ubuntu-latest
     environment: production
     steps:
