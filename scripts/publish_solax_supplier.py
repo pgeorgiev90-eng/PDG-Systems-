@@ -9,12 +9,13 @@ def get(path):
     with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'solax_release='+os.environ['GITHUB_SHA'],timeout=90) as response:return response.read()
 before=json.loads(get('api/products.php'))
 (backup/'catalog-before.json').write_text(json.dumps(before,ensure_ascii=False))
+already_imported=before.get('solax_import',{}).get('version')=='solax_supplier_20261112_plus30_v1'
 old={p['id']:p for p in before['products']};old_keys={(p['brand'],p['code']):p for p in before['products']}
 expected_keys={(r['brand'],r['code']) for r in items}
 for row in items:
     existing=old_keys.get((row['brand'],row['code']))
     if row['expectedId'] is not None:assert existing and existing['id']==row['expectedId'],'Identity changed before deployment'
-    else:assert existing is None,'New variant already exists before deployment'
+    else:assert (existing is not None if already_imported else existing is None),'Unexpected new-variant state before deployment'
 previous={};activated=False
 with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
     ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
@@ -47,7 +48,7 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
 response=json.loads(get('api/products.php'));after=response['products'];live={(p['brand'],p['code']):p for p in after}
 assert response['solax_import']=={'version':'solax_supplier_20261112_plus30_v1','verified':True,'updated':71,'added':84,'priced':154,'inquiry':1,'total':155},response.get('solax_import')
 assert response['prices_visible'] is True
-assert len(after)==len(before['products'])+84
+assert len(after)==len(before['products'])+(0 if already_imported else 84)
 assert set(old)<={p['id'] for p in after}
 for row in items:
     p=live[(row['brand'],row['code'])]

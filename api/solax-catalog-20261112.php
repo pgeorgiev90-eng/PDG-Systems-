@@ -7,10 +7,10 @@ function pdg_solax_catalog_20261112(PDO $db): array {
     $db->exec('CREATE TABLE IF NOT EXISTS pdg_solax_import_runs(version VARCHAR(100) PRIMARY KEY, summary_json TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB');
     $db->exec('CREATE TABLE IF NOT EXISTS pdg_solax_import_history(version VARCHAR(100) NOT NULL,product_id BIGINT UNSIGNED NOT NULL,created_product TINYINT NOT NULL,product_json MEDIUMTEXT NULL,fields_json MEDIUMTEXT NOT NULL,PRIMARY KEY(version,product_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
     $done=$db->prepare('SELECT summary_json FROM pdg_solax_import_runs WHERE version=?');
-    $done->execute([$version]);if($json=$done->fetchColumn())return json_decode($json,true,512,JSON_THROW_ON_ERROR);
+    $done->execute([$version]);if($json=$done->fetchColumn())return pdg_solax_finish_20261112($db,json_decode($json,true,512,JSON_THROW_ON_ERROR));
     if((int)$db->query("SELECT GET_LOCK('pdg_solax_supplier_20261112',20)")->fetchColumn()!==1)throw new RuntimeException('SolaX catalog busy');
     try {
-        $done->execute([$version]);if($json=$done->fetchColumn())return json_decode($json,true,512,JSON_THROW_ON_ERROR);
+        $done->execute([$version]);if($json=$done->fetchColumn())return pdg_solax_finish_20261112($db,json_decode($json,true,512,JSON_THROW_ON_ERROR));
         $json=file_get_contents(dirname(__DIR__).'/database/solax-catalog-20261112.json');
         if($json===false)throw new RuntimeException('SolaX data unavailable');
         $items=json_decode($json,true,512,JSON_THROW_ON_ERROR);
@@ -51,14 +51,44 @@ function pdg_solax_catalog_20261112(PDO $db): array {
                 $insert->execute([$r['brand'],$r['category'],$r['code'],$r['name'],$r['price'],$r['image']]);$id=(int)$db->lastInsertId();
                 $backup->execute([$version,$id,1,null,'[]']);$summary['added']++;
             }
+            $read->execute([$id]);$existingLabels=array_column($read->fetchAll(PDO::FETCH_ASSOC),'label');
             $all=array_merge([['label'=>'Описание','value'=>$r['description']]],$r['fields'],[['label'=>'Източник на ценовата листа','value'=>implode("\n",$r['sources'])]]);
-            foreach($all as $order=>$f){$remove->execute([$id,$f['label']]);$field->execute([$id,$f['label'],$f['value'],$order]);}
+            foreach($all as $order=>$f){if($old&&$f['label']!=='Описание'&&in_array($f['label'],$existingLabels,true))continue;$remove->execute([$id,$f['label']]);$field->execute([$id,$f['label'],$f['value'],$order]);}
             $verify->execute([$id]);$saved=$verify->fetch(PDO::FETCH_ASSOC);
             if($saved['price']!==$r['price']||$saved['image_url']!==$r['image']||$saved['category']!==$r['category'])throw new RuntimeException('Catalog readback failed');
             $summary[$r['price']===null?'inquiry':'priced']++;
         }
         $db->prepare('INSERT INTO pdg_solax_import_runs(version,summary_json) VALUES(?,?)')->execute([$version,json_encode($summary,JSON_THROW_ON_ERROR)]);
-        $db->commit();return $summary;
+        $db->commit();return pdg_solax_finish_20261112($db,$summary);
     }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
     finally{$db->query("SELECT RELEASE_LOCK('pdg_solax_supplier_20261112')");}
+}
+
+// Reassert reviewed manufacturer electrical ratings after any older specification seed.
+// Also covers an import completed by the first release before this preservation guard.
+function pdg_solax_finish_20261112(PDO $db,array $summary):array {
+    if((int)$db->query("SELECT GET_LOCK('pdg_solax_reviewed_20261112',20)")->fetchColumn()!==1)throw new RuntimeException('Reviewed specifications busy');
+    try {
+    $version='solax_reviewed_specs_20261112_v1';
+    $q=$db->prepare('SELECT summary_json FROM pdg_solax_import_runs WHERE version=?');$q->execute([$version]);if($q->fetchColumn())return $summary;
+    require_once __DIR__.'/official-inverters-bootstrap.php';
+    $rows=json_decode(file_get_contents(dirname(__DIR__).'/database/official-inverter-specs.json'),true,512,JSON_THROW_ON_ERROR);
+    $catalog=json_decode(file_get_contents(dirname(__DIR__).'/database/solax-catalog-20261112.json'),true,512,JSON_THROW_ON_ERROR);
+    $descriptions=[];foreach($catalog as $r)if($r['brand']==='SolaX')$descriptions[$r['code']]=$r['description'];
+    $find=$db->prepare('SELECT id FROM products WHERE brand=? AND code=?');
+    $remove=$db->prepare('DELETE FROM pdg_product_fields WHERE product_id=? AND label=?');
+    $insert=$db->prepare('INSERT INTO pdg_product_fields(product_id,label,value,sort_order) VALUES(?,?,?,?)');
+    $db->beginTransaction();
+    try {
+        foreach($rows as $r){
+            if($r['brand']!=='SolaX'||empty($r['verified']))continue;
+            $fields=pdg_official_inverter_fields($r);
+            if(isset($descriptions[$r['code']]))$fields['Описание']=$descriptions[$r['code']];
+            $find->execute(['SolaX',$r['code']]);
+            foreach($find->fetchAll(PDO::FETCH_COLUMN) as $id){$order=0;foreach($fields as $label=>$value){$remove->execute([$id,$label]);$insert->execute([$id,$label,$value,$order++]);}}
+        }
+        $db->prepare('INSERT INTO pdg_solax_import_runs(version,summary_json) VALUES(?,?)')->execute([$version,'{"verified":true}']);
+        $db->commit();return $summary;
+    }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
+    }finally{$db->query("SELECT RELEASE_LOCK('pdg_solax_reviewed_20261112')");}
 }

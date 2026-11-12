@@ -29,4 +29,5 @@ $dump=$db->query('SELECT * FROM products ORDER BY id')->fetchAll();check(pdg_sol
 check((int)$db->query('SELECT COUNT(*) FROM pdg_solax_import_history')->fetchColumn()===155,'Incomplete recovery history');
 $old=json_decode($db->query('SELECT product_json FROM pdg_solax_import_history WHERE product_id=134')->fetchColumn(),true);check($old['price']==='99.99','Original price not retained');
 $db->exec('UPDATE products SET price=777 WHERE id=134');pdg_solax_catalog_20261112($db);check($db->query('SELECT price FROM products WHERE id=134')->fetchColumn()==='777.00','Later administrator price overwritten');
+$mppt=$db->query("SELECT value FROM pdg_product_fields WHERE product_id=157 AND label='Брой MPPT'")->fetchColumn();check($mppt==='3','Reviewed X1-VAST 8kW MPPT rating lost');
 echo "PASS: 155 identities, exact 30% markup, inquiry pricing, transactional rollback, backups, idempotence and administrator changes\n";
