@@ -5,6 +5,11 @@ on:
     paths:
       - '.github/workflows/publish-solar-mobile-cart.yml'
       - 'cad-shopping.js'
+      - 'cad-document.js'
+      - 'profile-branding.js'
+      - 'api/profile-branding.php'
+      - 'my-projects.php'
+      - 'roof-cad.php'
 permissions:
   contents: read
 concurrency:
@@ -19,6 +24,10 @@ jobs:
       - name: Check changed JavaScript and PHP
         run: |
           node --check cad-shopping.js
+          node --check cad-document.js
+          node --check profile-branding.js
+          php -l api/profile-branding.php
+          php -l my-projects.php
           php -l roof-cad.php
       - name: Back up and publish only mobile button files
         env:
@@ -29,14 +38,17 @@ jobs:
         run: |
           import ftplib,ssl,os,io
           from pathlib import Path
-          files=['cad-shopping.js','roof-cad.php']
+          files=['cad-shopping.js','roof-cad.php','cad-document.js','profile-branding.js','api/profile-branding.php','my-projects.php']
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
               ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
               ftp.prot_p()
               ftp.cwd('/')
               for name in files:
-                  original=io.BytesIO();ftp.retrbinary('RETR '+name,original.write)
+                  original=io.BytesIO()
+                  try: ftp.retrbinary('RETR '+name,original.write)
+                  except ftplib.error_perm as error:
+                      if not str(error).startswith('550'): raise
                   backup=Path('/tmp/solar-mobile-cart-rollback')/name;backup.parent.mkdir(parents=True,exist_ok=True);backup.write_bytes(original.getvalue())
                   body=Path(name).read_bytes();ftp.storbinary('STOR '+name+'.pdg-upload',io.BytesIO(body))
                   check=io.BytesIO();ftp.retrbinary('RETR '+name+'.pdg-upload',check.write);assert check.getvalue()==body,name
@@ -59,3 +71,4 @@ jobs:
           print('Verified mobile materials button on pdgsystems.bg')
 
 # Retry after the shared production deployment queue completed.
+
