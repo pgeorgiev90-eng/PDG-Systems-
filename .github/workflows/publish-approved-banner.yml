@@ -1,4 +1,4 @@
-name: Publish approved launch banner
+name: Publish approved homepage carousel
 on:
   push:
     branches: [main]
@@ -30,7 +30,7 @@ jobs:
         run: |
           import ftplib,ssl,os,io,json,urllib.request
           from pathlib import Path
-          paths=['assets/launch-offer-approved.webp','index.html']
+          paths=['assets/solax-deye-approved.webp','homepage-carousel.js','index.html']
           backup=Path('production-backup')
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21)
@@ -40,7 +40,7 @@ jobs:
                   old=io.BytesIO()
                   try: ftp.retrbinary('RETR /'+path,old.write)
                   except ftplib.error_perm as error:
-                      if path=='assets/launch-offer-approved.webp' and str(error).startswith('550'): continue
+                      if path in ['assets/solax-deye-approved.webp','homepage-carousel.js'] and str(error).startswith('550'): continue
                       raise
                   dest=backup/path
                   dest.parent.mkdir(parents=True,exist_ok=True)
@@ -62,9 +62,9 @@ jobs:
           p=priced[0]
           detail=json.loads(get('api/product-details.php?id='+str(p['id'])))
           assert detail['prices_visible'] is True and detail['product']['price'] is not None
-          for path in ['index.html','assets/launch-offer-approved.webp']:
+          for path in paths:
               assert get(path)==Path(path).read_bytes(),path
-          print('PASS: approved banner and public prices verified live')
+          print('PASS: approved carousel assets and public prices verified live')
       - uses: actions/upload-artifact@v4
         if: always()
         with:
