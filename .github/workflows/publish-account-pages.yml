@@ -1,0 +1,69 @@
+name: Publish unified account page design
+on:
+  push:
+    branches: [main]
+    paths: ['account-pages.*', '.github/workflows/publish-account-pages.yml']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-account-pages-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check account page scripts and desktop/mobile behavior
+        run: |
+          node --check account-pages.js
+          python3 - <<'PYTEST'
+          import re,subprocess
+          from pathlib import Path
+          for name in ['auth.html','account-draft.html','verify-account.html']:
+              for code in re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',Path(name).read_text(),re.S):
+                  if not code.strip():continue
+                  Path('/tmp/account-inline.js').write_text(code);subprocess.run(['node','--check','/tmp/account-inline.js'],check=True)
+          PYTEST
+          npm install --prefix /tmp/account-ui playwright@1.56.1
+          /tmp/account-ui/node_modules/.bin/playwright install --with-deps chromium
+          NODE_PATH=/tmp/account-ui/node_modules node tests/account_pages_ui_test.cjs
+      - name: Reject outdated release
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Publish matching account page styles
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib,ssl,os,io,urllib.request,urllib.error
+          from pathlib import Path
+          paths=['account-pages.css', 'account-pages.js', 'auth.html', 'account-draft.html', 'shopping-tools.html', 'verify-account.html']
+          new={'account-pages.css','account-pages.js'}
+          backup=Path('production-backup')
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p()
+              for path in paths:
+                  old=io.BytesIO()
+                  try:ftp.retrbinary('RETR /'+path,old.write)
+                  except ftplib.error_perm as e:
+                      if path in new and str(e).startswith('550'):continue
+                      raise
+                  dest=backup/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(old.getvalue())
+              for path in paths:
+                  body=Path(path).read_bytes();ftp.storbinary('STOR /'+path+'.customer-upload',io.BytesIO(body))
+                  check=io.BytesIO();ftp.retrbinary('RETR /'+path+'.customer-upload',check.write);assert check.getvalue()==body,path
+              for path in paths:ftp.rename('/'+path+'.customer-upload','/'+path)
+          for path in paths:
+              if path.endswith('.php'):continue
+              with urllib.request.urlopen('https://pdgsystems.bg/'+path+'?release='+os.environ['GITHUB_SHA'],timeout=40) as r:assert r.read()==Path(path).read_bytes(),path
+          print('PASS: exact account page files and styles verified on official domain')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: account-pages-evidence-${{ github.run_id }}
+          path: |
+            production-backup/
+            /tmp/account-pages-*.png
+          retention-days: 30
