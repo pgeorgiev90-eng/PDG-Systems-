@@ -34,6 +34,7 @@
         for(const [label,mode]of [['Създай акаунт','register'],['Вход','login']]){const a=document.createElement('a');a.textContent=label;a.href='auth.html?next='+encodeURIComponent('product.html?id='+p.id)+(mode==='register'?'&mode=register':'');links.append(a);}$('price').append(links);
       }else if(Number(p.price)>0) {
         $('price').textContent=money(p.price)+' без ДДС';$('vat').textContent=money(Number(p.price)*1.2)+' с ДДС';$('buy').hidden=false;
+        window.PDGQuickOrder?.(p);
         $('add').onclick=async()=>{if(!$('quantity').reportValidity())return;$('add').disabled=true;try{await window.PDGStore.add(p.id,Number($('quantity').value));}catch(e){}finally{$('add').disabled=false;}};
       } else {$('price').textContent='Цена по запитване';$('inquiry').hidden=false;}
       row('Производител',p.brand);row('Категория',p.category);row('Код на продукта',p.code);

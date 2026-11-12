@@ -1,0 +1,50 @@
+name: Test and publish quick orders
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/quick-order-release.yml', 'api/quick-order.php', 'quick-order.js', 'quick-order.css']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: pdg_test
+          MYSQL_ROOT_PASSWORD: test-root-password
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptest-root-password" --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate and test isolated guest orders
+        run: |
+          php -l api/quick-order.php
+          node --check quick-order.js
+          node --check product.js
+          node --check admin-orders.js
+          php tests/bootstrap-account-ci.php
+          php -r '$s=require dirname(getcwd())."/pdg-shop-db.php";$d=new PDO("mysql:host=".$s["host"].";dbname=".$s["database"],$s["username"],$s["password"]);$d->exec("INSERT INTO products(brand,category,code,name,price) VALUES(\"Test\",\"Test\",\"QUICK-CI\",\"Quick test\",10.00),(\"Test\",\"Test\",\"QUICK-NO-PRICE\",\"No price\",NULL)");require "api/commerce-common.php";pdg_commerce_schema($d);$d->exec("INSERT INTO pdg_product_operations(product_id,stock_quantity) VALUES(1,5)");'
+          php -S 127.0.0.1:8091 tests/shop-router.php > /tmp/quick-order-server.log 2>&1 &
+          trap 'cat /tmp/quick-order-server.log' EXIT
+          for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:8091/api/quick-order.php && break; sleep 1; done
+          python3 tests/quick_order_integration.py
+      - name: Require current source
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Back up and publish quick orders
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python3 scripts/publish_quick_order.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quick-order-backup
+          path: production-backup/
+          retention-days: 30
