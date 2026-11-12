@@ -72,3 +72,5 @@ jobs:
 
 # Retry after the shared production deployment queue completed.
 
+
+# Publish direct PDF export and refresh the browser asset version together.
