@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict');const F=require('../catalog-filter-core.js');
+const p=(id,name,price,category='Инвертори',brand='SolaX',specs={})=>({id,name,price,category,brand,attrs:F.attributes({name,category},{specs})});
+const a=p(1,'Инвертор 10 kW','100','Инвертори','SolaX',{'Брой фази':'3','Брой MPPT':'2','Номинална AC мощност (kW)':'10,0'});
+assert.equal(a.attrs.power,'10');assert.equal(a.attrs.phases,'Трифазен');assert.equal(a.attrs.mppt,'2');
+assert.equal(F.attributes({name:'X3-ULT-30K',category:'Инвертори'}).power,undefined);
+const electrical=F.attributes({name:'Автоматичен прекъсвач, 3Р, 50kA, 160A',category:'Електроапаратура / Прекъсвачи'});
+assert.equal(electrical.current,'160');assert.equal(electrical.poles,'3');assert.equal(electrical.breaking,'50');
+assert.equal(F.attributes({},{specs:{'Източник на мощност':'https://example.test'}}).power,undefined);
+const b=p(2,'Инвертор 5 kW','200'),unknown=p(3,'Инвертор без цена',null),c=p(4,'Инвертор 8 kW','50','Инвертори','Deye');
+assert.deepEqual(F.sort([a,b,unknown,c],'price_asc').map(p=>p.id),[4,1,2,3]);
+assert.deepEqual(F.sort([a,b,unknown,c],'price_desc').map(p=>p.id),[2,1,4,3]);
+assert.deepEqual(F.sort([a,b,unknown,c],'power_asc').map(p=>p.id),[2,4,1,3]);
+assert.deepEqual(F.sort([a,b,unknown,c],'power_desc').map(p=>p.id),[1,4,2,3]);
+const s={q:'инвертор 10',brand:'SolaX',category:'Инвертори',min:'60',max:'150',facets:{phases:['Трифазен'],mppt:['2']}};
+assert(F.matches(a,s));assert(!F.matches(b,s));assert(!F.matches(unknown,{...s,q:'',facets:{}}));
+assert(!F.matches(a,{...s,facets:{phases:['Монофазен']}}));assert(F.matches(a,{...s,facets:{phases:['Монофазен']}},'phases'));
+const energy=p(5,'Батерия 10.24 kWh','500','Батерии','Dyness',{'Клас батерийна система':'LV'});assert.equal(energy.attrs.energy,'10.24');assert.equal(energy.attrs.battery_class,'Нисковолтова');
+assert.equal(F.attributes({},{availability:'in_stock'}).availability,'В наличност');
+assert.equal(F.attributes({}).availability,'За потвърждение');
+console.log('PASS: explicit specifications, decimal/units, electrical name parsing, AND/OR facets, ranges, unknown-last numeric sorting and availability');
+
+assert.equal(F.attributes({},{specs:{'Мощност (Wp)':'475'}}).panel_power,'475');
+assert.equal(F.attributes({},{specs:{'Брой полюси':'1+N'}}).poles,'1+N');
