@@ -64,7 +64,7 @@ try {
                 'brand'=>['@type'=>'Brand','name'=>$p['brand']],'description'=>$full,'url'=>$data['url']];
             if($image)$structured['image']=$image;
             $related=$db->prepare('SELECT id,name FROM products WHERE active=1 AND category=? AND id<>? ORDER BY id LIMIT 12');$related->execute([$p['category'],$p['id']]);
-            $publicContent='<section class="tools-panel"><h2>Още от тази категория</h2><ul>';
+            $publicContent='<section id="pdg-category-fallback" class="tools-panel"><h2>Още от тази категория</h2><ul>';
             foreach($related->fetchAll() as $r)$publicContent.='<li><a href="product.html?id='.(int)$r['id'].'">'.pdg_social_escape($r['name']).'</a></li>';
             $publicContent.='</ul><p><a href="catalog.html?category='.rawurlencode($p['category']).'">Всички артикули от категорията</a> · <a href="shopping-tools.html#compare">Сравни продукти</a></p></section>';
         }
