@@ -1,0 +1,612 @@
+[
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2026/01/19/696e2c78441e3tsys.jpg",
+    "path": "assets/products/solax-20261112/ddc25e6eea40247ffa55.webp",
+    "sha256": "ddc25e6eea40247ffa55f53a461a4b47300569a858ec0505daffccaf7fbc2d68",
+    "bytes": 30522,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/ddc25e6eea40247ffa55.jpg",
+    "outputBytes": 1864
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2022/12/12/6396e32b39909kabel.jpg",
+    "path": "assets/products/solax-20261112/30771638a92b29dc2380.webp",
+    "sha256": "30771638a92b29dc23807c5920b748dd7586593d1f7a65456575f9f7454354c7",
+    "bytes": 221771,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/30771638a92b29dc2380.jpg",
+    "outputBytes": 8914
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2026/01/08/695faaa0873a4solax-tp-ld53.jpg",
+    "path": "assets/products/solax-20261112/0480b32de8b9b43f0737.webp",
+    "sha256": "0480b32de8b9b43f0737a7a4e89c83510ef8cee1ac88d02c94407d5c2ed98592",
+    "bytes": 30862,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/0480b32de8b9b43f0737.jpg",
+    "outputBytes": 1682
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2024/04/12/6619141178df9solax-t-bat.jpg",
+    "path": "assets/products/solax-20261112/c5360a4fd7a0258bcff9.webp",
+    "sha256": "c5360a4fd7a0258bcff9d803edf0c0e17d500bc9c66df8548b7e7f8cab26cc29",
+    "bytes": 90764,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/c5360a4fd7a0258bcff9.jpg",
+    "outputBytes": 3058
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2023/02/14/63eb3df7b295fsolax-mono.jpg",
+    "path": "assets/products/solax-20261112/2f6864c3d1fa827c9090.webp",
+    "sha256": "2f6864c3d1fa827c9090d434b96d77c50f0b3723d8e9333d031a081a86cc1cdc",
+    "bytes": 149890,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/2f6864c3d1fa827c9090.jpg",
+    "outputBytes": 2676
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2022/12/12/6396dc50be90cmc4.jpg",
+    "path": "assets/products/solax-20261112/93de438dc9cf81c3cd99.webp",
+    "sha256": "93de438dc9cf81c3cd999562b5b6f4fdfac20f501fcae9361ea0a5883f733c10",
+    "bytes": 224296,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/93de438dc9cf81c3cd99.jpg",
+    "outputBytes": 8760
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2023/04/07/642fd41a6d853janitca.jpg",
+    "path": "assets/products/solax-20261112/8676cc4213e71d42cbce.webp",
+    "sha256": "8676cc4213e71d42cbce025bf3e29b4440e511a875bcb4f705c49d66af2e439d",
+    "bytes": 163435,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/8676cc4213e71d42cbce.jpg",
+    "outputBytes": 8602
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2023/03/09/6409c9bf6bd83LFP-SLAVE.jpg",
+    "path": "assets/products/solax-20261112/772f4f7a59e1300e8c25.webp",
+    "sha256": "772f4f7a59e1300e8c25556f39651a92a260e6507524442cb5e64898f7930a63",
+    "bytes": 130450,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/772f4f7a59e1300e8c25.jpg",
+    "outputBytes": 1600
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2023/03/09/6409e37dce550bat-t30.jpg",
+    "path": "assets/products/solax-20261112/a382d45ea96535f1aaea.webp",
+    "sha256": "a382d45ea96535f1aaea2a64a8925459a7cb35c62678b8b50ed30f690b5ad644",
+    "bytes": 132424,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/a382d45ea96535f1aaea.jpg",
+    "outputBytes": 1458
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2023/03/09/6409c4c88a3cfLFP-MASTER-1.jpg",
+    "path": "assets/products/solax-20261112/0674ab2e5957f2e2b076.webp",
+    "sha256": "0674ab2e5957f2e2b0765650f85a1c8b574a27833f7d85aa2f1a458b943127d4",
+    "bytes": 131955,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/0674ab2e5957f2e2b076.jpg",
+    "outputBytes": 1680
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2026/01/20/696f297aa5922tb-hr140.jpg",
+    "path": "assets/products/solax-20261112/f87c336a3be2ed82323d.webp",
+    "sha256": "f87c336a3be2ed82323d007e02b0d09b38ce138e95635c0f429c48afbec53322",
+    "bytes": 67233,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/f87c336a3be2ed82323d.jpg",
+    "outputBytes": 7972
+  },
+  {
+    "source": "https://cdn.prod.website-files.com/5fad551d7419c7a0e9e4aba4/6070eca229d3a5a871b07232_TS4-A-O.avif",
+    "path": "assets/products/solax-20261112/ccd8016e1bf6df11a78b.webp",
+    "sha256": "ccd8016e1bf6df11a78bb3a5f14fed8417796af1e35c706a4c2ff75f8c91dfa2",
+    "bytes": 4430,
+    "width": 494,
+    "height": 494,
+    "sourcePath": "assets/products/solax-20261112/ccd8016e1bf6df11a78b.avif",
+    "outputBytes": 9226
+  },
+  {
+    "source": "https://bg.solaxpower.com/uploadfile/23/202505/742b9dff29.png",
+    "path": "assets/products/solax-20261112/7309a7414d4d6f83de70.webp",
+    "sha256": "7309a7414d4d6f83de70754d186c2c2f364c935b499f4582b60c54aa51efe07b",
+    "bytes": 96439,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/7309a7414d4d6f83de70.png",
+    "outputBytes": 10784
+  },
+  {
+    "source": "https://cms.intermetal.bg/storage/uploads/2023/02/14/63eb451c9c02bsolax-3.jpg",
+    "path": "assets/products/solax-20261112/ba63bc2f92f70f639cbd.webp",
+    "sha256": "ba63bc2f92f70f639cbdebea2c6456f31b643255aa27d023be5cd785ebc979dc",
+    "bytes": 157425,
+    "width": 1920,
+    "height": 768,
+    "sourcePath": "assets/products/solax-20261112/ba63bc2f92f70f639cbd.jpg",
+    "outputBytes": 2898
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-06-02/1685688361863_DDSU666.png",
+    "path": "assets/products/solax-20261112/f326325222dfa037b8d3.webp",
+    "sha256": "f326325222dfa037b8d3fde0e27ed275e85fac254aaa888984701afd6ee93c00",
+    "bytes": 2014520,
+    "width": 709,
+    "height": 709,
+    "sourcePath": "assets/products/solax-20261112/f326325222dfa037b8d3.png",
+    "outputBytes": 24758
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-06-02/1685688495853_DTSU666.png",
+    "path": "assets/products/solax-20261112/0213e300a035bb289f37.webp",
+    "sha256": "0213e300a035bb289f379b0f1143654d14918fb763e04d173287716ef9303190",
+    "bytes": 2014520,
+    "width": 709,
+    "height": 709,
+    "sourcePath": "assets/products/solax-20261112/0213e300a035bb289f37.png",
+    "outputBytes": 32662
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-06-02/1685688588046_DDSU666-CT.png",
+    "path": "assets/products/solax-20261112/753bfc43b58600b7f26d.webp",
+    "sha256": "753bfc43b58600b7f26d71322521998ae51369b39863ec33cc2abbefde219030",
+    "bytes": 2014520,
+    "width": 709,
+    "height": 709,
+    "sourcePath": "assets/products/solax-20261112/753bfc43b58600b7f26d.png",
+    "outputBytes": 24362
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-06-02/1685688817383_DTSU666-CT.png",
+    "path": "assets/products/solax-20261112/4a01cc3b6ab52af8c3e9.webp",
+    "sha256": "4a01cc3b6ab52af8c3e911e5d71f60721fa16dc2fb39593b66f46073bb72a7d5",
+    "bytes": 2014520,
+    "width": 709,
+    "height": 709,
+    "sourcePath": "assets/products/solax-20261112/4a01cc3b6ab52af8c3e9.png",
+    "outputBytes": 33030
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-07-05/1688551267430_dc4e9060-1b1a-11ee-8195-155727831f59",
+    "path": "assets/products/solax-20261112/7c0fbb9cc491867229f2.webp",
+    "sha256": "7c0fbb9cc491867229f22478bf58cdc96aaeff0f91dce8b72aa276a32fb92c13",
+    "bytes": 1183758,
+    "width": 4104,
+    "height": 4592,
+    "sourcePath": "assets/products/solax-20261112/7c0fbb9cc491867229f2.png",
+    "outputBytes": 11884
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-07-05/1688551677425_d0aed610-1b1b-11ee-8195-155727831f59",
+    "path": "assets/products/solax-20261112/9068e77652f7e6dbc763.webp",
+    "sha256": "9068e77652f7e6dbc763723ae0c143f28fdf672b538dee09b84ce94f2bbed8fb",
+    "bytes": 1727291,
+    "width": 7656,
+    "height": 7281,
+    "sourcePath": "assets/products/solax-20261112/9068e77652f7e6dbc763.png",
+    "outputBytes": 9488
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-07-25/1690275279509_e3951c50-2ac8-11ee-a651-e7fe2f4c38f8",
+    "path": "assets/products/solax-20261112/844f3c61b5fe1c544f72.webp",
+    "sha256": "844f3c61b5fe1c544f72ff63c8d5fea69d64329421352a2c7686b9fee5f3616c",
+    "bytes": 9202,
+    "width": 87,
+    "height": 226,
+    "sourcePath": "assets/products/solax-20261112/844f3c61b5fe1c544f72.png",
+    "outputBytes": 2500
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-07-26/1690337132785_e7020610-2b58-11ee-8962-c17b7afcebd7",
+    "path": "assets/products/solax-20261112/2fe424db5d722c1eb4b3.webp",
+    "sha256": "2fe424db5d722c1eb4b36896499bd00539553b48eb3263b95267bd2a2ec84aa3",
+    "bytes": 9555,
+    "width": 295,
+    "height": 331,
+    "sourcePath": "assets/products/solax-20261112/2fe424db5d722c1eb4b3.png",
+    "outputBytes": 1988
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-11-23/1700720561198_b4a104e0-89c8-11ee-bb29-1fc697bf2935.webp",
+    "path": "assets/products/solax-20261112/b1ed92ea433982c76bb0.webp",
+    "sha256": "b1ed92ea433982c76bb02e7064e04268ff9464d7088620a525eca15962f99e73",
+    "bytes": 6240,
+    "width": 295,
+    "height": 396,
+    "sourcePath": "assets/products/solax-20261112/b1ed92ea433982c76bb0.webp",
+    "outputBytes": 6038
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-12-18/1702878568996_3582de40-9d69-11ee-9811-dfa5ae2d034a.png",
+    "path": "assets/products/solax-20261112/0ee50db9a37e96294fa3.webp",
+    "sha256": "0ee50db9a37e96294fa371e19b9007dfcd4ff55b28f930853f59881df5a3d599",
+    "bytes": 408973,
+    "width": 2838,
+    "height": 2975,
+    "sourcePath": "assets/products/solax-20261112/0ee50db9a37e96294fa3.png",
+    "outputBytes": 7876
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2024-07-02/1719887033568_2066ae00-381a-11ef-aadf-812b78abe823.png",
+    "path": "assets/products/solax-20261112/362d6f36b57fb2da283c.webp",
+    "sha256": "362d6f36b57fb2da283c942585dc5359ab4a0935d592d42ffe285b8e3db2bda0",
+    "bytes": 44311,
+    "width": 580,
+    "height": 667,
+    "sourcePath": "assets/products/solax-20261112/362d6f36b57fb2da283c.png",
+    "outputBytes": 8040
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2024-07-12/1720752989711_567be9f0-3ffa-11ef-be01-e34933cac59c.png",
+    "path": "assets/products/solax-20261112/310d540f7b465f7ed7e8.webp",
+    "sha256": "310d540f7b465f7ed7e8b89579e89608a54f97216b78c6ab032983f5380ac117",
+    "bytes": 4213818,
+    "width": 4000,
+    "height": 2250,
+    "sourcePath": "assets/products/solax-20261112/310d540f7b465f7ed7e8.png",
+    "outputBytes": 23500
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2024-08-08/1723110302691_e2831330-556a-11ef-b4cd-8dfc2aae6e5a.png",
+    "path": "assets/products/solax-20261112/9872a8288447dc6f3b94.webp",
+    "sha256": "9872a8288447dc6f3b940cc06313a9ed4c74b1bf9ff618ca5017d5405a95bc78",
+    "bytes": 4154343,
+    "width": 3636,
+    "height": 1832,
+    "sourcePath": "assets/products/solax-20261112/9872a8288447dc6f3b94.png",
+    "outputBytes": 23836
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2024-12-27/1735285840894_44ceb1e0-c427-11ef-a0d1-8f2c90a3eb7d.png",
+    "path": "assets/products/solax-20261112/fbae8ad4f09283929636.webp",
+    "sha256": "fbae8ad4f0928392963680e898ae65f3299d6df5b53fe95066c7165a02307a57",
+    "bytes": 1797652,
+    "width": 1654,
+    "height": 2092,
+    "sourcePath": "assets/products/solax-20261112/fbae8ad4f09283929636.png",
+    "outputBytes": 11288
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2025-02-20/1740028534977_b6c4b310-ef49-11ef-9efd-d9f2874aa3b7.png",
+    "path": "assets/products/solax-20261112/310d540f7b465f7ed7e8.webp",
+    "sha256": "310d540f7b465f7ed7e8b89579e89608a54f97216b78c6ab032983f5380ac117",
+    "bytes": 4213818,
+    "width": 4000,
+    "height": 2250,
+    "sourcePath": "assets/products/solax-20261112/310d540f7b465f7ed7e8.png",
+    "outputBytes": 23500
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2025-05-16/1747388464496_e29d2700-3239-11f0-a635-35c3e624d032.png",
+    "path": "assets/products/solax-20261112/90eb1333c26a31a2ef3b.webp",
+    "sha256": "90eb1333c26a31a2ef3b71975d9c919ebd0532a9c6322ddae1e066c285e613b3",
+    "bytes": 3144163,
+    "width": 5000,
+    "height": 3424,
+    "sourcePath": "assets/products/solax-20261112/90eb1333c26a31a2ef3b.png",
+    "outputBytes": 7576
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/aelio.webp",
+    "path": "assets/products/solax-20261112/e4290fbda7ce23862f5d.webp",
+    "sha256": "e4290fbda7ce23862f5d3f611aa0339c2a0a74eeef283d58beb622913a9d936a",
+    "bytes": 15532,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/e4290fbda7ce23862f5d.webp",
+    "outputBytes": 13078
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/evg2.webp",
+    "path": "assets/products/solax-20261112/c72006e480b4f7f5e9bc.webp",
+    "sha256": "c72006e480b4f7f5e9bcb282aed99e5f05acfc4a9c6f605aa9b4bdfe77c13f10",
+    "bytes": 11438,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/c72006e480b4f7f5e9bc.webp",
+    "outputBytes": 9762
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/forth.webp",
+    "path": "assets/products/solax-20261112/fd64db54e8e4f4003c15.webp",
+    "sha256": "fd64db54e8e4f4003c151dbc2f622c3fbe2f89c308836e2a9b57dc98f682402f",
+    "bytes": 7318,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/fd64db54e8e4f4003c15.webp",
+    "outputBytes": 6394
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/grand.webp",
+    "path": "assets/products/solax-20261112/e1af763b4a3d49166317.webp",
+    "sha256": "e1af763b4a3d49166317426c81e316765a3e3762aae85d40438bb326243bccc8",
+    "bytes": 4924,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/e1af763b4a3d49166317.webp",
+    "outputBytes": 4298
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/hr140.webp",
+    "path": "assets/products/solax-20261112/651aef8821acb96d23cd.webp",
+    "sha256": "651aef8821acb96d23cd000fb624b41eb44b48200023f8c066c97dbf340caa72",
+    "bytes": 63626,
+    "width": 1000,
+    "height": 1000,
+    "sourcePath": "assets/products/solax-20261112/651aef8821acb96d23cd.webp",
+    "outputBytes": 42294
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/hr76.webp",
+    "path": "assets/products/solax-20261112/a86bc76a1c8f3f0cc890.webp",
+    "sha256": "a86bc76a1c8f3f0cc890970d41fec91addbee05cdb1a7c26ab3a2efd8007c401",
+    "bytes": 12530,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/a86bc76a1c8f3f0cc890.webp",
+    "outputBytes": 9832
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/hs160.webp",
+    "path": "assets/products/solax-20261112/65b8015132e5c7f5b9d4.webp",
+    "sha256": "65b8015132e5c7f5b9d4185f80115bb7f0d4513cd10aeb8694c3419ecfb4d2ca",
+    "bytes": 26616,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/65b8015132e5c7f5b9d4.webp",
+    "outputBytes": 21746
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/hs51.webp",
+    "path": "assets/products/solax-20261112/b0ed40142d4c5e0173c4.webp",
+    "sha256": "b0ed40142d4c5e0173c452661ea33d24070771fd14402c2c3f97fef2160ff6cc",
+    "bytes": 2938,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/b0ed40142d4c5e0173c4.webp",
+    "outputBytes": 2654
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/hybridlv.webp",
+    "path": "assets/products/solax-20261112/6b5f64c85f089bac0daa.webp",
+    "sha256": "6b5f64c85f089bac0daaa2dc7aeda93c60ae43be157b84ddebfe0ef7bc0129a9",
+    "bytes": 9606,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/6b5f64c85f089bac0daa.webp",
+    "outputBytes": 8484
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/ld160.webp",
+    "path": "assets/products/solax-20261112/57053efb85eba18b8e5a.webp",
+    "sha256": "57053efb85eba18b8e5a70c6c102c476907962c27584f61b44ad971dd1ae2950",
+    "bytes": 17672,
+    "width": 800,
+    "height": 800,
+    "sourcePath": "assets/products/solax-20261112/57053efb85eba18b8e5a.webp",
+    "outputBytes": 15388
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/mcs.webp",
+    "path": "assets/products/solax-20261112/a0d609f0bbbe72dd5dd4.webp",
+    "sha256": "a0d609f0bbbe72dd5dd43a728ddce35d79371c81287e26a972e609a4e2927f3e",
+    "bytes": 47558,
+    "width": 555,
+    "height": 301,
+    "sourcePath": "assets/products/solax-20261112/a0d609f0bbbe72dd5dd4.webp",
+    "outputBytes": 39824
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/nexus.webp",
+    "path": "assets/products/solax-20261112/b6949dd8860acc353eb2.webp",
+    "sha256": "b6949dd8860acc353eb2095aece1ccd7f76515d646f0d9270df84fcb3620f4f8",
+    "bytes": 15576,
+    "width": 800,
+    "height": 800,
+    "sourcePath": "assets/products/solax-20261112/b6949dd8860acc353eb2.webp",
+    "outputBytes": 13000
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/pcab.webp",
+    "path": "assets/products/solax-20261112/0d5dd3910d3897c4645b.webp",
+    "sha256": "0d5dd3910d3897c4645b973920acd97ed786dce7066b0083ab4537fc74091616",
+    "bytes": 12660,
+    "width": 374,
+    "height": 550,
+    "sourcePath": "assets/products/solax-20261112/0d5dd3910d3897c4645b.webp",
+    "outputBytes": 9926
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/trene215.webp",
+    "path": "assets/products/solax-20261112/9ef80bfc7018bd0ab80c.webp",
+    "sha256": "9ef80bfc7018bd0ab80c43970870c65d6a889fd8253d13a90e94b335292a1fdd",
+    "bytes": 11078,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/9ef80bfc7018bd0ab80c.webp",
+    "outputBytes": 9226
+  },
+  {
+    "source": "https://pdgsystems.bg/assets/products/trene261.webp",
+    "path": "assets/products/solax-20261112/5d8e7397f8e4315ddf9a.webp",
+    "sha256": "5d8e7397f8e4315ddf9abe9a62e94763821418a0f77de6278d8f327bc854de01",
+    "bytes": 21782,
+    "width": 800,
+    "height": 800,
+    "sourcePath": "assets/products/solax-20261112/5d8e7397f8e4315ddf9a.webp",
+    "outputBytes": 18122
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/138c458005.png",
+    "path": "assets/products/solax-20261112/12d78ebadf0be45303db.webp",
+    "sha256": "12d78ebadf0be45303db3be028a4005a8a18ba06516f2ba7bac4f29f0b824305",
+    "bytes": 63147,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/12d78ebadf0be45303db.png",
+    "outputBytes": 6402
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/1476b1a49a.png",
+    "path": "assets/products/solax-20261112/6a59feec3537912bbcb1.webp",
+    "sha256": "6a59feec3537912bbcb1f86968847eccee720c463d7e501b90b9bc2472234991",
+    "bytes": 1285846,
+    "width": 3608,
+    "height": 3115,
+    "sourcePath": "assets/products/solax-20261112/6a59feec3537912bbcb1.png",
+    "outputBytes": 12752
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/23f19cee5a.png",
+    "path": "assets/products/solax-20261112/19e3af60ca39008dc75a.webp",
+    "sha256": "19e3af60ca39008dc75ad6ffd6869e6f0d2ef93c78e872980f5b0e9c3d49d0cf",
+    "bytes": 53700,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/19e3af60ca39008dc75a.png",
+    "outputBytes": 8854
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/2656fff320.png",
+    "path": "assets/products/solax-20261112/1ec7f2430990f08cc6dc.webp",
+    "sha256": "1ec7f2430990f08cc6dc9d7c7e17ae2014caa2f6392d5c150c964961ff6aa05d",
+    "bytes": 74239,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/1ec7f2430990f08cc6dc.png",
+    "outputBytes": 8306
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/2be9504a62.png",
+    "path": "assets/products/solax-20261112/1b0f01b8b9e32531cc9d.webp",
+    "sha256": "1b0f01b8b9e32531cc9da5693c298fb337f7b30b78d7db540cb3a20a09e235fa",
+    "bytes": 95216,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/1b0f01b8b9e32531cc9d.png",
+    "outputBytes": 8488
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/5e14b1bce8.png",
+    "path": "assets/products/solax-20261112/31ef245bbc5b48bd0120.webp",
+    "sha256": "31ef245bbc5b48bd0120b1830d3ee5743c5fa56f7759b8881eac82d4abef507d",
+    "bytes": 86918,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/31ef245bbc5b48bd0120.png",
+    "outputBytes": 7300
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/6d4741df1c.png",
+    "path": "assets/products/solax-20261112/293f57d5042b4e259c43.webp",
+    "sha256": "293f57d5042b4e259c43d84e0ebd1450d7700488124f8932a43fd6221c0742cc",
+    "bytes": 70879,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/293f57d5042b4e259c43.png",
+    "outputBytes": 7090
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/9ed0b1c6fc.png",
+    "path": "assets/products/solax-20261112/8418f7b2029ae05be30f.webp",
+    "sha256": "8418f7b2029ae05be30fa6a3cc29719fb607cb2726e873cc9dc2f2d1b29bf4eb",
+    "bytes": 72328,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/8418f7b2029ae05be30f.png",
+    "outputBytes": 7196
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202505/dec865e588.png",
+    "path": "assets/products/solax-20261112/02d33fe0840aa598843f.webp",
+    "sha256": "02d33fe0840aa598843fed7b3dd1be192cc20707ad5918a08df34a4af9ec2fd5",
+    "bytes": 46711,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/02d33fe0840aa598843f.png",
+    "outputBytes": 9592
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202506/3b6861e1cf.png",
+    "path": "assets/products/solax-20261112/758d742b178df98caba1.webp",
+    "sha256": "758d742b178df98caba1d4009641f9fd38c80173b81db637a42e200b8b27166a",
+    "bytes": 103468,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/758d742b178df98caba1.png",
+    "outputBytes": 26006
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202506/57ce0eb0e1.png",
+    "path": "assets/products/solax-20261112/7a2b8cd7483b7cd13cd3.webp",
+    "sha256": "7a2b8cd7483b7cd13cd3b61d2ec24126a8f19d8ce45276be11b52927647f6c63",
+    "bytes": 62872,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/7a2b8cd7483b7cd13cd3.png",
+    "outputBytes": 9110
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202506/9216268c62.png",
+    "path": "assets/products/solax-20261112/f2902977902f271617e8.webp",
+    "sha256": "f2902977902f271617e8811a972d7c64a28b90460b0b2b6d766108cb5dfc5da9",
+    "bytes": 72678,
+    "width": 516,
+    "height": 516,
+    "sourcePath": "assets/products/solax-20261112/f2902977902f271617e8.png",
+    "outputBytes": 8614
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202507/37cb2968b1.png",
+    "path": "assets/products/solax-20261112/7f84e66a156da339a906.webp",
+    "sha256": "7f84e66a156da339a90686ee8131ad7547b4d207ce9ca14b3fc075d6bf41061b",
+    "bytes": 131850,
+    "width": 1000,
+    "height": 1000,
+    "sourcePath": "assets/products/solax-20261112/7f84e66a156da339a906.png",
+    "outputBytes": 15174
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202511/4ddfc8bd26.png",
+    "path": "assets/products/solax-20261112/cbfbabf9a14ed5b93ae2.webp",
+    "sha256": "cbfbabf9a14ed5b93ae2466c1c3c4f947b321984011b89201def77d958c1b48f",
+    "bytes": 45428,
+    "width": 500,
+    "height": 500,
+    "sourcePath": "assets/products/solax-20261112/cbfbabf9a14ed5b93ae2.png",
+    "outputBytes": 6728
+  },
+  {
+    "source": "https://www.solaxpower.com/uploadfile/1/202605/18d8097518.png",
+    "path": "assets/products/solax-20261112/e66aef1ea9a32e0acde8.webp",
+    "sha256": "e66aef1ea9a32e0acde8574b01056f73a70ba87d9fc06ad4d062d1dbcaa69bde",
+    "bytes": 14382,
+    "width": 512,
+    "height": 512,
+    "sourcePath": "assets/products/solax-20261112/e66aef1ea9a32e0acde8.png",
+    "outputBytes": 4038
+  },
+  {
+    "source": "https://kbdata.solaxpower.com/upload/2023-06-02/1685687163306_BMS-parallel box.png",
+    "path": "assets/products/solax-20261112/886c72e3d14dd22c8dbf.webp",
+    "sha256": "886c72e3d14dd22c8dbfae9433256d143e06a78ce2bb651453693926a36e89f0",
+    "bytes": 1132878,
+    "width": 2646,
+    "height": 3003,
+    "sourcePath": "assets/products/solax-20261112/886c72e3d14dd22c8dbf.png",
+    "outputBytes": 15390
+  }
+]
