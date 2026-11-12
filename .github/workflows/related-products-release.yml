@@ -6,12 +6,11 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pdg-production-deploy
+  group: pdg-related-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
-    environment: production
     services:
       mysql:
         image: mysql:8.0
@@ -33,6 +32,15 @@ jobs:
           trap 'cat /tmp/related-server.log' EXIT
           for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:8091/api/related-products.php?id=1 && break; sleep 1; done
           python3 tests/related_products_integration.py
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: pdg-production-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
       - name: Require current source
         run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
       - name: Back up and publish related products
