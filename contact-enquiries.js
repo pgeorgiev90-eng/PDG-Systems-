@@ -8,6 +8,14 @@
         form.scrollIntoView({block: 'center'});
         form.elements.namedItem('name').focus({preventScroll: true});
     }));
+    document.querySelectorAll('[data-about-enquiry]').forEach(link => link.addEventListener('click', () => {
+        const message = form.elements.namedItem('message');
+        if (!message.value.trim()) message.value = link.dataset.aboutEnquiry === 'diagnostics'
+            ? 'Запитване за диагностика и техническа помощ\nНаселено място: \nИнвертор / батерия (марка и модел): \nОписание на проблема / код на грешка: \nТелефон за връзка (по желание): '
+            : 'Запитване за изграждане на фотоволтаична система\nНаселено място: \nВид обект: \nЖелана мощност / оборудване: \nТелефон за връзка (по желание): ';
+        form.scrollIntoView({block: 'center'});
+        form.elements.namedItem('name').focus({preventScroll: true});
+    }));
     const status = document.getElementById('contactStatus');
     const button = form.querySelector('button[type="submit"]');
     let ticket;
