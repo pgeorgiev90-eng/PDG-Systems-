@@ -1,0 +1,39 @@
+name: Publish Deye installation assistance
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deye-support-release.yml'
+      - 'deye-support.html'
+      - 'scripts/publish_deye_support.py'
+      - 'tests/deye_support_test.cjs'
+      - 'assets/deye-support-inverter.webp'
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate page and isolated enquiry flow
+        run: |
+          npm install --prefix /tmp/pdg-deye-ui --no-audit --no-fund jsdom@26
+          PDG_JSDOM=/tmp/pdg-deye-ui/node_modules/jsdom node tests/deye_support_test.cjs
+          python -m py_compile scripts/publish_deye_support.py
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Back up, publish and verify Deye assistance
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python scripts/publish_deye_support.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deye-support-backup-${{ github.sha }}
+          path: production-backup/
+          retention-days: 30

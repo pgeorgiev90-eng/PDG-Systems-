@@ -35,7 +35,7 @@ jobs:
           ids = sorted({int(p['id']) for p in products})
           assert all(i > 0 for i in ids)
           categories = sorted({str(p['category']).strip() for p in products if p.get('category')})
-          urls = [base, base + 'shop.html', base + 'catalog.html', base + 'electrical-panels.html', base + 'photovoltaic-systems.html', base + 'solax-support.html', base + 'help-center.html', base + 'panel-projects.html']
+          urls = [base, base + 'shop.html', base + 'catalog.html', base + 'electrical-panels.html', base + 'photovoltaic-systems.html', base + 'solax-support.html', base + 'deye-support.html', base + 'help-center.html', base + 'panel-projects.html']
           urls += [base + 'catalog.html?category=' + urllib.parse.quote(c, safe='') for c in categories]
           urls += [base + 'product.html?id=' + str(i) for i in ids]
           ns = 'http://www.sitemaps.org/schemas/sitemap/0.9'
