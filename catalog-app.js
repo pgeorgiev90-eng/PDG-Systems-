@@ -30,8 +30,8 @@ function writeURL(){const p=new URLSearchParams(location.search);for(const key o
  for(const key of ['q','brand','category','min','max'])if(state[key]!=='')p.set(key,state[key]);if(state.sort!=='recommended')p.set('sort',state.sort);for(const [key,values]of Object.entries(state.facets))for(const value of values)p.append('f.'+key,value);
  history.replaceState(null,'',location.pathname+(p.size?'?'+p.toString():''));}
 function sync(){search.value=state.q;brand.value=state.brand;category.value=state.category;min.value=state.min;max.value=state.max;sort.value=state.sort;}
-function baseOptions(){scope=list.filter(p=>S.matches(p,section));if(state.category&&!scope.some(p=>p.category===state.category))state.category='';const inCategory=scope.filter(p=>!state.category||p.category===state.category);
- category.replaceChildren(new Option('Всички категории',''));for(const c of [...new Set(scope.map(p=>p.category))].sort(F.collator.compare))category.add(new Option(c,c));
+function baseOptions(){scope=list.filter(p=>S.matches(p,section));if(state.category&&!scope.some(p=>F.categoryMatches(p,state.category)))state.category='';const inCategory=scope.filter(p=>F.categoryMatches(p,state.category));
+ category.replaceChildren(new Option('Всички категории',''));for(const c of [...new Set(scope.flatMap(p=>{const c=F.categoryOf(p);return [c,...(c.startsWith('Инвертори / ')?['Инвертори']:[]),...(['Високоволтови батерии','Нисковолтови батерии'].includes(c)?['Батерии']:[])];}))].sort(F.collator.compare))category.add(new Option(c,c));
  brand.replaceChildren(new Option('Всички производители',''));for(const b of [...new Set(inCategory.map(p=>p.brand))].sort(F.collator.compare))brand.add(new Option(b,b));
  if(state.category&&![...category.options].some(o=>o.value===state.category))state.category='';if(state.brand&&![...brand.options].some(o=>o.value===state.brand))state.brand='';
  activeDefs=[{key:'availability',label:'Наличност'},...F.defs].filter(d=>inCategory.some(p=>p.attrs[d.key]));
@@ -39,7 +39,7 @@ function baseOptions(){scope=list.filter(p=>S.matches(p,section));if(state.categ
  const power=inCategory.some(p=>p.attrs.power||p.attrs.panel_power),energy=inCategory.some(p=>p.attrs.energy);for(const o of sort.options){o.hidden=o.value.startsWith('power_')?!power:o.value.startsWith('energy_')?!energy:false;}if((state.sort.startsWith('power_')&&!power)||(state.sort.startsWith('energy_')&&!energy))state.sort='recommended';sync();
 }
 function facets(){const focused=document.activeElement?.id;technical.replaceChildren();
- const pool=scope.filter(p=>!state.category||p.category===state.category);
+ const pool=scope.filter(p=>F.categoryMatches(p,state.category));
  for(const def of activeDefs){const values=[...new Set(pool.map(p=>p.attrs[def.key]).filter(Boolean).concat(state.facets[def.key]||[]))].sort(F.collator.compare);if(values.length<2&&!(state.facets[def.key]||[]).length)continue;
   const counts={};for(const p of scope)if(F.matches(p,state,def.key)&&p.attrs[def.key])counts[p.attrs[def.key]]=(counts[p.attrs[def.key]]||0)+1;
   const details=node('details');details.open=['power','panel_power','energy','phases','availability','current','roof'].includes(def.key)||(state.facets[def.key]||[]).length>0;details.append(node('summary',def.label));

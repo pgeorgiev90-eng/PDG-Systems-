@@ -2,7 +2,7 @@ name: Test and publish catalog filters
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/catalog-filters-release.yml', 'api/catalog-facets.php', 'catalog-filter-core.js', 'catalog-card.js', 'catalog-app.js', 'catalog-filters.css']
+    paths: ['.github/workflows/catalog-filters-release.yml', 'api/catalog-facets.php', 'catalog-filter-core.js', 'catalog-card.js', 'catalog-app.js', 'catalog-filters.css', 'catalog.html', 'catalog-sections.js', 'tests/catalog_shared_categories_test.cjs']
 permissions:
   contents: read
 concurrency:
@@ -31,6 +31,7 @@ jobs:
           export PDG_JSDOM=/tmp/pdg-filter-ui/node_modules/jsdom
           node tests/catalog_filters_ui_test.cjs
           node tests/catalog_manufacturers_test.cjs
+          node tests/catalog_shared_categories_test.cjs
           php tests/bootstrap-account-ci.php
           php -r '$s=require dirname(getcwd())."/pdg-shop-db.php";$d=new PDO("mysql:host=".$s["host"].";dbname=".$s["database"],$s["username"],$s["password"]);$d->exec("INSERT INTO products(brand,category,code,name,price,active) VALUES(\"Test\",\"Инвертори\",\"F1\",\"Main\",10,1),(\"Test\",\"Cat\",\"F2\",\"Other\",11,1),(\"Test\",\"Cat\",\"F3\",\"Inactive\",10,0)");$d->exec("CREATE TABLE pdg_product_fields(id INT AUTO_INCREMENT PRIMARY KEY,product_id BIGINT,label VARCHAR(100),value TEXT,sort_order INT DEFAULT 0)");$d->exec("INSERT INTO pdg_product_fields(product_id,label,value) VALUES(1,\"Номинална AC мощност (kW)\",\"10\"),(1,\"Източник\",\"https://example.test\"),(1,\"Описание\",\"Not a filter\")");require "api/commerce-common.php";pdg_commerce_schema($d);$d->exec("INSERT INTO pdg_product_operations(product_id,stock_quantity,cost_cents) VALUES(1,5,1999)");'
           php -S 127.0.0.1:8091 tests/shop-router.php > /tmp/filter-server.log 2>&1 &

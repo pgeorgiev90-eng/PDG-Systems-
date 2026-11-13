@@ -42,10 +42,23 @@ function attributes(p,meta={}){
  attrs.availability=({in_stock:'В наличност',out_of_stock:'Изчерпан',on_order:'По заявка',unavailable:'Не се предлага',confirm:'За потвърждение'})[meta.availability]||'За потвърждение';
  return attrs;
 }
+// Use shared technical specifications rather than supplier-specific category labels.
+function categoryOf(p){
+ const c=String(p.category||'').trim(),a=p.attrs||{};
+ if(c==='Инвертори')return ({'Хибриден':'Инвертори / Хибридни','Мрежов':'Инвертори / Мрежови','Микроинвертор':'Инвертори / Микроинвертори'})[a.inverter_type]||c;
+ if(c==='Батерии')return ({'Високоволтова':'Високоволтови батерии','Нисковолтова':'Нисковолтови батерии'})[a.battery_class]||c;
+ return c;
+}
+function categoryMatches(p,category){
+ if(!category)return true;
+ const c=categoryOf(p);
+ if(category==='Батерии')return ['Батерии','Високоволтови батерии','Нисковолтови батерии'].includes(c);
+ return c===category||c.startsWith(category+' / ');
+}
 function matches(p,state,skip){
  const q=norm(state.q);if(q&&!q.split(' ').every(w=>norm([p.name,p.code,p.brand,p.category,p.description].join(' ')).includes(w)))return false;
  if(skip!=='brand'&&state.brand&&p.brand!==state.brand)return false;
- if(state.category&&p.category!==state.category)return false;
+ if(!categoryMatches(p,state.category))return false;
  const price=Number(p.price);if(skip!=='price'&&((state.min!==''&&state.min!=null&&(!(price>0)||price<Number(state.min)))||(state.max!==''&&state.max!=null&&(!(price>0)||price>Number(state.max)))))return false;
  for(const [key,values]of Object.entries(state.facets||{})){if(key!==skip&&values.length&&!values.includes(p.attrs?.[key]))return false;}
  return true;
@@ -64,5 +77,5 @@ function sort(items,order='recommended',sectionOf=()=>'',sectionOrder=[]){
  return n||collator.compare(a.name,b.name)||Number(a.id)-Number(b.id);
  });
 }
-const api={defs,attributes,matches,sort,collator,numeric};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGFilters=api;
+const api={defs,attributes,categoryOf,categoryMatches,matches,sort,collator,numeric};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGFilters=api;
 })(typeof window==='object'?window:globalThis);
