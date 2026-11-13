@@ -14,3 +14,10 @@ assert.equal(sectionOf({category:'Инвертори',brand:'Another brand',name
 const sorted=products.slice().sort(compare);assert.equal(sectionOf(sorted[0]),'inverters');assert.equal(sectionOf(sorted[45]),'batteries');
 for(const s of Object.keys(counts))assert.ok(sections[s]);
 console.log('PASS: 45 inverters, 5 batteries, separate BMS/accessories/storage, 133 mounting products, exact section filters and stable grouping');
+
+assert(matches({category:'Електроапаратура / Табла и корпуси'},'enclosures'));
+assert(matches({category:'Електроапаратура / Миниатюрни автоматични прекъсвачи'},'protection'));
+assert(matches({category:'Електроапаратура / Дефектнотокови защити'},'protection'));
+assert(!matches({category:'Електроапаратура / Времерелета / ZR4'},'protection'));
+assert(!matches({category:'Електроапаратура / Шинни системи / Шинни държачи'},'enclosures'));
+assert(matches({category:'Електроапаратура / Табла и корпуси'},'electrical'));

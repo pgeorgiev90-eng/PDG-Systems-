@@ -19,12 +19,12 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
             ftp.storbinary('STOR '+temp,io.BytesIO(body));check=io.BytesIO();ftp.retrbinary('RETR '+temp,check.write);assert check.getvalue()==body
             ftp.rename(temp,name);published.append(name)
         base='https://pdgsystems.bg/'
-        for name in ['catalog-filter-core.js','catalog-card.js','catalog-app.js','catalog-filters.css']:
+        for name in ['catalog-filter-core.js','catalog-card.js','catalog-app.js','catalog-filters.css','catalog-sections.js']:
             with urllib.request.urlopen(base+name+'?release='+os.environ['GITHUB_SHA'],timeout=45) as r:assert r.read()==Path(name).read_bytes(),name
         with urllib.request.urlopen(base+'api/catalog-facets.php',timeout=45) as r:
             data=json.load(r);assert len(data['items'])>0
         with urllib.request.urlopen(base+'catalog.html?section=inverters&release='+os.environ['GITHUB_SHA'],timeout=45) as r:
-            html=r.read().decode();assert 'catalog-app.js?v=20261113-1' in html and 'catalog-filter-core.js' in html
+            html=r.read().decode();assert 'catalog-app.js?v=20261113-2' in html and 'catalog-filter-core.js' in html
         print('PASS: catalog filters, guest technical API and section page published; product records unchanged')
     except Exception:
         for name in reversed(published):

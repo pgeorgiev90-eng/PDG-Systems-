@@ -28,7 +28,14 @@
   if(c==='кабели и аксесоари')return 'accessories';
   return 'other';
  }
- const matches=(product,section)=>!sections[section]||sectionOf(product)===section;
+ function matches(product,section){
+  if(!sections[section]||sectionOf(product)===section)return true;
+  const c=String(product.category||'').trim().toLocaleLowerCase('bg');
+  // Shop views also include the corresponding Schrack subcategories.
+  if(section==='enclosures')return c==='електроапаратура / табла и корпуси';
+  if(section==='protection')return c.startsWith('електроапаратура / ')&&/прекъсвачи|защити|защита/.test(c);
+  return false;
+ }
  const order=Object.keys(sections);
  function compare(a,b){const x=order.indexOf(sectionOf(a)),y=order.indexOf(sectionOf(b));return (x<0?99:x)-(y<0?99:y)||Number(a.id)-Number(b.id);}
  const api={sections,sectionOf,matches,compare};
