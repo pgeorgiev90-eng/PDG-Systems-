@@ -15,7 +15,7 @@
       if(!r.ok)throw Error();
       const data=await r.json(),p=data.product;
       const pricesVisible=data.prices_visible===true;
-      document.title=p.name+' | PDG Systems';$('name').textContent=p.name;
+      document.title=p.name+' – цена и характеристики | PDG Systems';$('name').textContent=p.name;
       $('category').textContent=p.brand+' · '+p.category;$('code').textContent='Код: '+p.code;
       $('description').textContent=p.description||'';$('description-section').hidden=!p.description;
       $('image-caption').textContent=p.imageCaption||(p.imageUrl?'Изображение на продуктовата серия.':'');

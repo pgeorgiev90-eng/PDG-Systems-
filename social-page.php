@@ -4,6 +4,7 @@ require_once __DIR__.'/api/social-metadata.php';
 require_once __DIR__.'/api/product-copy.php';
 require_once __DIR__.'/api/public-product-fields.php';
 require_once __DIR__.'/api/seo-render.php';
+require_once __DIR__.'/api/product-seo.php';
 header('Content-Type: text/html; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-cache');
@@ -52,8 +53,25 @@ try {
             $description=pdg_seo_excerpt(pdg_priority_description($p)??$full);
             $image=pdg_seo_image($p);
             $template=pdg_seo_product($template,$p,$full,$fields,$image);
+            if(is_numeric($p['price'])&&(float)$p['price']>0) {
+                $gross=number_format(round((float)$p['price']*1.2,2),2,',',' ').' € с ДДС';
+                $template=pdg_seo_fill($template,'vat',pdg_social_escape($gross));
+                $description=pdg_seo_excerpt($p['name'].' – цена '.$gross.'. Технически характеристики. '.$description);
+            }
+            // Read existing operations only; metadata requests never initialize commerce tables.
+            $operations=[];
+            try {
+                $op=$db->prepare('SELECT availability,stock_quantity FROM pdg_product_operations WHERE product_id=?');
+                $op->execute([$id]);$operations=$op->fetch()?:[];
+            } catch(PDOException $e) {if($e->getCode()!=='42S02')throw $e;}
+            $stockLabels=['in_stock'=>'В наличност','on_order'=>'По заявка','unavailable'=>'Не се предлага'];
+            if(isset($stockLabels[$operations['availability']??''])) {
+                $state=$operations['availability'];
+                if($state==='in_stock'&&isset($operations['stock_quantity'])&&(int)$operations['stock_quantity']===0)$state='unavailable';
+                $template=pdg_seo_fill($template,'specs','<tr><th scope="row">Наличност</th><td>'.pdg_social_escape($stockLabels[$state]).'</td></tr>'.preg_replace('~^.*?<tbody id="specs">(.*?)</tbody>.*$~s','$1',$template));
+            }
             $data = [
-                'title' => $p['name'].' | PDG Systems',
+                'title' => pdg_product_seo_title($p['name']),
                 'description' => $description,
                 'url' => $base.'product.html?id='.$p['id'],
                 'image' => $image ?: $base.'assets/pdg-social.jpg',
@@ -63,6 +81,8 @@ try {
             $structured=['@context'=>'https://schema.org','@type'=>'Product','name'=>$p['name'],'sku'=>$p['code'],
                 'brand'=>['@type'=>'Brand','name'=>$p['brand']],'description'=>$full,'url'=>$data['url']];
             if($image)$structured['image']=$image;
+            $offer=pdg_product_seo_offer($p,$data['url'],$operations);
+            if($offer)$structured['offers']=$offer;
             $related=$db->prepare('SELECT id,name FROM products WHERE active=1 AND category=? AND id<>? ORDER BY id LIMIT 12');$related->execute([$p['category'],$p['id']]);
             $publicContent='<section id="pdg-category-fallback" class="tools-panel"><h2>Още от тази категория</h2><ul>';
             foreach($related->fetchAll() as $r)$publicContent.='<li><a href="product.html?id='.(int)$r['id'].'">'.pdg_social_escape($r['name']).'</a></li>';

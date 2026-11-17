@@ -1,0 +1,39 @@
+name: Publish product price SEO
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/product-price-seo.yml', 'api/product-seo.php', 'tests/product_seo.php', 'scripts/publish_product_seo.py']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate product SEO and rendering
+        run: |
+          php -l social-page.php
+          php -l api/product-seo.php
+          php tests/product_seo.php
+          php tests/seo_render.php
+          php tests/social_metadata.php
+          node --check product.js
+          python -m py_compile scripts/publish_product_seo.py
+      - name: Require latest production source
+        run: test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA"
+      - name: Publish and verify product SEO with rollback
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python scripts/publish_product_seo.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-price-seo-backup-${{ github.run_id }}
+          path: production-backup/
+          retention-days: 30
