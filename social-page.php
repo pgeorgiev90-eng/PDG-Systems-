@@ -19,7 +19,7 @@ $data = [
     'description' => 'Инвертори, батерии, конструкции и електроапаратура. Технически характеристики и оборудване от PDG Systems.',
     'url' => $base.'catalog.html'
 ];
-$publicContent='';$structured=null;
+$publicContent='';$structured=null;$breadcrumbs=null;
 try {
     if ($productPage) {
         $rawId = $_GET['id'] ?? null;
@@ -82,7 +82,21 @@ try {
                 'brand'=>['@type'=>'Brand','name'=>$p['brand']],'description'=>$full,'url'=>$data['url']];
             if($image)$structured['image']=$image;
             $offer=pdg_product_seo_offer($p,$data['url'],$operations);
-            if($offer)$structured['offers']=$offer;
+            if($offer) {
+                $offer['seller']=['@type'=>'Organization','name'=>'PDG Systems LTD','url'=>$base];
+                $structured['offers']=$offer;
+            } else {
+                // A request-only page has no purchasable offer; do not emit invalid Product rich-result markup.
+                $structured=['@context'=>'https://schema.org','@type'=>'WebPage','name'=>$p['name'],'description'=>$full,'url'=>$data['url']];
+            }
+            $categoryUrl=$base.'catalog.html?category='.rawurlencode($p['category']);
+            $breadcrumbs=['@context'=>'https://schema.org','@type'=>'BreadcrumbList','itemListElement'=>[
+                ['@type'=>'ListItem','position'=>1,'name'=>'Начало','item'=>$base],
+                ['@type'=>'ListItem','position'=>2,'name'=>$p['category'],'item'=>$categoryUrl],
+                ['@type'=>'ListItem','position'=>3,'name'=>$p['name'],'item'=>$data['url']]]];
+            $trail='<nav aria-label="Навигационен път"><a href="/">Начало</a> / <a href="'.pdg_social_escape($categoryUrl).'">'.pdg_social_escape($p['category']).'</a> / '.pdg_social_escape($p['name']).'</nav>';
+            $template=str_replace('<main>','<main>'.$trail,$template);
+            $template=str_replace('<a id="inquiry" class="button" href="/#contact" hidden>Запитване за цена</a>', '<a id="inquiry" class="button" href="/#contact">'.($offer?'Запитване за този продукт':'Запитване за цена').'</a><p><a href="tel:+359876323109">Консултация: 0876 323 109</a></p>', $template);
             $related=$db->prepare('SELECT id,name FROM products WHERE active=1 AND category=? AND id<>? ORDER BY id LIMIT 12');$related->execute([$p['category'],$p['id']]);
             $publicContent='<section id="pdg-category-fallback" class="tools-panel"><h2>Още от тази категория</h2><ul>';
             foreach($related->fetchAll() as $r)$publicContent.='<li><a href="product.html?id='.(int)$r['id'].'">'.pdg_social_escape($r['name']).'</a></li>';
@@ -157,6 +171,7 @@ try {
             'mounting'=>'Изберете крепежите според вида покрив, монтажната система и конкретните размери. Еднакъв код може да има различни варианти; проверете наименованието на артикула.'
         ];
         $text=$intro[$section]??'Разгледайте артикулите по производител, каталожен код и характеристики. Наличностите и сроковете без въведени данни се потвърждават преди поръчка.';
+        $directory.='<p><a href="solar-cad.html">Планирайте фотоволтаици с PDG Solar CAD</a> · <a href="electric-cad.html">Планирайте табло с PDG Electric CAD</a></p>';
         $publicContent=$directory.'<section class="tools-panel"><h2>'.pdg_social_escape($label?:'Избор на оборудване').'</h2><p>'.pdg_social_escape($text).'</p><p><a href="shopping-tools.html#compare">Сравни продукти</a> · <a href="shopping-tools.html#quick-order">Бърза поръчка по кодове</a> · <a href="electrical-panels.html">Табла по поръчка</a> · <a href="photovoltaic-systems.html">Фотоволтаични системи</a></p></section>';
     }
 } catch (Throwable $e) {
@@ -167,5 +182,6 @@ try {
 }
 $html=pdg_social_render($template, $data);
 if($structured)$html=str_replace('</head>','<script type="application/ld+json">'.json_encode($structured,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT).'</script></head>',$html);
+if($breadcrumbs)$html=str_replace('</head>','<script type="application/ld+json">'.json_encode($breadcrumbs,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT).'</script></head>',$html);
 if($publicContent)$html=str_replace('</main>',$publicContent.'</main>',$html);
 echo $html;
