@@ -30,7 +30,7 @@ button:disabled{opacity:.55;cursor:default}
 .offer-product img{flex:none;width:42px;height:42px;object-fit:contain;background:#fff;border:1px solid #e0e8e4;border-radius:6px}
 .offer-row small{display:block;margin-top:2px;color:#51665e}
 .offer-row input[type=number]{width:52px;padding:5px 3px;border:1px solid #b3ccc1;border-radius:6px}
-.offer-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.offer-sources{display:flex;gap:8px;flex-wrap:wrap;font-size:12px}.offer-sources a{color:#135d49}.battery-link{display:block;margin-top:5px;min-height:30px;padding:4px 8px;border:1px solid #a9c8bd;background:#edf7f2;color:#135d49;font-size:12px}.offer-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
 .offer p{margin:7px 0}
 .offer p:empty{display:none}
 @media(min-width:760px){body{padding:16px}#chat-shell{height:calc(100dvh - 32px);border:1px solid #d2e5db;border-radius:19px;overflow:hidden}}
@@ -84,6 +84,16 @@ function renderReply(raw,out,offer){
     }
     const info=make('small',[item.code,Number.isInteger(item.unit_cents)?money(item.unit_cents)+' с ДДС':'Цена по запитване'].filter(Boolean).join(' · '));
     details.append(link,info);
+    if(result.kind!=='compatibility'&&typeof item.battery_model==='string'&&item.battery_model){
+      const battery=make('button','Покажи съвместими батерии');
+      battery.type='button';battery.className='battery-link';
+      battery.onclick=()=>{
+        if(send.disabled){out.textContent='Изчакайте текущия отговор и опитайте отново.';return;}
+        field.value='Покажи съвместими батерии за '+item.battery_model+'.';
+        form.requestSubmit();
+      };
+      details.append(battery);
+    }
     const qty=make('input');qty.type='number';qty.min='1';qty.max='999';qty.value=String(item.quantity||1);qty.setAttribute('aria-label','Количество за '+item.name);
     row.append(selected,details,qty);group.append(row);return {item,selected,qty};
   });
@@ -94,7 +104,20 @@ function renderReply(raw,out,offer){
   const login=make('a','Влез в профила'),cart=make('a','Отвори количката');
   login.href='/auth.html?next=cart.html';login.target='_blank';login.rel='noopener';login.hidden=true;
   cart.href='/cart.html';cart.target='_top';cart.hidden=true;add.hidden=true;
-  actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;offer.parentElement.classList.add('has-offer');
+  actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;
+  if(Array.isArray(result.sources)){
+    const sources=make('p');sources.className='offer-sources';
+    const manufacturers={'kb.solaxpower.com':'SolaX','www.deyeinverter.com':'Deye','www.dyness.com':'Dyness'};
+    for(const source of result.sources.slice(0,3)){
+      try{
+        const url=new URL(source);
+        if(url.protocol!=='https:'||!Object.hasOwn(manufacturers,url.hostname))continue;
+        const sourceLink=make('a','Таблица на '+manufacturers[url.hostname]);
+        sourceLink.href=url.href;sourceLink.target='_blank';sourceLink.rel='noopener';sources.append(sourceLink);
+      }catch{}
+    }
+    if(sources.childElementCount)offer.append(sources);
+  }offer.parentElement.classList.add('has-offer');
   let preview,csrf='', busy=false, added=false;
   function selectedRows(){return options.filter(x=>x.selected.checked);}
   function current(){return selectedRows().map(x=>({id:x.item.id,quantity:x.qty.valueAsNumber}));}
