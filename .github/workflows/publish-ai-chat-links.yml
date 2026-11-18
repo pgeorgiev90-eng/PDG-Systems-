@@ -1,0 +1,21 @@
+name: Publish visible AI chat links
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-ai-chat-links.yml', 'scripts/publish_ai_chat_links.py']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish only the chat links
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python scripts/publish_ai_chat_links.py
