@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="bg"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><title>PDG Systems · Помощник</title>
-<style>body{font:17px system-ui;background:#eef2f1;color:#142521;margin:0}main{max-width:640px;margin:10vh auto;padding:2rem;border-radius:18px;background:white}#offer{margin-top:16px}#offer[hidden]{display:none}#offer fieldset{border:1px solid #bdcdc7;border-radius:8px;padding:10px}#offer legend{font-weight:700}.offer-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid #e0e8e4}.offer-row a{color:#135d49}.offer-row small{display:block}.offer-row input[type=number]{width:54px;padding:4px}#offer-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}textarea{box-sizing:border-box;width:100%;min-height:95px;padding:12px;font:inherit}button{margin-top:12px;padding:10px 18px;background:#13684f;color:#fff;border:0;border-radius:8px;font:inherit}button:disabled{opacity:.6}#answer{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:700px){main{margin:12px;padding:18px}}</style>
+<style>body{font:17px system-ui;background:#eef2f1;color:#142521;margin:0}main{max-width:640px;margin:10vh auto;padding:2rem;border-radius:18px;background:white}#offer{margin-top:16px}#offer[hidden]{display:none}#offer fieldset{border:1px solid #bdcdc7;border-radius:8px;padding:10px}#offer legend{font-weight:700}.offer-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid #e0e8e4}.offer-row a{color:#135d49}.offer-product{display:flex;align-items:center;gap:8px}.offer-product img{flex:none;width:46px;height:46px;object-fit:contain;background:#fff;border:1px solid #e0e8e4;border-radius:6px}.offer-row small{display:block}.offer-row input[type=number]{width:54px;padding:4px}#offer-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}textarea{box-sizing:border-box;width:100%;min-height:95px;padding:12px;font:inherit}button{margin-top:12px;padding:10px 18px;background:#13684f;color:#fff;border:0;border-radius:8px;font:inherit}button:disabled{opacity:.6}#answer{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:700px){main{margin:12px;padding:18px}}</style>
 <main><h1>Помощник на PDG Systems</h1><p>Тестов чат за продуктови въпроси. Въпросите се обработват от локален AI. Не въвеждайте лични данни.</p><form id="chat"><label for="question">Въпрос за продукт или услуга</label><textarea id="question" required maxlength="300" placeholder="Например: Каква е цената на TRB-D10?"></textarea><button>Изпрати</button></form><p id="answer" role="status" aria-live="polite"></p><section id="offer" hidden aria-label="Продуктова оферта"></section></main>
 <script>
 const form=document.querySelector('#chat'), field=document.querySelector('#question'), out=document.querySelector('#answer'), send=form.querySelector('button');
@@ -33,6 +33,17 @@ function renderReply(raw){
     selected.setAttribute('aria-label','Включи '+item.name);
     const details=make('div'),link=make('a',item.name);
     link.href='/product.html?id='+item.id;link.target='_blank';link.rel='noopener';
+    link.className='offer-product';
+    if(typeof item.image_url==='string'&&item.image_url){
+      try{
+        const photoUrl=new URL(item.image_url,location.origin);
+        if(photoUrl.origin===location.origin&&photoUrl.protocol==='https:'){
+          const photo=make('img');photo.alt='';photo.width=46;photo.height=46;photo.loading='lazy';photo.decoding='async';
+          photo.addEventListener('error',()=>photo.remove(),{once:true});
+          photo.src=photoUrl.href;link.prepend(photo);
+        }
+      }catch{}
+    }
     const info=make('small',[item.code,Number.isInteger(item.unit_cents)?money(item.unit_cents)+' с ДДС':'Цена по запитване'].filter(Boolean).join(' · '));
     details.append(link,info);
     const qty=make('input');qty.type='number';qty.min='1';qty.max='999';qty.value=String(item.quantity||1);qty.setAttribute('aria-label','Количество за '+item.name);
