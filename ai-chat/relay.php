@@ -82,9 +82,15 @@ try {
         $q->execute([$client,$now-60]);
         $rate = (int)$q->fetchColumn();
         $depth = (int)$db->query('SELECT count(*) FROM jobs WHERE answer IS NULL')->fetchColumn();
-        if ($rate >= 3 || $depth >= 4) {
+        if ($rate >= 6) {
             $db->exec('ROLLBACK');
-            reply(429, ['error'=>'В момента помощникът е зает. Опитайте отново след малко.']);
+            header('Retry-After: 60');
+            reply(429, ['error'=>'Изпратихте няколко въпроса поред. Изчакайте до минута и продължете разговора.']);
+        }
+        if ($depth >= 4) {
+            $db->exec('ROLLBACK');
+            header('Retry-After: 10');
+            reply(429, ['error'=>'Има няколко въпроса на опашка. Опитайте отново след малко.']);
         }
         $id = bin2hex(random_bytes(24));
         $q = $db->prepare('INSERT INTO jobs(id,client,question,created) VALUES (?,?,?,?)');
