@@ -1,20 +1,117 @@
 <!doctype html>
 <html lang="bg"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><title>PDG Systems · Помощник</title>
-<style>body{font:17px system-ui;background:#eef2f1;color:#142521;margin:0}main{max-width:640px;margin:10vh auto;padding:2rem;border-radius:18px;background:white}textarea{box-sizing:border-box;width:100%;min-height:95px;padding:12px;font:inherit}button{margin-top:12px;padding:10px 18px;background:#13684f;color:#fff;border:0;border-radius:8px;font:inherit}button:disabled{opacity:.6}#answer{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:700px){main{margin:12px;padding:18px}}</style>
-<main><h1>Помощник на PDG Systems</h1><p>Тестов чат за продуктови въпроси. Въпросите се обработват от локален AI. Не въвеждайте лични данни.</p><form id="chat"><label for="question">Въпрос за продукт или услуга</label><textarea id="question" required maxlength="300" placeholder="Например: Каква е цената на TRB-D10?"></textarea><button>Изпрати</button></form><p id="answer" role="status" aria-live="polite"></p></main>
+<style>body{font:17px system-ui;background:#eef2f1;color:#142521;margin:0}main{max-width:640px;margin:10vh auto;padding:2rem;border-radius:18px;background:white}#offer{margin-top:16px}#offer[hidden]{display:none}#offer fieldset{border:1px solid #bdcdc7;border-radius:8px;padding:10px}#offer legend{font-weight:700}.offer-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid #e0e8e4}.offer-row a{color:#135d49}.offer-row small{display:block}.offer-row input[type=number]{width:54px;padding:4px}#offer-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}textarea{box-sizing:border-box;width:100%;min-height:95px;padding:12px;font:inherit}button{margin-top:12px;padding:10px 18px;background:#13684f;color:#fff;border:0;border-radius:8px;font:inherit}button:disabled{opacity:.6}#answer{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:700px){main{margin:12px;padding:18px}}</style>
+<main><h1>Помощник на PDG Systems</h1><p>Тестов чат за продуктови въпроси. Въпросите се обработват от локален AI. Не въвеждайте лични данни.</p><form id="chat"><label for="question">Въпрос за продукт или услуга</label><textarea id="question" required maxlength="300" placeholder="Например: Каква е цената на TRB-D10?"></textarea><button>Изпрати</button></form><p id="answer" role="status" aria-live="polite"></p><section id="offer" hidden aria-label="Продуктова оферта"></section></main>
 <script>
 const form=document.querySelector('#chat'), field=document.querySelector('#question'), out=document.querySelector('#answer'), send=form.querySelector('button');
+const offer=document.querySelector('#offer');
+const money=cents=>(cents/100).toLocaleString('bg-BG',{style:'currency',currency:'EUR'});
+const make=(tag,text)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=text;return element;};
+async function customerTools(payload,csrf){
+  const options={credentials:'same-origin',cache:'no-store'};
+  if(payload)Object.assign(options,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify(payload)});
+  const response=await fetch('/api/customer-tools.php',options);
+  const value=await response.json();
+  if(!response.ok)throw new Error(value.error||'tools_unavailable');
+  return value;
+}
+function renderReply(raw){
+  let result;
+  try{result=JSON.parse(raw);}catch{}
+  if(result?.version!==1||!Array.isArray(result.items)||typeof result.text!=='string'){
+    out.textContent=raw;return;
+  }
+  out.textContent=result.text;
+  const items=result.items.filter(item=>Number.isInteger(item.id)&&item.id>0&&typeof item.name==='string').slice(0,8);
+  if(!items.length)return;
+  const group=make('fieldset'), legend=make('legend','Ориентировъчна оферта');
+  group.append(legend);
+  const options=items.map(item=>{
+    const row=make('div');row.className='offer-row';
+    const selected=make('input');selected.type='checkbox';selected.checked=result.kind==='requested';
+    selected.setAttribute('aria-label','Включи '+item.name);
+    const details=make('div'),link=make('a',item.name);
+    link.href='/product.html?id='+item.id;link.target='_blank';link.rel='noopener';
+    const info=make('small',[item.code,Number.isInteger(item.unit_cents)?money(item.unit_cents)+' с ДДС':'Цена по запитване'].filter(Boolean).join(' · '));
+    details.append(link,info);
+    const qty=make('input');qty.type='number';qty.min='1';qty.max='999';qty.value=String(item.quantity||1);qty.setAttribute('aria-label','Количество за '+item.name);
+    row.append(selected,details,qty);group.append(row);return {item,selected,qty};
+  });
+  const total=make('p'), status=make('p');
+  status.setAttribute('role','status');
+  const actions=make('div');actions.id='offer-actions';
+  const check=make('button','Провери за количката'),add=make('button','Добави в количката');
+  const login=make('a','Влез в профила'),cart=make('a','Отвори количката');
+  login.href='/auth.html?next=cart.html';login.target='_blank';login.rel='noopener';login.hidden=true;
+  cart.href='/cart.html';cart.target='_top';cart.hidden=true;add.hidden=true;
+  actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;
+  let preview,csrf='', busy=false, added=false;
+  function selectedRows(){return options.filter(x=>x.selected.checked);}
+  function current(){return selectedRows().map(x=>({id:x.item.id,quantity:x.qty.valueAsNumber}));}
+  function validate(){return selectedRows().length>0&&selectedRows().every(x=>x.qty.checkValidity()&&Number.isInteger(x.qty.valueAsNumber));}
+  function update(){
+    preview=null;add.hidden=true;status.textContent='';login.hidden=true;
+    check.disabled=busy||added||!validate();
+    const rows=selectedRows();
+    const priced=rows.every(x=>Number.isInteger(x.item.unit_cents));
+    const sum=rows.reduce((acc,x)=>acc+(x.item.unit_cents||0)*(x.qty.valueAsNumber||0),0);
+    total.textContent=!rows.length?'Изберете позиции за офертата.':
+      priced?'Ориентировъчно: '+money(sum)+' с ДДС. Доставка и монтаж се уточняват отделно.':
+      'За част от избраните позиции цената е по запитване.';
+  }
+  function fail(error){
+    if(error.message==='authentication_required'){
+      login.hidden=false;
+      status.textContent='Влезте в профила си, после се върнете тук и натиснете „Провери за количката“.';
+    }else if(error.message==='batch_changed'){
+      status.textContent='Цената или наличността се е променила. Проверете отново.';
+    }else if(error.message==='batch_unavailable'){
+      status.textContent='Поне една позиция вече не може да се добави. Проверете отново.';
+    }else status.textContent='Количката временно не е достъпна.';
+  }
+  function lock(value){
+    busy=value;
+    for(const x of options){x.selected.disabled=value||added;x.qty.disabled=value||added;}
+    check.disabled=value||added||!validate();add.disabled=value||added;
+  }
+  group.addEventListener('input',update);
+  check.onclick=async()=>{
+    if(busy||added||!validate())return;
+    const selection=current();
+    update();lock(true);
+    try{
+      csrf=(await customerTools()).csrf;
+      const result=await customerTools({action:'preview',items:selection},csrf);
+      preview={...result,selection};
+      total.textContent='Цена за вашия профил: '+money(result.total_cents)+' с ДДС. Доставка и монтаж се уточняват отделно.';
+      add.hidden=!result.can_add;
+      const problems=(result.items||[]).filter(x=>!x.available).map(x=>x.name).filter(Boolean);
+      status.textContent=result.can_add?'Проверете сумата и потвърдете добавянето.':'За потвърждение: '+(problems.join(', ')||'проверете избраните позиции')+'.';
+    }catch(error){fail(error);}finally{lock(false);}
+  };
+  add.onclick=async()=>{
+    if(busy||added||!preview?.can_add)return;
+    lock(true);
+    try{
+      await customerTools({action:'add_batch',items:preview.selection,revision:preview.revision},csrf);
+      added=true;add.hidden=true;cart.hidden=false;status.textContent='Офертата е добавена в количката.';
+    }catch(error){
+      preview=null;add.hidden=true;fail(error);
+    }finally{lock(false);}
+  };
+  update();
+}
 const api=(op)=>'/api/site-ai-chat.php?op='+op;
 async function data(response){const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
 form.addEventListener('submit',async event=>{
-  event.preventDefault();send.disabled=true;out.textContent='Изчакваме отговор…';
+  event.preventDefault();send.disabled=true;offer.hidden=true;offer.replaceChildren();out.textContent='Изчакваме отговор…';
   try {
     const req=await data(await fetch(api('submit'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:field.value})}));
     for(let attempt=0;attempt<65;attempt++){
       await new Promise(resolve=>setTimeout(resolve,2000));
       const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
-      if(status.status==='done'){out.textContent=status.answer;return;}
+      if(status.status==='done'){renderReply(status.answer);return;}
     }
     out.textContent='Помощникът е зает. Можете да изпратите запитване през контактите на сайта.';
   } catch(error){out.textContent=error.message || 'Връзката прекъсна.';}
