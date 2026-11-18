@@ -1,11 +1,49 @@
 <!doctype html>
 <html lang="bg"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><title>PDG Systems · Помощник</title>
-<style>body{font:17px system-ui;background:#eef2f1;color:#142521;margin:0}main{max-width:640px;margin:10vh auto;padding:2rem;border-radius:18px;background:white}#offer{margin-top:16px}#offer[hidden]{display:none}#offer fieldset{border:1px solid #bdcdc7;border-radius:8px;padding:10px}#offer legend{font-weight:700}.offer-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid #e0e8e4}.offer-row a{color:#135d49}.offer-product{display:flex;align-items:center;gap:8px}.offer-product img{flex:none;width:46px;height:46px;object-fit:contain;background:#fff;border:1px solid #e0e8e4;border-radius:6px}.offer-row small{display:block}.offer-row input[type=number]{width:54px;padding:4px}#offer-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}textarea{box-sizing:border-box;width:100%;min-height:95px;padding:12px;font:inherit}button{margin-top:12px;padding:10px 18px;background:#13684f;color:#fff;border:0;border-radius:8px;font:inherit}button:disabled{opacity:.6}#answer{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:700px){main{margin:12px;padding:18px}}</style>
-<main><h1>Помощник на PDG Systems</h1><p>Тестов чат за продуктови въпроси. Въпросите се обработват от локален AI. Не въвеждайте лични данни.</p><form id="chat"><label for="question">Въпрос за продукт или услуга</label><textarea id="question" required maxlength="300" placeholder="Например: Каква е цената на TRB-D10?"></textarea><button>Изпрати</button></form><p id="answer" role="status" aria-live="polite"></p><section id="offer" hidden aria-label="Продуктова оферта"></section></main>
+<style>
+:root{font-family:system-ui,sans-serif;color:#152b25;background:#edf4f1}
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh}
+#chat-shell{width:min(100%,720px);height:100dvh;margin:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#f4f8f6}
+#chat-head{padding:14px 18px;border-bottom:1px solid #d9e8e1;background:#fff}
+#chat-head h1{font-size:17px;margin:0}
+#chat-head p{font-size:12px;margin:3px 0 0;color:#566962}
+#messages{overflow:auto;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:12px}
+.message{max-width:88%;align-self:flex-start}
+.message.user{align-self:flex-end}
+.bubble{margin:0;padding:9px 12px;border:1px solid #dae7e1;border-radius:14px 14px 14px 4px;background:#fff;font-size:14px;line-height:1.48;white-space:pre-wrap;overflow-wrap:anywhere}
+.user .bubble{color:#fff;background:#15634e;border-color:#15634e;border-radius:14px 14px 4px 14px}
+.message-label{display:block;margin:0 0 4px 3px;font-size:11px;color:#566962;font-weight:650}
+.message.has-offer{width:100%;max-width:100%}
+#chat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end;padding:9px 12px;background:#fff;border-top:1px solid #d9e8e1}
+#chat textarea{width:100%;min-height:44px;max-height:94px;resize:none;border:1px solid #a9c8bd;border-radius:15px;padding:11px 13px;font:14px/1.4 system-ui,sans-serif;color:#152b25}
+button{min-height:40px;padding:7px 12px;border:0;border-radius:12px;background:#13684f;color:#fff;font:650 13px system-ui,sans-serif;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+.offer{margin-top:7px;padding:8px;border:1px solid #d4e5dc;border-radius:12px;background:#fff;font-size:13px}
+.offer[hidden]{display:none}
+.offer fieldset{min-width:0;border:0;margin:0;padding:1px 4px}
+.offer legend{font-weight:750}
+.offer-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid #e0e8e4}
+.offer-row a{color:#135d49;overflow-wrap:anywhere}
+.offer-product{display:flex;align-items:center;gap:7px}
+.offer-product img{flex:none;width:42px;height:42px;object-fit:contain;background:#fff;border:1px solid #e0e8e4;border-radius:6px}
+.offer-row small{display:block;margin-top:2px;color:#51665e}
+.offer-row input[type=number]{width:52px;padding:5px 3px;border:1px solid #b3ccc1;border-radius:6px}
+.offer-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.offer p{margin:7px 0}
+.offer p:empty{display:none}
+@media(min-width:760px){body{padding:16px}#chat-shell{height:calc(100dvh - 32px);border:1px solid #d2e5db;border-radius:19px;overflow:hidden}}
+</style>
+<main id="chat-shell" aria-label="AI чат на PDG Systems">
+<header id="chat-head"><h1>PDG помощник</h1><p>Продуктови въпроси и оферти · не въвеждайте лични данни</p></header>
+<section id="messages" role="log" aria-label="Разговор" aria-live="polite" aria-relevant="additions text">
+  <div class="message"><span class="message-label">PDG помощник</span><p class="bubble">Здравейте! Мога да намеря продукти, да покажа снимки и цени или да подготвя оферта. Какво търсите?</p></div>
+</section>
+<form id="chat"><textarea id="question" rows="1" aria-label="Въпрос за продукт или услуга" required maxlength="300" placeholder="Напишете съобщение…"></textarea><button type="submit">Изпрати</button></form>
+</main>
 <script>
-const form=document.querySelector('#chat'), field=document.querySelector('#question'), out=document.querySelector('#answer'), send=form.querySelector('button');
-const offer=document.querySelector('#offer');
+const form=document.querySelector('#chat'), field=document.querySelector('#question'), log=document.querySelector('#messages'), send=form.querySelector('button');
 const money=cents=>(cents/100).toLocaleString('bg-BG',{style:'currency',currency:'EUR'});
 const make=(tag,text)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=text;return element;};
 async function customerTools(payload,csrf){
@@ -16,7 +54,7 @@ async function customerTools(payload,csrf){
   if(!response.ok)throw new Error(value.error||'tools_unavailable');
   return value;
 }
-function renderReply(raw){
+function renderReply(raw,out,offer){
   let result;
   try{result=JSON.parse(raw);}catch{}
   if(result?.version!==1||!Array.isArray(result.items)||typeof result.text!=='string'){
@@ -51,12 +89,12 @@ function renderReply(raw){
   });
   const total=make('p'), status=make('p');
   status.setAttribute('role','status');
-  const actions=make('div');actions.id='offer-actions';
+  const actions=make('div');actions.className='offer-actions';
   const check=make('button','Провери за количката'),add=make('button','Добави в количката');
   const login=make('a','Влез в профила'),cart=make('a','Отвори количката');
   login.href='/auth.html?next=cart.html';login.target='_blank';login.rel='noopener';login.hidden=true;
   cart.href='/cart.html';cart.target='_top';cart.hidden=true;add.hidden=true;
-  actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;
+  actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;offer.parentElement.classList.add('has-offer');
   let preview,csrf='', busy=false, added=false;
   function selectedRows(){return options.filter(x=>x.selected.checked);}
   function current(){return selectedRows().map(x=>({id:x.item.id,quantity:x.qty.valueAsNumber}));}
@@ -115,17 +153,43 @@ function renderReply(raw){
 }
 const api=(op)=>'/api/site-ai-chat.php?op='+op;
 async function data(response){const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
+function message(text,user=false){
+  const card=make('div'),bubble=make('p',text);
+  card.className=user?'message user':'message';bubble.className='bubble';
+  const name=make('span',user?'Вие':'PDG помощник');name.className='message-label';
+  card.append(name,bubble);log.append(card);log.scrollTop=log.scrollHeight;
+  return {card,bubble};
+}
+field.addEventListener('keydown',event=>{
+  if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){
+    event.preventDefault();
+    if(!send.disabled)form.requestSubmit();
+  }
+});
 form.addEventListener('submit',async event=>{
-  event.preventDefault();send.disabled=true;offer.hidden=true;offer.replaceChildren();out.textContent='Изчакваме отговор…';
-  try {
-    const req=await data(await fetch(api('submit'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:field.value})}));
+  event.preventDefault();
+  const question=field.value.trim();
+  if(!question||send.disabled)return;
+  send.disabled=true;field.value='';message(question,true);
+  const {card,bubble}=message('Проверявам…');
+  const offer=make('section');offer.className='offer';offer.hidden=true;
+  offer.setAttribute('aria-label','Продуктова оферта');card.append(offer);
+  try{
+    const req=await data(await fetch(api('submit'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question})}));
     for(let attempt=0;attempt<65;attempt++){
       await new Promise(resolve=>setTimeout(resolve,2000));
       const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
-      if(status.status==='done'){renderReply(status.answer);return;}
+      if(status.status==='done'){
+        renderReply(status.answer,bubble,offer);
+        log.scrollTop=card.offsetTop-log.offsetTop;
+        return;
+      }
     }
-    out.textContent='Помощникът е зает. Можете да изпратите запитване през контактите на сайта.';
-  } catch(error){out.textContent=error.message || 'Връзката прекъсна.';}
-  finally{send.disabled=false;}
+    bubble.textContent='Помощникът е зает. Можете да изпратите запитване през контактите на сайта.';
+  }catch(error){
+    bubble.textContent=error.message||'Връзката прекъсна.';
+  }finally{
+    send.disabled=false;
+  }
 });
 </script></html>
