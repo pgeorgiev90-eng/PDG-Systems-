@@ -1,5 +1,6 @@
 name: Publish visible AI chat links
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths: ['.github/workflows/publish-ai-chat-links.yml', 'scripts/publish_ai_chat_links.py']
