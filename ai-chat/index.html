@@ -55,8 +55,14 @@ async function customerTools(payload,csrf){
   return value;
 }
 let homeContext='';
-const homeRequest=text=>/(?:соларн\p{L}*|фотоволтаич\p{L}*|фотоволтаик\p{L}*)[\p{L}\s-]{0,24}(?:систем|инсталаци|централ)|(?:систем|инсталаци)[\p{L}\s-]{0,28}(?:солар|фотоволта)/iu.test(text);
-const homeDetail=text=>/kwh|квтч|квт·ч|\bkw\b|квт|фаз|батери|покрив|резервно|населено|мрежов|хибрид/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
+const homeRequest=text=>{
+  const system=/(?:систем|инсталаци|инвертор)/iu.test(text);
+  const solar=/солар|фотоволта/iu.test(text);
+  const house=/дом|къщ|жилищ|вил/iu.test(text);
+  return system&&((solar&&/систем|инсталаци/iu.test(text))||
+    (house&&(solar||/ф(?:а)?з|хибрид|батери|мрежов/iu.test(text))));
+};
+const homeDetail=text=>/kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
 function renderReply(raw,out,offer,requestQuestion){
   let result;
   try{result=JSON.parse(raw);}catch{}
