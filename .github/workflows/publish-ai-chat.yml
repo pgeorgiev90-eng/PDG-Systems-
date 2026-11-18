@@ -1,0 +1,26 @@
+name: Publish isolated AI chat pilot
+on:
+  push:
+    branches: [main, pdg-ai-chat-pilot]
+    paths: ['ai-chat/**', 'scripts/publish_ai_chat.py', '.github/workflows/publish-ai-chat.yml']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate chat relay
+        run: |
+          php -l ai-chat/relay.php
+          python -m py_compile scripts/publish_ai_chat.py
+      - name: Publish chat files over FTPS
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python scripts/publish_ai_chat.py

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="bg"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><title>PDG Systems · Помощник</title>
+<style>body{font:17px system-ui;background:#eef2f1;color:#142521;margin:0}main{max-width:640px;margin:10vh auto;padding:2rem;border-radius:18px;background:white}textarea{box-sizing:border-box;width:100%;min-height:95px;padding:12px;font:inherit}button{margin-top:12px;padding:10px 18px;background:#13684f;color:#fff;border:0;border-radius:8px;font:inherit}button:disabled{opacity:.6}#answer{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:700px){main{margin:12px;padding:18px}}</style>
+<main><h1>Помощник на PDG Systems</h1><p>Тестов чат за продуктови въпроси. Въпросите се обработват от локален AI. Не въвеждайте лични данни.</p><form id="chat"><label for="question">Въпрос за продукт или услуга</label><textarea id="question" required maxlength="300" placeholder="Например: Каква е цената на TRB-D10?"></textarea><button>Изпрати</button></form><p id="answer" role="status" aria-live="polite"></p></main>
+<script>
+const form=document.querySelector('#chat'), field=document.querySelector('#question'), out=document.querySelector('#answer'), send=form.querySelector('button');
+const api=(op)=>'./relay.php?op='+op;
+async function data(response){const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
+form.addEventListener('submit',async event=>{
+  event.preventDefault();send.disabled=true;out.textContent='Изчакваме отговор…';
+  try {
+    const req=await data(await fetch(api('submit'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:field.value})}));
+    for(let attempt=0;attempt<65;attempt++){
+      await new Promise(resolve=>setTimeout(resolve,2000));
+      const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
+      if(status.status==='done'){out.textContent=status.answer;return;}
+    }
+    out.textContent='Помощникът е зает. Можете да изпратите запитване през контактите на сайта.';
+  } catch(error){out.textContent=error.message || 'Връзката прекъсна.';}
+  finally{send.disabled=false;}
+});
+</script></html>
