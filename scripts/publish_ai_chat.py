@@ -32,7 +32,8 @@ def load_file(ftp, name):
     return body.getvalue()
 
 with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=50) as ftp:
-    ftp.connect(os.environ['FTP_HOST'],21)
+    ftp.connect('185.80.2.82',21)
+    ftp.host = 'host-185-80-2-82.superhosting.bg'
     ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
     ftp.prot_p()
     ftp.cwd('/')
