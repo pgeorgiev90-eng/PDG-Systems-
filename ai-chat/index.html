@@ -62,7 +62,7 @@ const homeRequest=text=>{
   return system&&((solar&&/систем|инсталаци/iu.test(text))||
     (house&&(solar||/ф(?:а)?з|хибрид|батери|мрежов/iu.test(text))));
 };
-const homeDetail=text=>/kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
+const homeDetail=text=>/без ток|няма(?:м)? ток|няма(?:м)? мрежа|има(?:м)? ток|хладил|осветлен|помпа|фризер|уикенд|целогодиш|kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
 function renderReply(raw,out,offer,requestQuestion){
   let result;
   try{result=JSON.parse(raw);}catch{}
@@ -71,6 +71,24 @@ function renderReply(raw,out,offer,requestQuestion){
   }
   if(result.kind==='home_intake'||result.kind==='home_options')homeContext=requestQuestion;
   out.textContent=result.text;
+  if(Array.isArray(result.sources)){
+    const sources=make('p');sources.className='offer-sources';
+    const publishers={
+      'kb.solaxpower.com':'SolaX','uk.solaxpower.com':'SolaX',
+      'www.deyeinverter.com':'Deye','www.dyness.com':'Dyness',
+      'technav.ieee.org':'IEEE','www.energy.gov':'U.S. Department of Energy',
+      'docs.nrel.gov':'NREL'
+    };
+    for(const source of result.sources.slice(0,3)){
+      try{
+        const url=new URL(source);
+        if(url.protocol!=='https:'||!Object.hasOwn(publishers,url.hostname))continue;
+        const sourceLink=make('a','Източник: '+publishers[url.hostname]);
+        sourceLink.href=url.href;sourceLink.target='_blank';sourceLink.rel='noopener';sources.append(sourceLink);
+      }catch{}
+    }
+    if(sources.childElementCount)out.after(sources);
+  }
   const items=result.items.filter(item=>Number.isInteger(item.id)&&item.id>0&&typeof item.name==='string').slice(0,8);
   if(!items.length)return;
   const group=make('fieldset'), legend=make('legend','Ориентировъчна оферта');
@@ -115,19 +133,7 @@ function renderReply(raw,out,offer,requestQuestion){
   login.href='/auth.html?next=cart.html';login.target='_blank';login.rel='noopener';login.hidden=true;
   cart.href='/cart.html';cart.target='_top';cart.hidden=true;add.hidden=true;
   actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;
-  if(Array.isArray(result.sources)){
-    const sources=make('p');sources.className='offer-sources';
-    const manufacturers={'kb.solaxpower.com':'SolaX','www.deyeinverter.com':'Deye','www.dyness.com':'Dyness'};
-    for(const source of result.sources.slice(0,3)){
-      try{
-        const url=new URL(source);
-        if(url.protocol!=='https:'||!Object.hasOwn(manufacturers,url.hostname))continue;
-        const sourceLink=make('a','Таблица на '+manufacturers[url.hostname]);
-        sourceLink.href=url.href;sourceLink.target='_blank';sourceLink.rel='noopener';sources.append(sourceLink);
-      }catch{}
-    }
-    if(sources.childElementCount)offer.append(sources);
-  }offer.parentElement.classList.add('has-offer');
+  offer.parentElement.classList.add('has-offer');
   let preview,csrf='', busy=false, added=false;
   function selectedRows(){return options.filter(x=>x.selected.checked);}
   function current(){return selectedRows().map(x=>({id:x.item.id,quantity:x.qty.valueAsNumber}));}
