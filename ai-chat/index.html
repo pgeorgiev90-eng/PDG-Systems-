@@ -67,7 +67,24 @@ const homeRequest=text=>{
   return system&&((solar&&/систем|инсталаци/iu.test(text))||
     (house&&(solar||/ф(?:а)?з|хибрид|батери|мрежов/iu.test(text))));
 };
-const homeDetail=text=>/без\s+(?:ток|захранване|мрежа)|няма(?:м)?\s+(?:изградена\s+)?(?:ток|захранване|електричество|мрежа|инфраструктура)|има(?:м)? ток|хладил|осветлен|помпа|фризер|уикенд|целогодиш|сезон|kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
+const homeDetail=text=>/без\s+(?:ток|захранване|мрежа)|няма(?:м)?\s+(?:изградена\s+)?(?:ток|захранване|електричество|мрежа|инфраструктура)|има(?:м)? ток|хладил|осветлен|помпа|фризер|климатик|телевизор|бойлер|полив|ламп|уред|интернет|рутер|лаптоп|компютър|пералн|готвар|печк|котлон|зарядн|уикенд|целогодиш|сезон|лятото|зимата|летни|зимни|почивните дни|събота|неделя|kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|квадрат|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север|\d+\s*(?:час|ден|дни|ват|минути)/iu.test(text);
+const separateRequest=text=>/^\s*(?:нова тема|друг въпрос|забрави|започни отначало)(?=\s|[.,!?]|$)/iu.test(text)
+  || /(?:нов|друг)[а-я]*\s+(?:обект|проект|къщ|вил|имот)|(?:цена|наличност|гаранция)\s+(?:на|за)\s+|[A-Z0-9]{2,}-[A-Z0-9.-]{3,}/iu.test(text);
+const homeProposal=text=>/^\s*(?:(?:а|и|тогава|добре)[\s,]+)?(?:препоръч|предлож|генерира|подбер|избер|покажи|дай|какво (?:ще|би)|какъв вариант|каква система)/iu.test(text);
+function continueHomeContext(context, question){
+  if(!context || separateRequest(question)) return question;
+  const newHome = homeRequest(question) && /къщ|жилищ|вил|имот/iu.test(question);
+  if(newHome || (!homeDetail(question) && !homeProposal(question))) return question;
+  const separator = '\nДопълнение: ';
+  const [initial, ...details] = context.split(separator);
+  const bytes = new TextEncoder();
+  let combined = [initial, ...details, question].join(separator);
+  while(bytes.encode(combined).length > 1100 && details.length){
+    details.shift();
+    combined = [initial, ...details, question].join(separator);
+  }
+  return bytes.encode(combined).length <= 1100 ? combined : question;
+}
 function typeReply(out,text){
   if(!text){out.textContent='';return Promise.resolve();}
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -263,15 +280,8 @@ form.addEventListener('submit',async event=>{
   event.preventDefault();
   const question=field.value.trim();
   if(!question||send.disabled)return;
-  let requestQuestion=question;
-  const continuesHome = !homeRequest(question) && homeDetail(question);
-  const asksForHomeProposal = homeRequest(question)
-    && !/къщ|жилищ|вил|друг\w*\s+(?:обект|проект)|нов\w*\s+(?:обект|проект)/iu.test(question)
-    && /препоръч|предлож|генерира|подбер|избер|вариант/iu.test(question);
-  if(homeContext && (continuesHome || asksForHomeProposal)){
-    const combined=homeContext+'\nДопълнение: '+question;
-    requestQuestion=new TextEncoder().encode(combined).length<=1100?combined:'Домашна соларна система. '+question;
-  }else if(!homeRequest(question)){homeContext='';}
+  const requestQuestion=continueHomeContext(homeContext,question);
+  if(requestQuestion===question)homeContext='';
   send.disabled=true;field.value='';message(question,true);
   const waitingLines=['Нека помисля','Нека погледна','Още проверявам','Подготвям отговора'];
   const {card,bubble}=message(waitingLines[0]);
