@@ -273,8 +273,9 @@ form.addEventListener('submit',async event=>{
   const {card,bubble}=message(waitingLines[0]);
   bubble.classList.add('is-waiting');
   bubble.setAttribute('aria-busy','true');
-  let waitingIndex=0;
+  let waitingIndex=0,queued=false;
   const waitingTimer=setInterval(()=>{
+    if(queued)return;
     waitingIndex=(waitingIndex+1)%waitingLines.length;
     bubble.textContent=waitingLines[waitingIndex];
   },3200);
@@ -282,9 +283,24 @@ form.addEventListener('submit',async event=>{
   offer.setAttribute('aria-label','Продуктова оферта');card.append(offer);
   try{
     const req=await data(await fetch(api('submit'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:requestQuestion})}));
-    for(let attempt=0;attempt<65;attempt++){
-      await new Promise(resolve=>setTimeout(resolve,2000));
-      const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
+    const deadline=Date.now()+55*60*1000;
+    while(Date.now()<deadline){
+      await new Promise(resolve=>setTimeout(resolve,queued?4000:2000));
+      let response;
+      try{response=await fetch(api('status')+'&id='+encodeURIComponent(req.id));}
+      catch{continue;}
+      if(response.status>=500)continue;
+      const status=await data(response);
+      if(status.stage==='queued'){
+        queued=true;
+        bubble.textContent=status.ahead>0
+          ? `Пред вас има ${status.ahead} ${status.ahead===1?'въпрос':'въпроса'}`
+          : 'Вие сте следващите на опашката';
+      }else if(status.stage==='processing'&&queued){
+        queued=false;
+        waitingIndex=0;
+        bubble.textContent=waitingLines[0];
+      }
       if(status.status==='done'){
         clearInterval(waitingTimer);
         bubble.classList.remove('is-waiting');
@@ -293,7 +309,7 @@ form.addEventListener('submit',async event=>{
         return;
       }
     }
-    bubble.textContent='Помощникът е зает. Можете да изпратите запитване през контактите на сайта.';
+    bubble.textContent='Времето за изчакване изтече. Можете да опитате пак или да изпратите запитване през контактите на сайта.';
   }catch(error){
     bubble.textContent=error.message||'Връзката прекъсна.';
   }finally{

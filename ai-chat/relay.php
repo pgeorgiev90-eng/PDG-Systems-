@@ -60,13 +60,22 @@ try {
         if (!is_string($id) || !preg_match('/^[a-f0-9]{48}$/D', $id)) {
             reply(400, ['error' => 'Невалидна заявка.']);
         }
-        $q = $db->prepare('SELECT created, answer FROM jobs WHERE id=?');
+        $q = $db->prepare('SELECT rowid, created, lease, answer FROM jobs WHERE id=?');
         $q->execute([$id]);
         $job = $q->fetch(PDO::FETCH_ASSOC);
         if (!$job || $job['created'] < $now - 3600) {
             reply(404, ['error' => 'Заявката е изтекла.']);
         }
-        reply(200, $job['answer'] === null ? ['status'=>'pending'] : ['status'=>'done','answer'=>$job['answer']]);
+        if ($job['answer'] !== null) {
+            reply(200, ['status'=>'done','answer'=>$job['answer']]);
+        }
+        if ((int)$job['lease'] > $now) {
+            reply(200, ['status'=>'pending','stage'=>'processing']);
+        }
+        $q = $db->prepare('SELECT count(*) FROM jobs WHERE answer IS NULL AND created>=?
+            AND (created < ? OR (created = ? AND rowid < ?))');
+        $q->execute([$now-3600,$job['created'],$job['created'],$job['rowid']]);
+        reply(200, ['status'=>'pending','stage'=>'queued','ahead'=>(int)$q->fetchColumn()]);
     }
 
     if ($method !== 'POST' || !str_starts_with(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json')) {
@@ -98,10 +107,10 @@ try {
             header('Retry-After: 60');
             reply(429, ['error'=>'Изпратихте няколко въпроса поред. Изчакайте до минута и продължете разговора.']);
         }
-        if ($depth >= 4) {
+        if ($depth >= 24) {
             $db->exec('ROLLBACK');
             header('Retry-After: 10');
-            reply(429, ['error'=>'Има няколко въпроса на опашка. Опитайте отново след малко.']);
+            reply(429, ['error'=>'Опашката е пълна. Опитайте отново след малко.']);
         }
         $id = bin2hex(random_bytes(24));
         $q = $db->prepare('INSERT INTO jobs(id,client,question,created) VALUES (?,?,?,?)');
@@ -147,12 +156,12 @@ try {
     if ($op === 'claim') {
         $db->exec('BEGIN IMMEDIATE');
         $db->exec('DELETE FROM jobs WHERE created < ' . ($now - 3600));
-        $q = $db->prepare('SELECT id, question FROM jobs WHERE answer IS NULL AND lease<? AND created>=? ORDER BY created LIMIT 1');
+        $q = $db->prepare('SELECT id, question FROM jobs WHERE answer IS NULL AND lease<=? AND created>=? ORDER BY created,rowid LIMIT 1');
         $q->execute([$now,$now-3600]);
         $job = $q->fetch(PDO::FETCH_ASSOC);
         if ($job) {
             $q = $db->prepare('UPDATE jobs SET lease=? WHERE id=?');
-            $q->execute([$now+150,$job['id']]);
+            $q->execute([$now+240,$job['id']]);
         }
         $db->exec('COMMIT');
         reply(200, ['job'=>$job ?: null]);
