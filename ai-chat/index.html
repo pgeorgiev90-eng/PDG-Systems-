@@ -264,7 +264,11 @@ form.addEventListener('submit',async event=>{
   const question=field.value.trim();
   if(!question||send.disabled)return;
   let requestQuestion=question;
-  if(homeContext&&!homeRequest(question)&&homeDetail(question)){
+  const continuesHome = !homeRequest(question) && homeDetail(question);
+  const asksForHomeProposal = homeRequest(question)
+    && !/къщ|жилищ|вил|друг\w*\s+(?:обект|проект)|нов\w*\s+(?:обект|проект)/iu.test(question)
+    && /препоръч|предлож|генерира|подбер|избер|вариант/iu.test(question);
+  if(homeContext && (continuesHome || asksForHomeProposal)){
     const combined=homeContext+'\nДопълнение: '+question;
     requestQuestion=new TextEncoder().encode(combined).length<=1100?combined:'Домашна соларна система. '+question;
   }else if(!homeRequest(question)){homeContext='';}
