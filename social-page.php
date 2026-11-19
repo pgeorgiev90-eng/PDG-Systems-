@@ -96,7 +96,10 @@ try {
                 ['@type'=>'ListItem','position'=>3,'name'=>$p['name'],'item'=>$data['url']]]];
             $trail='<nav aria-label="Навигационен път"><a href="/">Начало</a> / <a href="'.pdg_social_escape($categoryUrl).'">'.pdg_social_escape($p['category']).'</a> / '.pdg_social_escape($p['name']).'</nav>';
             $template=str_replace('<main>','<main>'.$trail,$template);
-            $template=str_replace('<a id="inquiry" class="button" href="/#contact" hidden>Запитване за цена</a>', '<a id="inquiry" class="button" href="/#contact">'.($offer?'Запитване за този продукт':'Запитване за цена').'</a><p><a href="tel:+359876323109">Консултация: 0876 323 109</a></p>', $template);
+            $template=pdg_seo_fill($template,'enquiry-product-name',pdg_social_escape($p['name']));
+            $template=str_replace('id="enquiry-product-id" name="product_id" value=""',
+                'id="enquiry-product-id" name="product_id" value="'.(int)$p['id'].'"', $template);
+            $template=str_replace('</details>', '</details><p><a href="tel:+359876323109">Консултация: 0876 323 109</a></p>', $template);
             $related=$db->prepare('SELECT id,name FROM products WHERE active=1 AND category=? AND id<>? ORDER BY id LIMIT 12');$related->execute([$p['category'],$p['id']]);
             $publicContent='<section id="pdg-category-fallback" class="tools-panel"><h2>Още от тази категория</h2><ul>';
             foreach($related->fetchAll() as $r)$publicContent.='<li><a href="product.html?id='.(int)$r['id'].'">'.pdg_social_escape($r['name']).'</a></li>';

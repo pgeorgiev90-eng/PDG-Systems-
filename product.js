@@ -17,6 +17,8 @@
       const pricesVisible=data.prices_visible===true;
       document.title=p.name+' – цена и характеристики | PDG Systems';$('name').textContent=p.name;
       $('category').textContent=p.brand+' · '+p.category;$('code').textContent='Код: '+p.code;
+      $('enquiry-product-id').defaultValue=String(p.id);
+      $('enquiry-product-name').textContent=p.name;
       $('description').textContent=p.description||'';$('description-section').hidden=!p.description;
       $('image-caption').textContent=p.imageCaption||(p.imageUrl?'Изображение на продуктовата серия.':'');
       $('image-caption').hidden=!$('image-caption').textContent;
@@ -29,14 +31,14 @@
         const photo=document.createElement('div');photo.className='sprite';photo.style.backgroundPosition=(-150*(imageIndex%10))+'px '+(-150*Math.floor(imageIndex/10))+'px';photo.setAttribute('role','img');photo.setAttribute('aria-label',p.name);$('photo').append(photo);
       } else {$('photo').textContent='Снимка предстои';}
       if(!pricesVisible){
-        $('price').textContent='Цена след регистрация';$('buy').hidden=true;$('inquiry').hidden=true;
+        $('price').textContent='Цена след регистрация';$('buy').hidden=true;
         const links=document.createElement('span');links.style.cssText='display:flex;gap:14px;margin-top:10px';
         for(const [label,mode]of [['Създай акаунт','register'],['Вход','login']]){const a=document.createElement('a');a.textContent=label;a.href='auth.html?next='+encodeURIComponent('product.html?id='+p.id)+(mode==='register'?'&mode=register':'');links.append(a);}$('price').append(links);
       }else if(Number(p.price)>0) {
         $('price').textContent=money(p.price)+' без ДДС';$('vat').textContent=money(Number(p.price)*1.2)+' с ДДС';$('buy').hidden=false;
         window.PDGQuickOrder?.(p);
         $('add').onclick=async()=>{if(!$('quantity').reportValidity())return;$('add').disabled=true;try{await window.PDGStore.add(p.id,Number($('quantity').value));}catch(e){}finally{$('add').disabled=false;}};
-      } else {$('price').textContent='Цена по запитване';$('inquiry').hidden=false;}
+      } else {$('price').textContent='Цена по запитване';}
       row('Производител',p.brand);row('Категория',p.category);row('Код на продукта',p.code);
       if(p.availability){const op=p.availability;row('Наличност',op.stock_quantity!==null?op.stock_quantity+' бр. (към последната актуализация)':({in_stock:'В наличност',on_order:'По заявка',unavailable:'Не се предлага',confirm:'За потвърждение'}[op.availability]||'За потвърждение'));row('Срок за доставка',op.lead_days===null?'За потвърждение':op.lead_days+' дни, след потвърждение на поръчката');}
       const tools=document.createElement('p');for(const [label,hash] of [['Сравни с друг продукт','compare'],['Запази в списък / бърза поръчка','quick-order']]){const a=document.createElement('a');a.href='shopping-tools.html#'+hash;a.textContent=label;a.style.marginRight='16px';tools.append(a);}$('product').append(tools);
