@@ -63,14 +63,51 @@ const homeRequest=text=>{
     (house&&(solar||/ф(?:а)?з|хибрид|батери|мрежов/iu.test(text))));
 };
 const homeDetail=text=>/без ток|няма(?:м)? ток|няма(?:м)? мрежа|има(?:м)? ток|хладил|осветлен|помпа|фризер|уикенд|целогодиш|kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
-function renderReply(raw,out,offer,requestQuestion){
+function typeReply(out,text){
+  if(!text||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches){
+    out.textContent=text;return Promise.resolve();
+  }
+  const characters=typeof Intl.Segmenter==='function'
+    ? Array.from(new Intl.Segmenter('bg',{granularity:'grapheme'}).segment(text),part=>part.segment)
+    : Array.from(text);
+  const duration=Math.min(2100,Math.max(350,characters.length*13));
+  const start=performance.now();
+  let frame,deadline,shown=0;
+  out.setAttribute('aria-busy','true');
+  out.textContent='';
+  return new Promise(resolve=>{
+    const finish=()=>{
+      cancelAnimationFrame(frame);
+      clearTimeout(deadline);
+      const atBottom=log.scrollHeight-log.scrollTop-log.clientHeight<36;
+      out.textContent=text;
+      out.removeAttribute('aria-busy');
+      if(atBottom)log.scrollTop=log.scrollHeight;
+      resolve();
+    };
+    const tick=now=>{
+      const count=Math.floor((now-start)/duration*characters.length);
+      if(count>=characters.length){finish();return;}
+      if(count>shown){
+        const atBottom=log.scrollHeight-log.scrollTop-log.clientHeight<36;
+        out.textContent+=characters.slice(shown,count).join('');
+        if(atBottom)log.scrollTop=log.scrollHeight;
+        shown=count;
+      }
+      frame=requestAnimationFrame(tick);
+    };
+    deadline=setTimeout(finish,duration+120);
+    frame=requestAnimationFrame(tick);
+  });
+}
+async function renderReply(raw,out,offer,requestQuestion){
   let result;
   try{result=JSON.parse(raw);}catch{}
   if(result?.version!==1||!Array.isArray(result.items)||typeof result.text!=='string'){
-    out.textContent=raw;return;
+    await typeReply(out,raw);return;
   }
   if(result.kind==='home_intake'||result.kind==='home_options')homeContext=requestQuestion;
-  out.textContent=result.text;
+  await typeReply(out,result.text);
   if(Array.isArray(result.sources)){
     const sources=make('p');sources.className='offer-sources';
     const publishers={
@@ -245,9 +282,8 @@ form.addEventListener('submit',async event=>{
       await new Promise(resolve=>setTimeout(resolve,2000));
       const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
       if(status.status==='done'){
-        renderReply(status.answer,bubble,offer,requestQuestion);
+        await renderReply(status.answer,bubble,offer,requestQuestion);
         addFeedback(card,req.id);
-        log.scrollTop=card.offsetTop-log.offsetTop;
         return;
       }
     }
