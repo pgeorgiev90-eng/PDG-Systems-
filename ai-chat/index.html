@@ -13,6 +13,9 @@ body{margin:0;min-height:100dvh}
 .message{max-width:88%;align-self:flex-start}
 .message.user{align-self:flex-end}
 .bubble{margin:0;padding:9px 12px;border:1px solid #dae7e1;border-radius:14px 14px 14px 4px;background:#fff;font-size:14px;line-height:1.48;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble.is-waiting::after{content:"…";margin-inline-start:2px;animation:pdg-waiting 1.2s ease-in-out infinite}
+@keyframes pdg-waiting{50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){.bubble.is-waiting::after{animation:none}}
 .bubble.is-typing::after{content:"";display:inline-block;width:2px;height:1em;background:currentColor;vertical-align:-.13em;margin-inline-start:2px}
 @media(prefers-reduced-motion:reduce){.bubble.is-typing::after{display:none}}
 .user .bubble{color:#fff;background:#15634e;border-color:#15634e;border-radius:14px 14px 4px 14px}
@@ -266,7 +269,9 @@ form.addEventListener('submit',async event=>{
     requestQuestion=new TextEncoder().encode(combined).length<=1100?combined:'Домашна соларна система. '+question;
   }else if(!homeRequest(question)){homeContext='';}
   send.disabled=true;field.value='';message(question,true);
-  const {card,bubble}=message('Проверявам…');
+  const {card,bubble}=message('Подготвям отговор');
+  bubble.classList.add('is-waiting');
+  bubble.setAttribute('aria-busy','true');
   const offer=make('section');offer.className='offer';offer.hidden=true;
   offer.setAttribute('aria-label','Продуктова оферта');card.append(offer);
   try{
@@ -275,6 +280,7 @@ form.addEventListener('submit',async event=>{
       await new Promise(resolve=>setTimeout(resolve,2000));
       const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
       if(status.status==='done'){
+        bubble.classList.remove('is-waiting');
         await renderReply(status.answer,bubble,offer,requestQuestion);
         addFeedback(card,req.id);
         return;
@@ -284,6 +290,8 @@ form.addEventListener('submit',async event=>{
   }catch(error){
     bubble.textContent=error.message||'Връзката прекъсна.';
   }finally{
+    bubble.classList.remove('is-waiting');
+    bubble.removeAttribute('aria-busy');
     send.disabled=false;
   }
 });
