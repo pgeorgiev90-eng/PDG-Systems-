@@ -269,9 +269,15 @@ form.addEventListener('submit',async event=>{
     requestQuestion=new TextEncoder().encode(combined).length<=1100?combined:'Домашна соларна система. '+question;
   }else if(!homeRequest(question)){homeContext='';}
   send.disabled=true;field.value='';message(question,true);
-  const {card,bubble}=message('Подготвям отговор');
+  const waitingLines=['Нека помисля','Нека погледна','Още проверявам','Подготвям отговора'];
+  const {card,bubble}=message(waitingLines[0]);
   bubble.classList.add('is-waiting');
   bubble.setAttribute('aria-busy','true');
+  let waitingIndex=0;
+  const waitingTimer=setInterval(()=>{
+    waitingIndex=(waitingIndex+1)%waitingLines.length;
+    bubble.textContent=waitingLines[waitingIndex];
+  },3200);
   const offer=make('section');offer.className='offer';offer.hidden=true;
   offer.setAttribute('aria-label','Продуктова оферта');card.append(offer);
   try{
@@ -280,6 +286,7 @@ form.addEventListener('submit',async event=>{
       await new Promise(resolve=>setTimeout(resolve,2000));
       const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
       if(status.status==='done'){
+        clearInterval(waitingTimer);
         bubble.classList.remove('is-waiting');
         await renderReply(status.answer,bubble,offer,requestQuestion);
         addFeedback(card,req.id);
@@ -290,6 +297,7 @@ form.addEventListener('submit',async event=>{
   }catch(error){
     bubble.textContent=error.message||'Връзката прекъсна.';
   }finally{
+    clearInterval(waitingTimer);
     bubble.classList.remove('is-waiting');
     bubble.removeAttribute('aria-busy');
     send.disabled=false;
