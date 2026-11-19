@@ -1,7 +1,7 @@
 """Scoped product SEO release with byte verification, backup and rollback."""
 import ftplib,io,json,os,re,ssl,urllib.request
 from pathlib import Path
-paths=['api/product-seo.php','product.js','product.html','social-page.php']
+paths=['api/product-seo.php','api/contact-enquiries.php','product.js','product.html','social-page.php']
 backup=Path('production-backup');backup.mkdir(exist_ok=True)
 def get(path):
     with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'product_seo='+os.environ['GITHUB_SHA'],timeout=45) as r:return r.read()
@@ -15,7 +15,10 @@ def verify():
         html=get('product.html?id='+str(p['id'])).decode()
         assert '– цена и характеристики | PDG Systems</title>' in html
         assert 'data-server-rendered="true"' in html
-        assert 'product.js?v=20261117-price-seo' in html
+        assert 'product.js?v=20261119-enquiry' in html
+        assert 'class="product-enquiry"' in html
+        assert f'name="product_id" value="{p["id"]}"' in html
+        assert 'contact-enquiries.js' in html
         data=json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>',html,re.S)[1])
         if p in priced:
             assert data['offers']['priceCurrency']=='EUR'
