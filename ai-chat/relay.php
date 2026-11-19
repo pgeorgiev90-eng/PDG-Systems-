@@ -11,6 +11,17 @@ function reply(int $status, array $value): never {
     exit;
 }
 
+function feedbackSchema(PDO $db): void {
+    $db->exec('CREATE TABLE IF NOT EXISTS feedback_jobs (
+        id TEXT PRIMARY KEY, topic TEXT NOT NULL, outcome TEXT NOT NULL, created INTEGER NOT NULL,
+        voted INTEGER NOT NULL DEFAULT 0
+    )');
+    $db->exec('CREATE TABLE IF NOT EXISTS feedback_totals (
+        topic TEXT NOT NULL, outcome TEXT NOT NULL, helpful INTEGER NOT NULL DEFAULT 0,
+        unhelpful INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (topic,outcome)
+    )');
+}
+
 try {
     $private = getenv('PDG_CHAT_PRIVATE_DIR') ?: dirname(__DIR__, 2) . '/.pdg-site-chat';
     umask(0077);
@@ -99,6 +110,35 @@ try {
         reply(202, ['id'=>$id]);
     }
 
+    if ($op === 'feedback') {
+        $id = $body['id'] ?? null;
+        $helpful = $body['helpful'] ?? null;
+        if (!is_string($id) || !preg_match('/^[a-f0-9]{48}$/D', $id) || !is_bool($helpful)) {
+            reply(400, ['error'=>'Невалидна оценка.']);
+        }
+        feedbackSchema($db);
+        $client = hash_hmac('sha256', $_SERVER['REMOTE_ADDR'] ?? '', $rateSalt);
+        $db->exec('BEGIN IMMEDIATE');
+        $q = $db->prepare('SELECT f.topic,f.outcome,f.voted FROM feedback_jobs f
+            JOIN jobs j ON j.id=f.id WHERE j.id=? AND j.client=? AND f.created>=?');
+        $q->execute([$id,$client,$now-3600]);
+        $entry = $q->fetch(PDO::FETCH_ASSOC);
+        if (!$entry) {
+            $db->exec('ROLLBACK');
+            reply(404, ['error'=>'Отговорът вече не може да бъде оценен.']);
+        }
+        if (!$entry['voted']) {
+            $q = $db->prepare('UPDATE feedback_jobs SET voted=1 WHERE id=?');
+            $q->execute([$id]);
+            $q = $db->prepare('INSERT INTO feedback_totals(topic,outcome,helpful,unhelpful) VALUES (?,?,?,?)
+                ON CONFLICT(topic,outcome) DO UPDATE SET helpful=helpful+excluded.helpful,
+                unhelpful=unhelpful+excluded.unhelpful');
+            $q->execute([$entry['topic'],$entry['outcome'],$helpful?1:0,$helpful?0:1]);
+        }
+        $db->exec('COMMIT');
+        reply(200, ['ok'=>true]);
+    }
+
     $authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
     if (!str_starts_with($authorization, 'Bearer ') || !hash_equals('655c4dc532105f2d68f655ad185199492d66fcda9a8e9a3b8ea8667149ef4317', hash('sha256', substr($authorization, 7)))) {
         reply(401, ['error'=>'Unauthorized']);
@@ -124,9 +164,26 @@ try {
         if (!is_string($id) || !is_string($answer) || trim($answer) === '' || strlen($answer) > 6000) {
             reply(400, ['error'=>'Invalid result']);
         }
+        $topic = $body['topic'] ?? null;
+        $outcome = $body['outcome'] ?? null;
+        if (is_string($topic) && preg_match('/^[a-z_]{1,32}$/D', $topic)
+            && in_array($outcome,['sourced','needs_evidence','clarification','catalog','general'],true)) {
+            feedbackSchema($db);
+            $db->exec('BEGIN IMMEDIATE');
+            $db->exec('DELETE FROM feedback_jobs WHERE created < ' . ($now - 3600));
+            $q = $db->prepare('UPDATE jobs SET answer=?, question=? WHERE id=? AND answer IS NULL');
+            $q->execute([$answer,'',$id]);
+            $accepted = $q->rowCount() === 1;
+            if ($accepted) {
+                $q = $db->prepare('INSERT INTO feedback_jobs(id,topic,outcome,created) VALUES (?,?,?,?)');
+                $q->execute([$id,$topic,$outcome,$now]);
+            }
+            $db->exec('COMMIT');
+            reply(200, ['ok'=>true,'accepted'=>$accepted]);
+        }
         $q = $db->prepare('UPDATE jobs SET answer=?, question=? WHERE id=? AND answer IS NULL');
         $q->execute([$answer,'',$id]);
-        reply(200, ['ok'=>true]);
+        reply(200, ['ok'=>true,'accepted'=>$q->rowCount() === 1]);
     }
 
     reply(404, ['error'=>'Unknown operation']);

@@ -192,6 +192,27 @@ function renderReply(raw,out,offer,requestQuestion){
 }
 const api=(op)=>'/api/site-ai-chat.php?op='+op;
 async function data(response){const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
+function addFeedback(card,id){
+  const group=make('div');group.className='offer-sources';
+  const status=make('span','Полезен ли беше отговорът?');status.setAttribute('role','status');
+  const buttons=[make('button','Да'),make('button','Не')];
+  buttons.forEach((button,index)=>{
+    button.type='button';
+    button.onclick=async()=>{
+      buttons.forEach(item=>item.disabled=true);
+      try{
+        await data(await fetch(api('feedback'),{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({id,helpful:index===0})}));
+        status.textContent='Благодаря за оценката!';
+        buttons.forEach(item=>item.remove());
+      }catch{
+        status.textContent='Оценката временно не може да се запише.';
+        buttons.forEach(item=>item.disabled=false);
+      }
+    };
+  });
+  group.append(status,...buttons);card.append(group);
+}
 function message(text,user=false){
   const card=make('div'),bubble=make('p',text);
   card.className=user?'message user':'message';bubble.className='bubble';
@@ -225,6 +246,7 @@ form.addEventListener('submit',async event=>{
       const status=await data(await fetch(api('status')+'&id='+encodeURIComponent(req.id)));
       if(status.status==='done'){
         renderReply(status.answer,bubble,offer,requestQuestion);
+        addFeedback(card,req.id);
         log.scrollTop=card.offsetTop-log.offsetTop;
         return;
       }
