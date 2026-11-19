@@ -13,6 +13,8 @@ body{margin:0;min-height:100dvh}
 .message{max-width:88%;align-self:flex-start}
 .message.user{align-self:flex-end}
 .bubble{margin:0;padding:9px 12px;border:1px solid #dae7e1;border-radius:14px 14px 14px 4px;background:#fff;font-size:14px;line-height:1.48;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble.is-typing::after{content:"";display:inline-block;width:2px;height:1em;background:currentColor;vertical-align:-.13em;margin-inline-start:2px}
+@media(prefers-reduced-motion:reduce){.bubble.is-typing::after{display:none}}
 .user .bubble{color:#fff;background:#15634e;border-color:#15634e;border-radius:14px 14px 4px 14px}
 .message-label{display:block;margin:0 0 4px 3px;font-size:11px;color:#566962;font-weight:650}
 .message.has-offer{width:100%;max-width:100%}
@@ -64,40 +66,31 @@ const homeRequest=text=>{
 };
 const homeDetail=text=>/без\s+(?:ток|захранване|мрежа)|няма(?:м)?\s+(?:изградена\s+)?(?:ток|захранване|електричество|мрежа|инфраструктура)|има(?:м)? ток|хладил|осветлен|помпа|фризер|уикенд|целогодиш|kwh|квтч|квт·ч|\bkw\b|квт|киловат|ф(?:а)?з|батери|покрив|засен|резервно|населено|мрежов|хибрид|месец|харча|потреблен|вечер|фактура|изток|запад|юг|север/iu.test(text) && !/[A-Z0-9]{2,}-(?:[A-Z0-9.-]{3,})/i.test(text);
 function typeReply(out,text){
-  if(!text||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches){
-    out.textContent=text;return Promise.resolve();
-  }
+  if(!text){out.textContent='';return Promise.resolve();}
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const characters=typeof Intl.Segmenter==='function'
     ? Array.from(new Intl.Segmenter('bg',{granularity:'grapheme'}).segment(text),part=>part.segment)
     : Array.from(text);
-  const duration=Math.min(2100,Math.max(350,characters.length*13));
-  const start=performance.now();
-  let frame,deadline,shown=0;
+  const steps=reduced ? text.match(/\S+\s*|\s+/gu) : characters;
+  const batch=reduced ? Math.max(1,Math.ceil(steps.length/60)) : Math.max(1,Math.ceil(steps.length/300));
+  const interval=reduced ? 85 : 25;
+  let shown=0;
   out.setAttribute('aria-busy','true');
+  out.classList.add('is-typing');
   out.textContent='';
   return new Promise(resolve=>{
-    const finish=()=>{
-      cancelAnimationFrame(frame);
-      clearTimeout(deadline);
+    const timer=setInterval(()=>{
       const atBottom=log.scrollHeight-log.scrollTop-log.clientHeight<36;
-      out.textContent=text;
-      out.removeAttribute('aria-busy');
-      if(atBottom)log.scrollTop=log.scrollHeight;
-      resolve();
-    };
-    const tick=now=>{
-      const count=Math.floor((now-start)/duration*characters.length);
-      if(count>=characters.length){finish();return;}
-      if(count>shown){
-        const atBottom=log.scrollHeight-log.scrollTop-log.clientHeight<36;
-        out.textContent+=characters.slice(shown,count).join('');
-        if(atBottom)log.scrollTop=log.scrollHeight;
-        shown=count;
+      out.textContent+=steps.slice(shown,shown+batch).join('');
+      shown+=batch;
+      if(shown>=steps.length){
+        clearInterval(timer);
+        out.classList.remove('is-typing');
+        out.removeAttribute('aria-busy');
+        resolve();
       }
-      frame=requestAnimationFrame(tick);
-    };
-    deadline=setTimeout(finish,duration+120);
-    frame=requestAnimationFrame(tick);
+      if(atBottom)log.scrollTop=log.scrollHeight;
+    },interval);
   });
 }
 async function renderReply(raw,out,offer,requestQuestion){
