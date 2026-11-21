@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['gotovi-reshenia.html', 'assets/products/ready-*-white.jpg', '.github/workflows/publish-ready-systems.yml']
+    paths: ['gotovi-reshenia.html', 'gotov-komplekt-*.html', 'ready-kit-specs.js', 'assets/products/ready-*-white.jpg', '.github/workflows/publish-ready-systems.yml']
 permissions:
   contents: read
 concurrency:
@@ -35,7 +35,10 @@ jobs:
           new_page = Path(page).read_bytes()
           photos = [f'assets/products/ready-{kit}-white.jpg' for kit in ('deye-5', 'solax-5', 'deye-10', 'solax-10')]
           photos = [route for route in photos if ('/' + route).encode() in new_page]
-          assets = {route: Path(route).read_bytes() for route in photos}
+          detail_pages = sorted(str(route) for route in Path('.').glob('gotov-komplekt-*.html'))
+          if detail_pages:
+              detail_pages.append('ready-kit-specs.js')
+          assets = {route: Path(route).read_bytes() for route in (*photos, *detail_pages)}
           sections = re.findall(marker, Path('shop.html').read_bytes())
           if len(sections) != 1:
               raise RuntimeError('Expected one ready systems card')
