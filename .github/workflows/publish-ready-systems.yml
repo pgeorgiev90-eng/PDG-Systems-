@@ -1,0 +1,92 @@
+name: Publish ready solar systems
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['gotovi-reshenia.html', '.github/workflows/publish-ready-systems.yml']
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish ready systems and their shop link
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import ftplib
+          import io
+          import os
+          import re
+          import ssl
+          from pathlib import Path
+          from urllib.request import urlopen
+
+          page = 'gotovi-reshenia.html'
+          marker = rb'<!-- pdg-ready-solutions:start -->[\s\S]*?<!-- pdg-ready-solutions:end -->'
+          anchor = b'<div class="grid" id="categories">'
+          new_page = Path(page).read_bytes()
+          sections = re.findall(marker, Path('shop.html').read_bytes())
+          if len(sections) != 1:
+              raise RuntimeError('Expected one ready systems card')
+          section = sections[0]
+          sha = os.environ['GITHUB_SHA']
+
+          def read(ftp, route):
+              buffer = io.BytesIO()
+              try:
+                  ftp.retrbinary('RETR ' + route, buffer.write)
+              except ftplib.error_perm as exc:
+                  if route == page and str(exc).startswith('550'):
+                      return None
+                  raise
+              return buffer.getvalue()
+
+          def upload(ftp, route, body):
+              temporary = route + '.pdg-' + sha[:12]
+              ftp.storbinary('STOR ' + temporary, io.BytesIO(body))
+              if read(ftp, temporary) != body:
+                  raise RuntimeError('Upload did not match: ' + route)
+              ftp.rename(temporary, route)
+
+          def public(route):
+              with urlopen('https://pdgsystems.bg/' + route + '?ready=' + sha, timeout=20) as res:
+                  return res.read()
+
+          with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=45) as ftp:
+              ftp.connect('185.80.2.82', 21)
+              ftp.host = 'host-185-80-2-82.superhosting.bg'
+              ftp.login(os.environ['FTP_USER'], os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              old = {route: read(ftp, route) for route in (page, 'shop.html')}
+              live_shop = old['shop.html']
+              if len(re.findall(marker, live_shop)) == 1:
+                  shop = re.sub(marker, lambda _: section, live_shop)
+              elif not re.search(marker, live_shop) and live_shop.count(anchor) == 1:
+                  shop = live_shop.replace(anchor, anchor + b'\n' + section + b'\n', 1)
+              else:
+                  raise RuntimeError('Unexpected live shop markup')
+              replaced = []
+              try:
+                  for route, body in ((page, new_page), ('shop.html', shop)):
+                      if body != old[route]:
+                          upload(ftp, route, body)
+                          replaced.append(route)
+                  if public(page) != new_page or section not in public('shop.html'):
+                      raise RuntimeError('Public verification failed')
+              except Exception:
+                  for route in reversed(replaced):
+                      if old[route] is None:
+                          ftp.delete(route)
+                      else:
+                          upload(ftp, route, old[route])
+                  raise
+          PY
