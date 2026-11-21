@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['gotovi-reshenia.html', '.github/workflows/publish-ready-systems.yml']
+    paths: ['gotovi-reshenia.html', 'assets/products/ready-*-white.jpg', '.github/workflows/publish-ready-systems.yml']
 permissions:
   contents: read
 concurrency:
@@ -33,6 +33,9 @@ jobs:
           marker = rb'<!-- pdg-ready-solutions:start -->[\s\S]*?<!-- pdg-ready-solutions:end -->'
           anchor = b'<div class="grid" id="categories">'
           new_page = Path(page).read_bytes()
+          photos = [f'assets/products/ready-{kit}-white.jpg' for kit in ('deye-5', 'solax-5', 'deye-10', 'solax-10')]
+          photos = [route for route in photos if ('/' + route).encode() in new_page]
+          assets = {route: Path(route).read_bytes() for route in photos}
           sections = re.findall(marker, Path('shop.html').read_bytes())
           if len(sections) != 1:
               raise RuntimeError('Expected one ready systems card')
@@ -44,7 +47,7 @@ jobs:
               try:
                   ftp.retrbinary('RETR ' + route, buffer.write)
               except ftplib.error_perm as exc:
-                  if route == page and str(exc).startswith('550'):
+                  if route != 'shop.html' and str(exc).startswith('550'):
                       return None
                   raise
               return buffer.getvalue()
@@ -66,7 +69,7 @@ jobs:
               ftp.login(os.environ['FTP_USER'], os.environ['FTP_PASSWORD'])
               ftp.prot_p()
               ftp.cwd('/')
-              old = {route: read(ftp, route) for route in (page, 'shop.html')}
+              old = {route: read(ftp, route) for route in (*assets, page, 'shop.html')}
               live_shop = old['shop.html']
               if len(re.findall(marker, live_shop)) == 1:
                   shop = re.sub(marker, lambda _: section, live_shop)
@@ -76,10 +79,12 @@ jobs:
                   raise RuntimeError('Unexpected live shop markup')
               replaced = []
               try:
-                  for route, body in ((page, new_page), ('shop.html', shop)):
+                  for route, body in (*assets.items(), (page, new_page), ('shop.html', shop)):
                       if body != old[route]:
                           upload(ftp, route, body)
                           replaced.append(route)
+                  if any(public(route) != content for route, content in assets.items()):
+                      raise RuntimeError('Public product photo verification failed')
                   if public(page) != new_page or section not in public('shop.html'):
                       raise RuntimeError('Public verification failed')
               except Exception:
