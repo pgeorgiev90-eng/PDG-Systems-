@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: pdg-production-deploy
-  cancel-in-progress: false
 jobs:
   publish:
+    concurrency:
+      group: pdg-production-deploy
+      cancel-in-progress: false
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
