@@ -41,7 +41,7 @@ button:disabled{opacity:.55;cursor:default}
 @media(min-width:760px){body{padding:16px}#chat-shell{height:calc(100dvh - 32px);border:1px solid #d2e5db;border-radius:19px;overflow:hidden}}
 </style>
 <main id="chat-shell" aria-label="AI чат на PDG Systems">
-<header id="chat-head"><h1>PDG помощник</h1><p>Продуктови въпроси и оферти · не въвеждайте лични данни</p></header>
+<header id="chat-head"><h1>PDG помощник</h1><p>Продуктови въпроси и оферти · не въвеждайте лични данни</p><div data-solax-compatibility></div></header>
 <section id="messages" role="log" aria-label="Разговор" aria-live="polite" aria-relevant="additions text">
   <div class="message"><span class="message-label">PDG помощник</span><p class="bubble">Здравейте! Мога да намеря продукти, да покажа снимки и цени или да подготвя оферта. Какво търсите?</p></div>
 </section>
@@ -296,6 +296,11 @@ form.addEventListener('submit',async event=>{
   const offer=make('section');offer.className='offer';offer.hidden=true;
   offer.setAttribute('aria-label','Продуктова оферта');card.append(offer);
   try{
+    const compatibility = await window.PDGSolaXCompatibility?.answer(question).catch(() => null);
+    if (compatibility) {
+      bubble.textContent = compatibility;
+      return;
+    }
     const req=await data(await fetch(api('submit'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:requestQuestion})}));
     const deadline=Date.now()+55*60*1000;
     while(Date.now()<deadline){
@@ -333,4 +338,4 @@ form.addEventListener('submit',async event=>{
     send.disabled=false;
   }
 });
-</script></html>
+</script><script src="/solax-compatibility.js" defer></script></html>
