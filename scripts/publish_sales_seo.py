@@ -1,5 +1,5 @@
 """Scoped SEO release: back up, stage, verify and roll back the reviewed files."""
-import ftplib,io,json,os,re,ssl,urllib.request,xml.etree.ElementTree as ET
+import ftplib,io,json,os,re,ssl,subprocess,urllib.request,xml.etree.ElementTree as ET
 from pathlib import Path
 cad_pages = ('solar-cad.html', 'electric-cad.html')
 event_path = os.environ.get('GITHUB_EVENT_PATH')
@@ -10,13 +10,11 @@ changed = {
     for path in commit.get(action, ())
 }
 if not changed and event.get('before') and event.get('after'):
-    compare_url = (
-        'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
-        + '/compare/' + event['before'] + '...' + event['after']
-    )
-    request = urllib.request.Request(compare_url, headers={'User-Agent': 'PDG-CAD-release'})
-    with urllib.request.urlopen(request, timeout=20) as response:
-        changed = {item['filename'] for item in json.load(response)['files']}
+    before = event['before']
+    after = event['after']
+    subprocess.run(['git', 'fetch', '--depth=1', 'origin', before], check=True)
+    diff = subprocess.check_output(['git', 'diff', '--name-only', '-z', before, after])
+    changed = set(diff.decode().rstrip('\0').split('\0')) if diff else set()
 cad_only = bool(changed) and changed <= {
     *cad_pages, 'scripts/publish_sales_seo.py'
 }
