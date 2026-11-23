@@ -20,13 +20,27 @@ if not changed and event.get('before') and event.get('after'):
 cad_only = bool(changed) and changed <= {
     *cad_pages, 'scripts/publish_sales_seo.py'
 }
-paths = list(cad_pages) if cad_only else [*cad_pages, 'index.html', 'social-page.php']
+homepage_only = 'index.html' in changed and changed <= {
+    'index.html', 'scripts/publish_sales_seo.py'
+}
+if homepage_only:
+    paths = ['index.html']
+else:
+    paths = list(cad_pages) if cad_only else [*cad_pages, 'index.html', 'social-page.php']
 def get(path):
     with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'sales_seo='+os.environ['GITHUB_SHA'],timeout=45) as r:
         assert r.status==200
         return r.read(),r.headers
 
 def verify():
+    if homepage_only:
+        body, _ = get('index.html')
+        assert body == Path('index.html').read_bytes()
+        homepage = body.decode()
+        assert 'href="solar-cad.html">Ръководство за Solar CAD' in homepage
+        assert 'href="electric-cad.html">Ръководство за Electric CAD' in homepage
+        print('PASS: CAD guide links published on the homepage', flush=True)
+        return
     for path in ('solar-cad.html','electric-cad.html'):
         body,headers=get(path);html=body.decode()
         assert body==Path(path).read_bytes()
