@@ -35,3 +35,18 @@ assert int(changed['product']['active']) == 1 and changed['fields'] == published
 status, public = request(client(), 'api/product-details.php?id=' + str(product_id))
 assert status == 200 and public['product']['description'] == 'Ново описание.', public
 print('PASS: authenticated catalog writes, drafts, publishing, fields and concurrent edit protection')
+
+filters = 'api/admin-catalog-filters.php'
+assert request(client(), filters)[0] == 401
+assert request(customer, filters)[0] == 403
+category = 'Соларни панели'
+settings = {'category': category, 'facet_keys': ['bifacial', 'panel_power', 'availability']}
+assert request(admin, filters, settings)[0] == 403
+assert request(admin, filters, settings, csrf)[0] == 200
+status, public = request(client(), 'api/catalog-facets.php')
+assert status == 200 and public['filter_settings'][category] == settings['facet_keys'], public
+assert request(admin, filters, {**settings, 'facet_keys': []}, csrf)[0] == 200
+assert request(client(), 'api/catalog-facets.php')[1]['filter_settings'][category] == []
+assert request(admin, filters, {**settings, 'facet_keys': None}, csrf)[0] == 200
+assert category not in request(client(), 'api/catalog-facets.php')[1]['filter_settings']
+print('PASS: private filter settings, public ordering metadata and restoring defaults')

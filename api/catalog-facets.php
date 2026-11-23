@@ -20,5 +20,12 @@ try {
         if($status!=='unavailable'&&$op['stock_quantity']!==null)$status=(int)$op['stock_quantity']>0?'in_stock':'out_of_stock';
         $items[(int)$op['product_id']]['availability']=in_array($status,['in_stock','on_order','unavailable','out_of_stock'],true)?$status:'confirm';
     }}catch(PDOException $e){if($e->getCode()!=='42S02')throw $e;}
-    shop_answer(200,['items'=>$items]);
+    $settings=[];
+    try {
+        foreach ($db->query('SELECT category,facet_keys FROM pdg_catalog_filter_settings') as $row) {
+            $keys=json_decode($row['facet_keys'],true);
+            if(is_array($keys))$settings[$row['category']]=$keys;
+        }
+    }catch(PDOException $e){if($e->getCode()!=='42S02')throw $e;}
+    shop_answer(200,['items'=>$items,'filter_settings'=>(object)$settings]);
 }catch(Throwable $e){shop_answer(503,['error'=>'facets_unavailable']);}

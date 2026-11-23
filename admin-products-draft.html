@@ -7,6 +7,7 @@
   <title>Продукти | PDG Systems</title>
   <link rel="stylesheet" href="admin-crm.css?v=20261123-catalog">
   <script src="admin-crm.js?v=20261123-catalog" defer></script>
+  <script src="catalog-filter-core.js" defer></script>
   <script src="admin-products.js?v=20261123-catalog" defer></script>
 </head>
 <body class="crm-admin">
@@ -17,6 +18,7 @@
     <section class="crm-card" aria-label="Каталог">
       <div class="crm-catalog-toolbar">
         <button id="new-product" class="crm-primary" type="button">+ Нов артикул</button>
+        <a href="#storefront-filters">Филтри във витрината</a>
         <input id="product-search" type="search" aria-label="Търси в каталога" placeholder="Търси по име или SKU">
       </div>
       <div class="crm-catalog-filters" id="categories">
@@ -61,7 +63,7 @@
         <label>Описание <textarea name="description" rows="5" maxlength="10000"></textarea></label>
         <details>
           <summary>Характеристики</summary>
-          <p class="crm-note">Използвай имената от каталога, например „Мощност“ или „Фази“, за да участват стойностите във филтрите.</p>
+          <p class="crm-note">Използвай имената от каталога, например „Мощност (W)“ или „Брой фази“, за да участват стойностите във филтрите.</p>
           <div id="specifications"></div>
           <button type="button" id="add-specification">+ Характеристика</button>
         </details>
@@ -76,6 +78,23 @@
       </form>
     </section>
   </div>
+  <section id="storefront-filters" class="crm-card crm-facet-settings" hidden>
+    <h2>Филтри във витрината</h2>
+    <p class="crm-note">Избери категория и подреди техническите филтри. Категория, производител и цена са общи филтри.</p>
+    <label>Категория <select id="storefront-category"></select></label>
+    <p id="storefront-status" role="status"></p>
+    <div id="storefront-options" hidden>
+      <ol id="storefront-facet-order"></ol>
+      <div class="crm-catalog-toolbar">
+        <select id="storefront-add" aria-label="Филтър за добавяне"></select>
+        <button id="storefront-add-button" type="button">Добави филтър</button>
+      </div>
+      <div class="crm-catalog-toolbar">
+        <button id="storefront-save" type="button" class="crm-primary">Запази подредбата</button>
+        <button id="storefront-reset" type="button">Автоматични филтри</button>
+      </div>
+    </div>
+  </section>
 </main>
 </body>
 </html>

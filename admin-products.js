@@ -3,6 +3,17 @@
 
   const get = id => document.getElementById(id);
   const endpoint = 'api/admin-products-draft.php';
+  const filtersEndpoint = 'api/admin-catalog-filters.php';
+  const filterSection = get('storefront-filters');
+  const filterCategory = get('storefront-category');
+  const filterStatus = get('storefront-status');
+  const technicalFilters = new Map([
+    ['availability', 'Наличност'],
+    ...window.PDGFilters.defs.map(({key, label}) => [key, label])
+  ]);
+  let filterSettings;
+  let filterOrder = [];
+  let savingFilters = false;
   const names = ['name', 'code', 'brand', 'category', 'price', 'image_url'];
   const pageSize = 30;
   const form = get('product-form');
@@ -91,6 +102,17 @@
     ({products} = await api(endpoint));
     choices('filter-category', 'product-categories', 'category');
     choices('filter-brand', 'product-brands', 'brand');
+    const currentCategory = filterCategory.value;
+    const categories = [...get('filter-category').options].filter(option => option.value).map(option => option.value);
+    const storefrontCategories = [...new Set([...categories, ...['Инвертори', 'Батерии'].flatMap(category => {
+      if (!categories.includes(category)) return [];
+      return category === 'Инвертори'
+        ? ['Инвертори / Хибридни', 'Инвертори / Мрежови', 'Инвертори / Микроинвертори']
+        : ['Високоволтови батерии', 'Нисковолтови батерии'];
+    })])].sort((first, second) => first.localeCompare(second, 'bg'));
+    filterCategory.replaceChildren(new Option('Избери категория', ''),
+      ...storefrontCategories.map(category => new Option(category, category)));
+    if (storefrontCategories.includes(currentCategory)) filterCategory.value = currentCategory;
     render();
   }
 
@@ -213,6 +235,99 @@
     }
   });
 
+  function renderFilterOrder() {
+    const order = get('storefront-facet-order');
+    order.replaceChildren(...filterOrder.map((key, index) => {
+      const row = element('li');
+      const label = technicalFilters.get(key);
+      row.append(element('span', label));
+      for (const [symbol, action, disabled, update] of [
+        ['↑', 'Нагоре', index === 0, () => { [filterOrder[index - 1], filterOrder[index]] = [key, filterOrder[index - 1]]; }],
+        ['↓', 'Надолу', index === filterOrder.length - 1, () => { [filterOrder[index], filterOrder[index + 1]] = [filterOrder[index + 1], key]; }],
+        ['×', 'Премахни', false, () => { filterOrder.splice(index, 1); }]
+      ]) {
+        const button = element('button', symbol);
+        button.type = 'button';
+        button.disabled = disabled || savingFilters;
+        button.setAttribute('aria-label', action + ' · ' + label);
+        button.onclick = () => { update(); renderFilterOrder(); };
+        row.append(button);
+      }
+      return row;
+    }));
+    const available = [...technicalFilters].filter(([key]) => !filterOrder.includes(key));
+    get('storefront-add').replaceChildren(...available.map(([key, label]) => new Option(label, key)));
+    get('storefront-add-button').disabled = !available.length || savingFilters;
+  }
+
+  function selectFilterCategory() {
+    const category = filterCategory.value;
+    get('storefront-options').hidden = !category;
+    if (!category) {
+      filterStatus.textContent = '';
+      return;
+    }
+    const current = filterSettings.get(category);
+    filterOrder = current ? current.filter(key => technicalFilters.has(key)) : [...technicalFilters.keys()];
+    filterStatus.textContent = current ? 'Ръчна подредба' : 'Автоматична подредба';
+    renderFilterOrder();
+  }
+
+  async function openFilterSettings() {
+    if (location.hash !== '#storefront-filters') {
+      filterSection.hidden = true;
+      return;
+    }
+    filterSection.hidden = false;
+    filterSection.scrollIntoView({block: 'start'});
+    if (filterSettings) return;
+    filterCategory.disabled = true;
+    filterStatus.textContent = 'Зареждане…';
+    try {
+      const {settings} = await api(filtersEndpoint);
+      filterSettings = new Map(settings.map(row => [row.category, row.facet_keys]));
+      filterCategory.disabled = false;
+      selectFilterCategory();
+    } catch {
+      filterStatus.textContent = 'Настройките не могат да се заредят. Обнови страницата и опитай отново.';
+    }
+  }
+
+  async function saveFilters(keys) {
+    if (savingFilters) return;
+    const category = filterCategory.value;
+    const controls = [filterCategory, get('storefront-save'), get('storefront-reset')];
+    savingFilters = true;
+    controls.forEach(control => { control.disabled = true; });
+    renderFilterOrder();
+    filterStatus.textContent = 'Запазване…';
+    try {
+      await api(filtersEndpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrf},
+        body: JSON.stringify({category, facet_keys: keys})
+      });
+      if (keys === null) filterSettings.delete(category);
+      else filterSettings.set(category, keys);
+      selectFilterCategory();
+      filterStatus.textContent = keys === null ? 'Автоматичната подредба е възстановена.' : 'Подредбата е запазена.';
+    } catch {
+      filterStatus.textContent = 'Подредбата не е записана. Опитай отново.';
+    } finally {
+      savingFilters = false;
+      controls.forEach(control => { control.disabled = false; });
+      renderFilterOrder();
+    }
+  }
+
+  filterCategory.onchange = selectFilterCategory;
+  get('storefront-add-button').onclick = () => {
+    filterOrder.push(get('storefront-add').value);
+    renderFilterOrder();
+  };
+  get('storefront-save').onclick = () => saveFilters(filterOrder);
+  get('storefront-reset').onclick = () => saveFilters(null);
+
   get('new-product').onclick = event => open(0, event.currentTarget);
   get('close-editor').onclick = close;
   get('add-specification').onclick = () => addField().focus();
@@ -234,6 +349,8 @@
       get('app').hidden = false;
       get('message').textContent = '';
       if (location.hash === '#categories') get('categories').scrollIntoView();
+      window.addEventListener('hashchange', openFilterSettings);
+      await openFilterSettings();
     } catch {
       get('message').textContent = 'Каталогът временно не е достъпен.';
     }

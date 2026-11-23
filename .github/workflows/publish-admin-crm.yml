@@ -1,10 +1,10 @@
 name: Test and publish approved CRM admin design
 on:
   pull_request:
-    paths: ['admin-crm.*', 'admin-products*', 'api/admin-products-draft.php', 'tests/admin_*', '.github/workflows/publish-admin-crm.yml']
+    paths: ['admin-crm.*', 'admin-products*', 'api/admin-products-draft.php','api/admin-catalog-filters.php','api/catalog-facets.php','catalog-app.js','catalog.html', 'tests/admin_*', '.github/workflows/publish-admin-crm.yml']
   push:
     branches: [main]
-    paths: ['admin-crm.*', 'admin-products*', 'api/admin-products-draft.php', 'api/admin-overview.php', '.github/workflows/publish-admin-crm.yml']
+    paths: ['admin-crm.*', 'admin-products*', 'api/admin-products-draft.php','api/admin-catalog-filters.php','api/catalog-facets.php','catalog-app.js','catalog.html', 'api/admin-overview.php', '.github/workflows/publish-admin-crm.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -35,6 +35,9 @@ jobs:
         run: |
           php -l api/admin-overview.php
           php -l api/admin-products-draft.php
+          php -l api/admin-catalog-filters.php
+          php -l api/catalog-facets.php
+          node --check catalog-app.js
           node --check admin-products.js
           node --check admin-crm.js
           node --check admin-orders.js
@@ -70,8 +73,8 @@ jobs:
         run: |
           import ftplib,ssl,os,io,urllib.request,urllib.error,hashlib
           from pathlib import Path
-          paths=['api/admin-products-draft.php','admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php','admin-orders.js','admin-orders.html','admin-products-draft.html','admin-electric.html','admin-growth.html','admin-dashboard.html']
-          new={'admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php'}
+          paths=['api/admin-products-draft.php','api/admin-catalog-filters.php','api/catalog-facets.php','catalog-app.js','catalog.html','admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php','admin-orders.js','admin-orders.html','admin-products-draft.html','admin-electric.html','admin-growth.html','admin-dashboard.html']
+          new={'api/admin-catalog-filters.php','admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php'}
           root='https://pdgsystems.bg/'
           with urllib.request.urlopen(root+'?admin-before='+os.environ['GITHUB_SHA'],timeout=40) as r: public_before=hashlib.sha256(r.read()).hexdigest()
           backup=Path('production-backup');backup.mkdir(exist_ok=True)
@@ -88,9 +91,9 @@ jobs:
                   body=Path(p).read_bytes();ftp.storbinary('STOR '+p+'.crm-upload',io.BytesIO(body))
                   check=io.BytesIO();ftp.retrbinary('RETR '+p+'.crm-upload',check.write);assert check.getvalue()==body
               for p in paths:ftp.rename(p+'.crm-upload',p)
-          for p in ['admin-products-draft.html','admin-products.js','admin-dashboard.html','admin-crm.css','admin-crm.js','admin-orders.html']:
+          for p in ['catalog.html','catalog-app.js','admin-products-draft.html','admin-products.js','admin-dashboard.html','admin-crm.css','admin-crm.js','admin-orders.html']:
               with urllib.request.urlopen(root+p+'?release='+os.environ['GITHUB_SHA'],timeout=40) as r:assert r.read()==Path(p).read_bytes(),p
-          for endpoint in ['api/admin-overview.php','api/admin-products-draft.php']:
+          for endpoint in ['api/admin-overview.php','api/admin-products-draft.php','api/admin-catalog-filters.php']:
               try:urllib.request.urlopen(root+endpoint,timeout=40)
               except urllib.error.HTTPError as e:assert e.code==401,(endpoint,e.code)
               else:raise AssertionError('Administrator endpoint exposed: '+endpoint)

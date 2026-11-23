@@ -16,12 +16,20 @@ const assert = require('node:assert/strict');
       ];
       const fields = [{label: 'Описание', value: 'Панел 585 W.'}, {label: 'Мощност', value: '585 W'}];
       const writes = [];
+      const filterWrites = [];
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.route('https://pdg.test/**', async route => {
         const url = new URL(route.request().url());
         const path = url.pathname.slice(1);
         if (path === 'api/account-draft.php') return route.fulfill({json: {csrf: 'test', user: {role: 'admin'}}});
+        if (path === 'api/admin-catalog-filters.php') {
+          if (route.request().method() === 'POST') {
+            filterWrites.push(route.request().postDataJSON());
+            return route.fulfill({json: {ok: true}});
+          }
+          return route.fulfill({json: {settings: [{category: 'Панели', facet_keys: ['availability', 'panel_power']}]}});
+        }
         if (path === 'api/admin-products-draft.php') {
           if (route.request().method() === 'POST') {
             assert.equal(route.request().headers()['x-csrf-token'], 'test');
@@ -57,6 +65,12 @@ const assert = require('node:assert/strict');
       await page.locator('#message').filter({hasText: 'запазен като скрит'}).waitFor();
       assert.equal(writes[1].id, 0);
       assert.equal(writes[1].active, false);
+      await page.getByRole('link', {name: 'Филтри във витрината'}).click();
+      await page.locator('#storefront-category').selectOption('Панели');
+      await page.getByRole('button', {name: 'Надолу · Наличност'}).click();
+      await page.getByRole('button', {name: 'Запази подредбата'}).click();
+      await page.locator('#storefront-status').filter({hasText: 'Подредбата е запазена.'}).waitFor();
+      assert.deepEqual(filterWrites, [{category: 'Панели', facet_keys: ['panel_power', 'availability']}]);
       assert.deepEqual(errors, []);
       await page.close();
     }

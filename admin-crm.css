@@ -54,3 +54,10 @@ body.crm-admin{margin:0;background:var(--crm-bg)!important;color:var(--crm-text)
 @media (max-width: 420px) {
   .crm-product-fields { grid-template-columns: minmax(0, 1fr); }
 }
+
+.crm-facet-settings { margin-top: 18px; scroll-margin-top: 16px; }
+.crm-facet-settings label { display: grid; gap: 5px; max-width: 25rem; }
+.crm-facet-settings .crm-catalog-toolbar { margin-bottom: 12px; }
+.crm-facet-settings li { margin-bottom: 5px; }
+.crm-facet-settings li span { display: inline-block; width: min(37vw, 240px); }
+.crm-facet-settings li button { margin-inline-start: 4px; }
