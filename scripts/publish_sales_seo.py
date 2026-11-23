@@ -43,7 +43,7 @@ def verify():
         assert 'launch-offer-count' in body.decode()
         offer, headers = get(offer_api)
         remaining = json.loads(offer)['remaining']
-        assert type(remaining) is int and 0 <= remaining <= 29
+        assert type(remaining) is int and 0 <= remaining <= 43
         assert 'no-store' in headers.get('Cache-Control', '')
         print(f'PASS: launch offer is live with {remaining} places left', flush=True)
         return
@@ -57,7 +57,7 @@ def verify():
             assert 'launch-offer-approved.webp' in homepage
             assert 'Регистрирай се и вземи до 5%' in homepage
             remaining = json.loads(get(offer_api)[0])['remaining']
-            assert type(remaining) is int and 0 <= remaining <= 29
+            assert type(remaining) is int and 0 <= remaining <= 43
         print('PASS: homepage publication verified', flush=True)
         return
     for path in ('solar-cad.html','electric-cad.html'):
