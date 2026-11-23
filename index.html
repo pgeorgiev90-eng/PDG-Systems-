@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('api/launch-offer.php', {cache: 'no-store'});
       if (!response.ok) throw new Error('Offer status unavailable');
       const {remaining} = await response.json();
-      if (!Number.isInteger(remaining) || remaining < 0 || remaining > 43) {
+      if (!Number.isInteger(remaining) || remaining < 0 || remaining > 29) {
         throw new Error('Invalid offer count');
       }
       const label = remaining === 0 ? 'Местата по офертата са изчерпани.'

@@ -21,13 +21,13 @@ try {
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
 
-    // Seven places were already taken at this cutoff.
+    // The owner confirmed 29 available places at this cutoff.
     // Registration notices are inserted once for each newly created customer.
     $query = $db->prepare(
         'SELECT COUNT(*) FROM pdg_registration_notices WHERE created_at >= FROM_UNIXTIME(?)'
     );
     $query->execute([1795455480]);
-    echo json_encode(['remaining' => max(0, 50 - 7 - (int) $query->fetchColumn())]);
+    echo json_encode(['remaining' => max(0, 29 - (int) $query->fetchColumn())]);
 } catch (Throwable $error) {
     error_log('PDG launch offer count unavailable');
     http_response_code(503);
