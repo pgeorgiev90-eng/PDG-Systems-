@@ -21,7 +21,13 @@ cad_only = bool(changed) and changed <= {
 homepage_only = 'index.html' in changed and changed <= {
     'index.html', 'scripts/publish_sales_seo.py'
 }
-if homepage_only:
+offer_api = 'api/launch-offer.php'
+offer_only = offer_api in changed and changed <= {
+    offer_api, 'index.html', 'scripts/publish_sales_seo.py'
+}
+if offer_only:
+    paths = [offer_api, 'index.html']
+elif homepage_only:
     paths = ['index.html']
 else:
     paths = list(cad_pages) if cad_only else [*cad_pages, 'index.html', 'social-page.php']
@@ -31,6 +37,16 @@ def get(path):
         return r.read(),r.headers
 
 def verify():
+    if offer_only:
+        body, _ = get('index.html')
+        assert body == Path('index.html').read_bytes()
+        assert 'launch-offer-count' in body.decode()
+        offer, headers = get(offer_api)
+        remaining = json.loads(offer)['remaining']
+        assert type(remaining) is int and 0 <= remaining <= 29
+        assert 'no-store' in headers.get('Cache-Control', '')
+        print(f'PASS: launch offer is live with {remaining} places left', flush=True)
+        return
     if homepage_only:
         body, _ = get('index.html')
         assert body == Path('index.html').read_bytes()
@@ -85,7 +101,7 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
         old=io.BytesIO()
         try:ftp.retrbinary('RETR '+path,old.write);prior[path]=old.getvalue()
         except ftplib.error_perm as e:
-            if path not in ('solar-cad.html','electric-cad.html') or not str(e).startswith('550'):raise
+            if path not in (*cad_pages, offer_api) or not str(e).startswith('550'):raise
             prior[path]=None
         if prior[path] is not None:
             dest=backup/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(prior[path])
