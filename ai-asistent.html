@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI асистент на PDG Systems – продукти, оферти и технически насоки</title>
+  <meta name="description" content="Тестов AI асистент на PDG Systems за избор на оборудване, ориентировъчни оферти и насоки при пуск на фотоволтаична централа.">
+  <link rel="canonical" href="https://pdgsystems.bg/ai-asistent.html">
+  <link rel="stylesheet" href="store.css">
+  <link rel="stylesheet" href="light-theme.css?v=20261105">
+  <style>
+    main.assistant-page{max-width:1190px;margin:auto;padding:24px 20px 44px;color:#102747}
+    .assistant-breadcrumb{font-size:14px;margin:0 0 24px;color:#536078}
+    .assistant-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.35fr);gap:clamp(20px,4vw,44px);align-items:start}
+    .assistant-intro h1{font-size:clamp(30px,4.2vw,53px);line-height:1.07;margin:10px 0 16px;letter-spacing:-.045em}
+    .assistant-intro p,.assistant-help p{color:#415571}
+    .assistant-beta{display:inline-block;background:#e8efff;color:#1544cd;padding:4px 9px;border-radius:7px;font-size:14px;font-weight:750}
+    .assistant-help{margin-top:24px}
+    .assistant-help section{border-top:1px solid #d7e3ed;padding:12px 0}
+    .assistant-help h2{font-size:17px;margin:0 0 4px}
+    .assistant-help p{margin:0}
+    .assistant-chat{border:1px solid #dbe4ee;background:#fff;border-radius:16px;overflow:hidden}
+    .assistant-chat-toolbar{display:flex;gap:9px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid #e6ebf1}
+    .assistant-chat-tools{display:flex;align-items:center;gap:10px}
+    .assistant-page .assistant-chat button{font:inherit;color:#232b37;background:#fff;border:1px solid #dfe5ed;border-radius:9px;cursor:pointer;padding:6px 10px}
+    .assistant-page .assistant-chat button:hover{background:#f0f4fb}
+    .assistant-starters{display:flex;flex-wrap:wrap;gap:7px;padding:9px 14px;border-bottom:1px solid #edf0f3}
+    .assistant-page .assistant-starters button{font-size:13px;min-height:38px}
+    .assistant-frame{display:block;width:100%;height:480px;border:0;background:#fff}
+    .assistant-note{padding:8px 14px;color:#536078;font-size:13px;border-top:1px solid #edf0f3}
+    .assistant-contact{margin-top:24px;padding-top:14px;border-top:1px solid #d7e3ed}
+    @media(max-width:760px){.assistant-grid{display:flex;flex-direction:column;gap:20px}.assistant-intro{display:contents}.assistant-chat,.assistant-help{width:100%;min-width:0}.assistant-help{order:2;margin-top:0}.assistant-frame{height:420px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a href="/" aria-label="PDG Systems LTD — начало"><img src="assets/pdg-systems-logo.svg" alt="PDG Systems LTD" width="200" height="40"></a>
+      <nav aria-label="Основна навигация">
+        <a href="/#services">Услуги</a>
+        <a href="shop.html">Магазин</a>
+        <a href="/#cad">CAD Cloud</a>
+        <a href="ai-asistent.html" aria-current="page">AI асистент</a>
+        <a href="/#contact">Контакти</a>
+      </nav>
+    </div>
+  </header>
+  <main class="assistant-page">
+    <p class="assistant-breadcrumb"><a href="/">Начало</a> / AI асистент</p>
+    <div class="assistant-grid">
+      <div class="assistant-intro">
+        <div>
+          <span class="assistant-beta">Тестова версия</span>
+          <h1>AI асистент на PDG Systems</h1>
+          <p>Нашият AI асистент помага на български с избор на оборудване, ориентировъчни оферти от магазина и въпроси при пускане на фотоволтаична централа.</p>
+        </div>
+        <div class="assistant-help">
+          <section><h2>Избор на оборудване</h2><p>Сравнете продукти от каталога. Посочете какво търсите, модела на наличното оборудване или основните изисквания на обекта.</p></section>
+          <section><h2>Ориентировъчни оферти</h2><p>Посочете артикули и количества. Асистентът може да подреди предложенията от магазина в оферта за преглед.</p></section>
+          <section><h2>Насоки при пускане на централа</h2><p>Въведете модела на устройството и точния код или съобщение за грешка. Асистентът може да ви насочи към документация и да помогне да подготвите информация за поддръжката.</p></section>
+        </div>
+      </div>
+      <section class="assistant-chat" aria-label="Чат с PDG AI">
+        <div class="assistant-chat-toolbar">
+          <div class="assistant-chat-tools"><button id="assistant-new" type="button">＋ Нов чат</button><strong>PDG AI</strong></div>
+          <span class="assistant-beta">Тестова версия</span>
+        </div>
+        <div class="assistant-starters" aria-label="Примерни въпроси">
+          <button type="button" data-question="Какви хибридни инвертори предлагате?">Избор на инвертор</button>
+          <button type="button" data-question="Как да подготвя ориентировъчна оферта от магазина?">Ориентировъчна оферта</button>
+          <button type="button" data-question="Каква информация да подготвя за поддръжката при проблем с пуска на централа?">Помощ при пуск</button>
+        </div>
+        <iframe id="assistant-frame" class="assistant-frame" src="/ai-chat.html" title="PDG AI — чат на български"></iframe>
+        <div class="assistant-note">В тестовата версия отговорите може да отнемат повече време. Не въвеждайте лични данни.</div>
+      </section>
+    </div>
+    <p class="assistant-contact">Проверете цените, наличностите и съвместимостта преди поръчка. За пуск и измервания по електрическа инсталация се обърнете към квалифициран специалист. <a href="/#contact">Свържете се с PDG Systems</a>.</p>
+  </main>
+  <footer>PDG Systems LTD</footer>
+  <script>
+    const assistantFrame = document.getElementById('assistant-frame');
+    const starterButtons = document.querySelectorAll('.assistant-starters button');
+    for (const button of starterButtons) button.disabled = true;
+    assistantFrame.addEventListener('load', () => {
+      const chat = assistantFrame.contentDocument;
+      const field = chat?.getElementById('question');
+      if (!field) return;
+      const skin = chat.createElement('style');
+      skin.textContent = `
+        :root,body,#chat-shell{background:#fff;color:#1b1d22}
+        body{padding:0}#chat-shell{width:100%;max-width:none;height:100dvh;border:0;border-radius:0;grid-template-rows:minmax(0,1fr) auto}
+        #chat-head{display:none}#messages{padding:18px}
+        .bubble{border:0;padding:7px 0;color:#202328;background:#fff}.user .bubble{padding:8px 13px;border-radius:17px;color:#202328;background:#f0f2f5}.message-label{color:#555c68}
+        #chat{padding:10px 14px;border-top-color:#edf0f3;align-items:center}
+        #chat textarea{border-color:#e2e6ed;background:#f8f9fa;border-radius:18px;color:#202328}
+        #chat button{min-width:40px;width:40px;padding:0;background:#202124;color:#fff;border-radius:50%;font-size:19px}
+      `;
+      chat.head.append(skin);
+      const send = chat.querySelector('#chat button[type="submit"]');
+      send.textContent = '↑';
+      send.setAttribute('aria-label', 'Изпрати');
+      for (const button of starterButtons) {
+        button.disabled = false;
+        button.onclick = () => {
+          field.value = button.dataset.question;
+          field.dispatchEvent(new Event('input', {bubbles:true}));
+          field.focus();
+        };
+      }
+    });
+    document.getElementById('assistant-new').addEventListener('click', () => {
+      for (const button of starterButtons) button.disabled = true;
+      assistantFrame.src = '/ai-chat.html';
+    });
+  </script>
+</body>
+</html>

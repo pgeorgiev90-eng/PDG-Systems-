@@ -25,7 +25,13 @@ offer_api = 'api/launch-offer.php'
 offer_only = offer_api in changed and changed <= {
     offer_api, 'index.html', 'scripts/publish_sales_seo.py'
 }
-if offer_only:
+assistant_page = 'ai-asistent.html'
+assistant_only = assistant_page in changed and changed <= {
+    assistant_page, 'index.html', 'scripts/publish_sales_seo.py'
+}
+if assistant_only:
+    paths = [assistant_page, 'index.html']
+elif offer_only:
     paths = [offer_api, 'index.html']
 elif homepage_only:
     paths = ['index.html']
@@ -37,6 +43,16 @@ def get(path):
         return r.read(),r.headers
 
 def verify():
+    if assistant_only:
+        for path in (assistant_page, 'index.html'):
+            assert get(path)[0] == Path(path).read_bytes(), path
+        assert 'src="/ai-chat.html"' in Path(assistant_page).read_text()
+        assert 'href="/ai-asistent.html">AI асистент' in Path('index.html').read_text()
+        chat, headers = get('ai-chat.html')
+        assert b'id="chat"' in chat
+        assert headers.get('X-Frame-Options', '').upper() != 'DENY'
+        print('PASS: AI assistant page, menu entry and embedded chat verified', flush=True)
+        return
     if offer_only:
         body, _ = get('index.html')
         assert body == Path('index.html').read_bytes()
@@ -106,7 +122,7 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=60) as ftp:
         old=io.BytesIO()
         try:ftp.retrbinary('RETR '+path,old.write);prior[path]=old.getvalue()
         except ftplib.error_perm as e:
-            if path not in (*cad_pages, offer_api) or not str(e).startswith('550'):raise
+            if path not in (*cad_pages, offer_api, assistant_page) or not str(e).startswith('550'):raise
             prior[path]=None
         if prior[path] is not None:
             dest=backup/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(prior[path])
