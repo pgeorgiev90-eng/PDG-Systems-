@@ -71,7 +71,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: python
         run: |
-          import ftplib,ssl,os,io,urllib.request,urllib.error,hashlib
+          import ftplib,ssl,os,io,urllib.request,urllib.error,hashlib,re,json
           from pathlib import Path
           paths=['api/admin-products-draft.php','api/admin-catalog-filters.php','api/catalog-facets.php','catalog-app.js','catalog.html','admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php','admin-orders.js','admin-orders.html','admin-products-draft.html','admin-electric.html','admin-growth.html','admin-dashboard.html']
           new={'api/admin-catalog-filters.php','admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php'}
@@ -91,8 +91,16 @@ jobs:
                   body=Path(p).read_bytes();ftp.storbinary('STOR '+p+'.crm-upload',io.BytesIO(body))
                   check=io.BytesIO();ftp.retrbinary('RETR '+p+'.crm-upload',check.write);assert check.getvalue()==body
               for p in paths:ftp.rename(p+'.crm-upload',p)
-          for p in ['catalog.html','catalog-app.js','admin-products-draft.html','admin-products.js','admin-dashboard.html','admin-crm.css','admin-crm.js','admin-orders.html']:
+              uploaded_catalog=io.BytesIO()
+              ftp.retrbinary('RETR catalog.html',uploaded_catalog.write)
+              assert uploaded_catalog.getvalue()==Path('catalog.html').read_bytes()
+          for p in ['catalog-app.js','admin-products-draft.html','admin-products.js','admin-dashboard.html','admin-crm.css','admin-crm.js','admin-orders.html']:
               with urllib.request.urlopen(root+p+'?release='+os.environ['GITHUB_SHA'],timeout=40) as r:assert r.read()==Path(p).read_bytes(),p
+          asset=re.search(r'catalog-app\.js(?:\?[^"\s]+)?',Path('catalog.html').read_text()).group()
+          with urllib.request.urlopen(root+'catalog.html?release='+os.environ['GITHUB_SHA'],timeout=40) as r:
+              assert ('src="'+asset+'"').encode() in r.read(),'Catalog loaded a different script version'
+          with urllib.request.urlopen(root+'api/catalog-facets.php?release='+os.environ['GITHUB_SHA'],timeout=40) as r:
+              assert isinstance(json.load(r)['filter_settings'],dict),'Catalog filter settings missing'
           for endpoint in ['api/admin-overview.php','api/admin-products-draft.php','api/admin-catalog-filters.php']:
               try:urllib.request.urlopen(root+endpoint,timeout=40)
               except urllib.error.HTTPError as e:assert e.code==401,(endpoint,e.code)
