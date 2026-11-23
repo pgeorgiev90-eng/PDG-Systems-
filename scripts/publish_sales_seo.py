@@ -53,7 +53,12 @@ def verify():
         homepage = body.decode()
         assert 'href="solar-cad.html">Ръководство за Solar CAD' in homepage
         assert 'href="electric-cad.html">Ръководство за Electric CAD' in homepage
-        print('PASS: CAD guide links published on the homepage', flush=True)
+        if 'launch-amount' in homepage:
+            assert 'launch-offer-approved.webp' in homepage
+            assert 'Регистрирай се и вземи до 5%' in homepage
+            remaining = json.loads(get(offer_api)[0])['remaining']
+            assert type(remaining) is int and 0 <= remaining <= 29
+        print('PASS: homepage publication verified', flush=True)
         return
     for path in ('solar-cad.html','electric-cad.html'):
         body,headers=get(path);html=body.decode()
