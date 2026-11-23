@@ -24,13 +24,7 @@ if(userPanel)userPanel.querySelector('h2').textContent=view==='admin-discounts'?
 if($('pdg-project-filters')&&['admin-solar','admin-electric-projects'].includes(view)){const f=$('pdg-project-filters');f.elements.editor.value=view==='admin-solar'?'solar':'electric';f.dispatchEvent(new Event('submit',{cancelable:true}));}
 $('crm-page-title').textContent=defs.find(d=>d[2]===view)?.[1]||'Общ преглед';for(const a of document.querySelectorAll('[data-view]'))a.classList.toggle('active',a.dataset.view===view);toggleMenu(false);}
 route();window.addEventListener('hashchange',route);
-if(!isDashboard){
-if(currentFile==='admin-products-draft.html'){
-const categories=make('section',undefined,'panel');categories.id='categories';categories.append(make('h2','Категории'),make('p','Изберете категория, за да филтрирате заредените продукти. Категорията на артикул се променя от неговата редакция.','crm-note'));const list=make('div',undefined,'line');categories.append(list);$('rows')?.closest('.panel').before(categories);
-
-fetch('api/admin-products-draft.php',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{for(const name of [...new Set(d.products.map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'bg'))){const b=make('button',name);b.type='button';b.onclick=()=>{$('product-search').value=name;$('product-search').dispatchEvent(new Event('input'));$('product-search').scrollIntoView({block:'center'});};list.append(b);}if(!list.children.length)list.append(make('p','Няма заредени категории.'));if(location.hash==='#categories')categories.scrollIntoView();}).catch(()=>list.append(make('p','Категориите временно не са достъпни.')));
-}
-return;}
+if(!isDashboard)return;
 new MutationObserver(()=>{const e=$('user-project-requests');if(e)e.hidden=view!=='user-project-requests';}).observe(main,{childList:true});
 const metrics=[['orders','Нови поръчки','orders','admin-orders.html'],['unread','Непрочетени запитвания','inbox','#admin-inbox'],['visits','Посещения','visits','#admin-statistics'],['clicks','Кликове към продукти','clicks','#admin-statistics'],['registrations','Нови регистрации','users','#admin-users'],['projects','Проекти за съдействие','projects','#user-project-requests']];
 for(const [key,label,img,link] of metrics){const a=make('a',undefined,'crm-metric');a.href=link;const d=make('div');d.append(make('span',label));const val=make('b','—');val.id='crm-metric-'+key;d.append(val);a.append(icon(img),d);$('crm-metrics').append(a);}

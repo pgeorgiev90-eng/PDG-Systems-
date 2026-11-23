@@ -1,8 +1,10 @@
 name: Test and publish approved CRM admin design
 on:
+  pull_request:
+    paths: ['admin-crm.*', 'admin-products*', 'api/admin-products-draft.php', 'tests/admin_*', '.github/workflows/publish-admin-crm.yml']
   push:
     branches: [main]
-    paths: ['admin-crm.*', 'api/admin-overview.php', '.github/workflows/publish-admin-crm.yml']
+    paths: ['admin-crm.*', 'admin-products*', 'api/admin-products-draft.php', 'api/admin-overview.php', '.github/workflows/publish-admin-crm.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,7 +14,7 @@ concurrency:
 jobs:
   test-and-publish:
     runs-on: ubuntu-22.04
-    environment: production
+    environment: ${{ github.event_name == 'pull_request' && 'test' || 'production' }}
     concurrency:
       group: pdg-production-deploy
       cancel-in-progress: false
@@ -32,6 +34,8 @@ jobs:
       - name: Syntax and authenticated overview integration
         run: |
           php -l api/admin-overview.php
+          php -l api/admin-products-draft.php
+          node --check admin-products.js
           node --check admin-crm.js
           node --check admin-orders.js
           python3 - <<'PY'
@@ -48,14 +52,16 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid" || true' EXIT
           for i in $(seq 1 20); do if curl -fsS -o /dev/null 'http://127.0.0.1:8199/api/account-draft.php?action=session'; then break; fi; sleep 1; done
-          python3 tests/admin_overview_security.py
+          python3 tests/admin_products_integration.py
       - name: Desktop and mobile browser checks
         run: |
           npm install --prefix /tmp/admin-browser playwright@1.56.1 jsdom@26.1.0
           /tmp/admin-browser/node_modules/.bin/playwright install --with-deps chromium
           NODE_PATH=/tmp/admin-browser/node_modules node tests/admin_crm_dom_test.cjs
           NODE_PATH=/tmp/admin-browser/node_modules node tests/admin_crm_ui_test.cjs
+          NODE_PATH=/tmp/admin-browser/node_modules node tests/admin_products_ui_test.cjs
       - name: Publish administrator files only
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -64,8 +70,8 @@ jobs:
         run: |
           import ftplib,ssl,os,io,urllib.request,urllib.error,hashlib
           from pathlib import Path
-          paths=['admin-crm.css','admin-crm.js','api/admin-overview.php','admin-orders.js','admin-orders.html','admin-products-draft.html','admin-electric.html','admin-growth.html','admin-dashboard.html']
-          new={'admin-crm.css','admin-crm.js','api/admin-overview.php'}
+          paths=['api/admin-products-draft.php','admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php','admin-orders.js','admin-orders.html','admin-products-draft.html','admin-electric.html','admin-growth.html','admin-dashboard.html']
+          new={'admin-products.js','admin-crm.css','admin-crm.js','api/admin-overview.php'}
           root='https://pdgsystems.bg/'
           with urllib.request.urlopen(root+'?admin-before='+os.environ['GITHUB_SHA'],timeout=40) as r: public_before=hashlib.sha256(r.read()).hexdigest()
           backup=Path('production-backup');backup.mkdir(exist_ok=True)
@@ -82,11 +88,12 @@ jobs:
                   body=Path(p).read_bytes();ftp.storbinary('STOR '+p+'.crm-upload',io.BytesIO(body))
                   check=io.BytesIO();ftp.retrbinary('RETR '+p+'.crm-upload',check.write);assert check.getvalue()==body
               for p in paths:ftp.rename(p+'.crm-upload',p)
-          for p in ['admin-dashboard.html','admin-crm.css','admin-crm.js','admin-orders.html']:
+          for p in ['admin-products-draft.html','admin-products.js','admin-dashboard.html','admin-crm.css','admin-crm.js','admin-orders.html']:
               with urllib.request.urlopen(root+p+'?release='+os.environ['GITHUB_SHA'],timeout=40) as r:assert r.read()==Path(p).read_bytes(),p
-          try:urllib.request.urlopen(root+'api/admin-overview.php',timeout=40)
-          except urllib.error.HTTPError as e:assert e.code==401
-          else:raise AssertionError('Admin overview exposed')
+          for endpoint in ['api/admin-overview.php','api/admin-products-draft.php']:
+              try:urllib.request.urlopen(root+endpoint,timeout=40)
+              except urllib.error.HTTPError as e:assert e.code==401,(endpoint,e.code)
+              else:raise AssertionError('Administrator endpoint exposed: '+endpoint)
           with urllib.request.urlopen(root+'?admin-after='+os.environ['GITHUB_SHA'],timeout=40) as r:assert hashlib.sha256(r.read()).hexdigest()==public_before,'Public homepage changed'
           print('PASS: exact administrator files deployed; public homepage unchanged; overview requires login')
       - uses: actions/upload-artifact@v4

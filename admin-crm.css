@@ -22,3 +22,35 @@ body.crm-admin{margin:0;background:var(--crm-bg)!important;color:var(--crm-text)
 .crm-admin :is(h1,h2,h3,h4,label){color:var(--crm-text)}.crm-admin .pdg-admin-shell main a{color:var(--crm-mint)}.crm-admin .pdg-admin-shell main a.crm-metric,.crm-admin .pdg-admin-shell main a.crm-outline{color:var(--crm-text)!important}.crm-admin #pdg-inbox-list button[aria-pressed=true]{background:#1c403b!important;color:var(--crm-text)!important}.crm-admin #pdg-inbox-list button[data-unread=true]{border-left-color:var(--crm-mint)}.crm-admin .crm-mobile-nav a.active{color:var(--crm-mint)}
 .crm-admin .pdg-app-offer,.crm-admin .pdg-app-open{display:none!important}
 .crm-admin .pdg-admin-nav .crm-nav-heading{color:#afbdcd!important}
+
+/* Catalog workspace */
+.crm-catalog { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+.crm-catalog:has(.crm-product-editor:not([hidden])) { grid-template-columns: minmax(0, 1fr) minmax(330px, 0.85fr); }
+.crm-catalog-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.crm-catalog-toolbar h2 { flex: 1; margin: 0; }
+.crm-catalog-toolbar input[type="search"] { flex: 1 1 165px; }
+.crm-admin .crm-primary { background: var(--crm-mint); border-color: var(--crm-mint); color: #082b28; font-weight: 700; }
+.crm-catalog-filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; scroll-margin-top: 16px; }
+.crm-catalog-filters select { width: 100%; }
+.crm-catalog-filters label { flex: 1 1 120px; min-width: 0; }
+.crm-catalog label { display: grid; gap: 5px; }
+.crm-catalog-table td:first-child { min-width: 140px; }
+.crm-catalog-table td:nth-child(2) { white-space: nowrap; }
+.crm-catalog-table .crm-product-link { padding: 0; border: 0; background: transparent; text-align: left; color: var(--crm-mint); }
+.crm-catalog-table small { display: block; color: var(--crm-muted); }
+.crm-catalog-pagination { justify-content: flex-end; margin-top: 12px; }
+.crm-catalog-pagination span { flex: 1; color: var(--crm-muted); }
+.crm-product-editor form, .crm-product-editor details[open] { display: grid; gap: 14px; }
+.crm-product-editor summary { cursor: pointer; }
+.crm-product-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.crm-product-editor :is(input, textarea) { width: 100%; }
+.crm-product-editor textarea { resize: vertical; }
+.crm-product-specification { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto; gap: 6px; margin-bottom: 8px; }
+.crm-product-specification button { align-self: end; }
+@media (max-width: 1200px) {
+  .crm-catalog:has(.crm-product-editor:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
+  .crm-catalog:has(.crm-product-editor:not([hidden])) > section:first-child { display: none; }
+}
+@media (max-width: 420px) {
+  .crm-product-fields { grid-template-columns: minmax(0, 1fr); }
+}
