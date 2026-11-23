@@ -3,6 +3,7 @@ import io
 import json
 import os
 import ssl
+import subprocess
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -16,6 +17,23 @@ FILES = {
     'api/site-ai-chat.php': 'ai-chat/relay.php',
     'ai-chat.html': 'ai-chat/index.html',
 }
+event_path = os.environ.get('GITHUB_EVENT_PATH')
+event = json.loads(Path(event_path).read_text()) if event_path else {}
+changed = {
+    path for commit in event.get('commits') or []
+    for action in ('added', 'modified', 'removed')
+    for path in commit.get(action, ())
+}
+if not changed and event.get('before') and event.get('after'):
+    before, after = event['before'], event['after']
+    subprocess.run(['git', 'fetch', '--depth=1', 'origin', before], check=True)
+    diff = subprocess.check_output(['git', 'diff', '--name-only', before, after], text=True)
+    changed = set(diff.splitlines())
+chat_only = bool(changed) and changed <= {
+    'ai-chat/relay.php', 'ai-chat/index.html', 'scripts/publish_ai_chat.py'
+}
+if chat_only:
+    FILES = {name: FILES[name] for name in ('api/site-ai-chat.php', 'ai-chat.html')}
 suffix = '.pdg-' + os.environ['GITHUB_SHA'][:12]
 
 def verify_relay():
@@ -64,14 +82,17 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=50) as ftp:
         with urlopen(BASE+'ai-chat.html?v='+os.environ['GITHUB_SHA'],timeout=20) as response:
             if response.read() != Path('ai-chat/index.html').read_bytes():
                 raise RuntimeError('Unexpected public page content')
-        with urlopen(BASE + 'api/solax-battery-compatibility.php?v=' + os.environ['GITHUB_SHA'], timeout=20) as response:
-            expected = Path(FILES['assets/data/solax-battery-compatibility.json']).read_bytes()
-            if response.read() != expected or response.headers.get('Access-Control-Allow-Origin') != '*':
-                raise RuntimeError('Public compatibility API verification failed')
-        with urlopen(BASE + 'solax-compatibility.js?v=' + os.environ['GITHUB_SHA'], timeout=20) as response:
-            if response.read() != Path(FILES['solax-compatibility.js']).read_bytes():
-                raise RuntimeError('Public checker verification failed')
-        print('Verified chat and cross-origin SolaX catalogue')
+        if not chat_only:
+            with urlopen(BASE + 'api/solax-battery-compatibility.php?v=' + os.environ['GITHUB_SHA'], timeout=20) as response:
+                expected = Path(FILES['assets/data/solax-battery-compatibility.json']).read_bytes()
+                if response.read() != expected or response.headers.get('Access-Control-Allow-Origin') != '*':
+                    raise RuntimeError('Public compatibility API verification failed')
+            with urlopen(BASE + 'solax-compatibility.js?v=' + os.environ['GITHUB_SHA'], timeout=20) as response:
+                if response.read() != Path(FILES['solax-compatibility.js']).read_bytes():
+                    raise RuntimeError('Public checker verification failed')
+            print('Verified chat and cross-origin SolaX catalogue')
+        else:
+            print('Verified the published chat and relay')
     except Exception:
         for name in reversed(replaced):
             old = backups[name]

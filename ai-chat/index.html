@@ -242,7 +242,25 @@ async function renderReply(raw,out,offer,requestQuestion){
 }
 const api=(op)=>'/api/site-ai-chat.php?op='+op;
 async function data(response){const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
-function addFeedback(card,id){
+async function showRevisedAnswer(id, requestQuestion) {
+  const {card,bubble}=message('Преглеждам предишния си отговор и подготвям нов.');
+  const offer=make('div');offer.className='offer';offer.hidden=true;card.append(offer);
+  const deadline=Date.now()+6*60*1000;
+  while(Date.now()<deadline){
+    await new Promise(resolve=>setTimeout(resolve,2500));
+    const response=await fetch(api('status')+'&id='+encodeURIComponent(id));
+    if(response.status>=500)continue;
+    const result=await data(response);
+    if(result.status!=='done')continue;
+    bubble.textContent='';
+    await renderReply(result.answer,bubble,offer,requestQuestion);
+    addFeedback(card,id,requestQuestion);
+    return;
+  }
+  throw new Error('revision_timeout');
+}
+
+function addFeedback(card,id,requestQuestion){
   const group=make('div');group.className='offer-sources';
   const status=make('span','Полезен ли беше отговорът?');status.setAttribute('role','status');
   const buttons=[make('button','Да'),make('button','Не')];
@@ -251,10 +269,18 @@ function addFeedback(card,id){
     button.onclick=async()=>{
       buttons.forEach(item=>item.disabled=true);
       try{
-        await data(await fetch(api('feedback'),{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({id,helpful:index===0})}));
-        status.textContent='Благодаря за оценката!';
+        const vote=await data(await fetch(api('feedback'),{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({id,helpful:index===0,...(index===1?{question:requestQuestion}:{})})}));
+        status.textContent=vote.revision_id?'Оценката е записана. Подготвям нов опит.':'Благодаря за оценката!';
         buttons.forEach(item=>item.remove());
+        if(vote.revision_id){
+          try{
+            await showRevisedAnswer(vote.revision_id,requestQuestion);
+            status.textContent='Оценката е записана. Новият отговор е по-долу.';
+          }catch{
+            status.textContent='Оценката е записана, но новият отговор се забави.';
+          }
+        }
       }catch{
         status.textContent='Оценката временно не може да се запише.';
         buttons.forEach(item=>item.disabled=false);
@@ -324,7 +350,7 @@ form.addEventListener('submit',async event=>{
         clearInterval(waitingTimer);
         bubble.classList.remove('is-waiting');
         await renderReply(status.answer,bubble,offer,requestQuestion);
-        addFeedback(card,req.id);
+        addFeedback(card,req.id,requestQuestion);
         return;
       }
     }

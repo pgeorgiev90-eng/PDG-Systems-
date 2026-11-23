@@ -51,6 +51,9 @@ try {
         created INTEGER NOT NULL, lease INTEGER NOT NULL DEFAULT 0,
         answer TEXT
     )');
+    $db->exec('CREATE TABLE IF NOT EXISTS feedback_retries (
+        parent_id TEXT PRIMARY KEY, revision_id TEXT NOT NULL UNIQUE, created INTEGER NOT NULL
+    )');
     $now = time();
     $method = $_SERVER['REQUEST_METHOD'];
     $op = $_GET['op'] ?? '';
@@ -122,6 +125,10 @@ try {
     if ($op === 'feedback') {
         $id = $body['id'] ?? null;
         $helpful = $body['helpful'] ?? null;
+        $question = $body['question'] ?? null;
+        if ($question !== null && (!is_string($question) || trim($question) === '' || strlen($question) > 1200)) {
+            reply(400, ['error'=>'Въведете кратък въпрос за новия опит.']);
+        }
         if (!is_string($id) || !preg_match('/^[a-f0-9]{48}$/D', $id) || !is_bool($helpful)) {
             reply(400, ['error'=>'Невалидна оценка.']);
         }
@@ -136,6 +143,28 @@ try {
             $db->exec('ROLLBACK');
             reply(404, ['error'=>'Отговорът вече не може да бъде оценен.']);
         }
+        $revisionId = null;
+        if (!$helpful && $question !== null) {
+            $q = $db->prepare('SELECT revision_id FROM feedback_retries WHERE parent_id=?');
+            $q->execute([$id]);
+            $revisionId = $q->fetchColumn() ?: null;
+            if ($revisionId === null && !$entry['voted']) {
+                $q = $db->prepare('SELECT count(*) FROM jobs WHERE client=? AND created>=?');
+                $q->execute([$client,$now-60]);
+                $rate = (int)$q->fetchColumn();
+                $depth = (int)$db->query('SELECT count(*) FROM jobs WHERE answer IS NULL')->fetchColumn();
+                if ($rate >= 6 || $depth >= 24) {
+                    $db->exec('ROLLBACK');
+                    header('Retry-After: 60');
+                    reply(429, ['error'=>'Новият опит не може да започне веднага. Опитайте отново след малко.']);
+                }
+                $revisionId = bin2hex(random_bytes(24));
+                $q = $db->prepare('INSERT INTO jobs(id,client,question,created) VALUES (?,?,?,?)');
+                $q->execute([$revisionId,$client,trim($question),$now]);
+                $q = $db->prepare('INSERT INTO feedback_retries(parent_id,revision_id,created) VALUES (?,?,?)');
+                $q->execute([$id,$revisionId,$now]);
+            }
+        }
         if (!$entry['voted']) {
             $q = $db->prepare('UPDATE feedback_jobs SET voted=1 WHERE id=?');
             $q->execute([$id]);
@@ -145,7 +174,7 @@ try {
             $q->execute([$entry['topic'],$entry['outcome'],$helpful?1:0,$helpful?0:1]);
         }
         $db->exec('COMMIT');
-        reply(200, ['ok'=>true]);
+        reply(200, ['ok'=>true,'revision_id'=>$revisionId]);
     }
 
     $authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
@@ -156,7 +185,12 @@ try {
     if ($op === 'claim') {
         $db->exec('BEGIN IMMEDIATE');
         $db->exec('DELETE FROM jobs WHERE created < ' . ($now - 3600));
-        $q = $db->prepare('SELECT id, question FROM jobs WHERE answer IS NULL AND lease<=? AND created>=? ORDER BY created,rowid LIMIT 1');
+        $db->exec('DELETE FROM feedback_retries WHERE created < ' . ($now - 3600));
+        $q = $db->prepare('SELECT j.id, j.question, prior.answer AS prior_answer
+            FROM jobs j LEFT JOIN feedback_retries r ON r.revision_id=j.id
+            LEFT JOIN jobs prior ON prior.id=r.parent_id AND prior.client=j.client
+            WHERE j.answer IS NULL AND j.lease<=? AND j.created>=?
+            ORDER BY j.created,j.rowid LIMIT 1');
         $q->execute([$now,$now-3600]);
         $job = $q->fetch(PDO::FETCH_ASSOC);
         if ($job) {
@@ -164,6 +198,11 @@ try {
             $q->execute([$now+240,$job['id']]);
         }
         $db->exec('COMMIT');
+        if ($job) {
+            feedbackSchema($db);
+            $job['feedback'] = $db->query('SELECT topic, outcome, helpful, unhelpful
+                FROM feedback_totals ORDER BY helpful + unhelpful DESC LIMIT 40')->fetchAll(PDO::FETCH_ASSOC);
+        }
         reply(200, ['job'=>$job ?: null]);
     }
 
