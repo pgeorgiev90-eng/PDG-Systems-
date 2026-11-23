@@ -1,7 +1,18 @@
 """Scoped SEO release: back up, stage, verify and roll back the reviewed files."""
 import ftplib,io,json,os,re,ssl,urllib.request,xml.etree.ElementTree as ET
 from pathlib import Path
-paths=['solar-cad.html','electric-cad.html','index.html','social-page.php']
+cad_pages = ('solar-cad.html', 'electric-cad.html')
+event_path = os.environ.get('GITHUB_EVENT_PATH')
+event = json.loads(Path(event_path).read_text()) if event_path else {}
+commits = event.get('commits') or []
+changed = {
+    path for commit in commits for action in ('added', 'modified', 'removed')
+    for path in commit.get(action, ())
+}
+cad_only = bool(changed.intersection(cad_pages)) and changed <= {
+    *cad_pages, 'scripts/publish_sales_seo.py'
+}
+paths = list(cad_pages) if cad_only else [*cad_pages, 'index.html', 'social-page.php']
 def get(path):
     with urllib.request.urlopen('https://pdgsystems.bg/'+path+('&' if '?' in path else '?')+'sales_seo='+os.environ['GITHUB_SHA'],timeout=45) as r:
         assert r.status==200
@@ -17,6 +28,13 @@ def verify():
         print('Verified public CAD page:',path,flush=True)
     home=get('index.html')[0].decode()
     assert 'href="solar-cad.html"' in home and 'href="electric-cad.html"' in home
+    if cad_only:
+        sitemap = ET.fromstring(get('sitemap.xml')[0])
+        urls = {loc.text for loc in sitemap.findall('.//{*}loc')}
+        for path in cad_pages:
+            assert 'https://pdgsystems.bg/' + path in urls, path
+        print('PASS: CAD pages published and listed in sitemap.xml', flush=True)
+        return
     products=json.loads(get('api/products.php')[0])['products']
     priced=[p for p in products if p.get('price') and float(p['price'])>0]
     unpriced=[p for p in products if not p.get('price') or float(p['price'])<=0]
