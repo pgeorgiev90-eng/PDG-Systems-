@@ -60,6 +60,7 @@ async function customerTools(payload,csrf){
   return value;
 }
 let homeContext='';
+let previousQuestion='';
 const homeRequest=text=>{
   const system=/(?:систем|инсталаци|инвертор)/iu.test(text);
   const solar=/солар|фотоволта/iu.test(text);
@@ -306,7 +307,12 @@ form.addEventListener('submit',async event=>{
   event.preventDefault();
   const question=field.value.trim();
   if(!question||send.disabled)return;
-  const requestQuestion=continueHomeContext(homeContext,question);
+  const shortFollowUp=question.length<=105&&/^(?:предложи(?:те)?(?:\s+ми)?(?:\s+ти)?[.!?]*$|препоръчай(?:те)?(?:\s+ми)?[.!?]*$|(?:а\s+)?ко[йеяи]\s+(?:от\s+тях|да\s+избера|би\s+избрал|е\s+по[- ]добър|препоръчваш)|(?:а\s+)?(?:по[- ]евтин|по[- ]мощен|друг\s+вариант)|(?:избери|покажи)(?:те)?\s+ми\s+(?:един|друг|най[- ]добрия))/i.test(question);
+  const contextQuestion=continueHomeContext(homeContext,question);
+  const requestQuestion=shortFollowUp&&previousQuestion
+    ? previousQuestion.slice(0,180)+'\nУточнение: '+question.slice(0,100)
+    : contextQuestion;
+  if(!shortFollowUp)previousQuestion=question;
   if(requestQuestion===question)homeContext='';
   send.disabled=true;field.value='';message(question,true);
   const waitingLines=['Нека помисля','Нека погледна','Още проверявам','Подготвям отговора'];
