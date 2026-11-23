@@ -9,7 +9,15 @@ changed = {
     path for commit in commits for action in ('added', 'modified', 'removed')
     for path in commit.get(action, ())
 }
-cad_only = bool(changed.intersection(cad_pages)) and changed <= {
+if not changed and event.get('before') and event.get('after'):
+    compare_url = (
+        'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY']
+        + '/compare/' + event['before'] + '...' + event['after']
+    )
+    request = urllib.request.Request(compare_url, headers={'User-Agent': 'PDG-CAD-release'})
+    with urllib.request.urlopen(request, timeout=20) as response:
+        changed = {item['filename'] for item in json.load(response)['files']}
+cad_only = bool(changed) and changed <= {
     *cad_pages, 'scripts/publish_sales_seo.py'
 }
 paths = list(cad_pages) if cad_only else [*cad_pages, 'index.html', 'social-page.php']
