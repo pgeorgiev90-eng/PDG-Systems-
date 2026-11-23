@@ -4,7 +4,7 @@ const F=window.PDGFilters,S=window.PDGCatalogSections,$=id=>document.getElementB
 const out=$('products'),search=$('search'),brand=$('brand'),category=$('category'),count=$('count'),more=$('more'),main=document.querySelector('main');
 const node=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
 const keys=new Set(['availability',...F.defs.map(d=>d.key)]),orders=new Set(['recommended','price_asc','price_desc','name','newest','power_asc','power_desc','energy_asc','energy_desc']);
-let list=[],scope=[],limit=24,pricesVisible=true,section='',timer,activeDefs=[];
+let list=[],scope=[],limit=24,pricesVisible=true,section='',timer,activeDefs=[],filterSettings={};
 function readState(){const p=new URLSearchParams(location.search);section=p.get('section')||'';const facets={};for(const key of keys){const values=p.getAll('f.'+key).slice(0,20).map(v=>v.slice(0,160));if(values.length)facets[key]=values;}
  const amount=key=>{const v=p.get(key);return v!==null&&v!==''&&Number.isFinite(Number(v))&&Number(v)>=0?String(Number(v)):'';};
  return {q:(p.get('q')||'').slice(0,200),brand:p.get('brand')||'',category:p.get('category')||'',sort:orders.has(p.get('sort'))?p.get('sort'):'recommended',min:amount('min'),max:amount('max'),facets};}
@@ -35,6 +35,9 @@ function baseOptions(){scope=list.filter(p=>S.matches(p,section));if(state.categ
  brand.replaceChildren(new Option('Всички производители',''));for(const b of [...new Set(inCategory.map(p=>p.brand))].sort(F.collator.compare))brand.add(new Option(b,b));
  if(state.category&&![...category.options].some(o=>o.value===state.category))state.category='';if(state.brand&&![...brand.options].some(o=>o.value===state.brand))state.brand='';
  activeDefs=[{key:'availability',label:'Наличност'},...F.defs].filter(d=>inCategory.some(p=>p.attrs[d.key]));
+ if(Object.hasOwn(filterSettings,state.category)&&Array.isArray(filterSettings[state.category])){
+  const applicable=new Map(activeDefs.map(d=>[d.key,d]));activeDefs=filterSettings[state.category].map(key=>applicable.get(key)).filter(Boolean);
+ }
  const available=new Set(activeDefs.map(d=>d.key));for(const key of Object.keys(state.facets))if(!available.has(key))delete state.facets[key];
  const power=inCategory.some(p=>p.attrs.power||p.attrs.panel_power),energy=inCategory.some(p=>p.attrs.energy);for(const o of sort.options){o.hidden=o.value.startsWith('power_')?!power:o.value.startsWith('energy_')?!energy:false;}if((state.sort.startsWith('power_')&&!power)||(state.sort.startsWith('energy_')&&!energy))state.sort='recommended';sync();
 }
@@ -68,7 +71,7 @@ function sectionLinks(){const nav=$('catalog-sections');nav.replaceChildren();co
  try{
   const results=await Promise.allSettled([fetch('api/products.php',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();}),fetch('api/catalog-facets.php',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();})]);
   if(results[0].status!=='fulfilled'||!Array.isArray(results[0].value.products))throw Error();const data=results[0].value;const metadata=results[1].status==='fulfilled'?results[1].value.items||{}:{};
-  pricesVisible=data.prices_visible===true;list=data.products.map(p=>({...p,attrs:F.attributes(p,metadata[p.id]),created_at:metadata[p.id]?.created_at||''}));
+  filterSettings=results[1].status==='fulfilled'?results[1].value.filter_settings||{}:{};pricesVisible=data.prices_visible===true;list=data.products.map(p=>({...p,attrs:F.attributes(p,metadata[p.id]),created_at:metadata[p.id]?.created_at||''}));
   if(results[1].status!=='fulfilled'){error.hidden=false;error.textContent='Техническите филтри временно не са достъпни. Можете да търсите по име, производител и цена.';}
   if(S.sections[section]){document.querySelector('h1').textContent=S.sections[section];document.querySelector('.muted').textContent='Изберете характеристики и сравнете подходящите продукти.';}
   sectionLinks();baseOptions();writeURL();render();
