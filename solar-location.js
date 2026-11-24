@@ -48,5 +48,32 @@
     ? [{lat,lng,label:String(item.display_name)}] : [];
   });
  }
- const api={currentPosition,searchAddress,addressSearchUrl};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarLocation=api;
+ function addGoogleMapsSearch(input,after){
+  const link=input.ownerDocument.createElement('a');
+  link.textContent='Търси в Google Maps';
+  link.target='_blank';
+  link.rel='noopener noreferrer';
+  link.style.display='inline-block';
+  link.style.marginBlock='0.5rem';
+  function update(){
+   const query=input.value.trim().replace(/^(?:[сц]ело|с\.)\s+/iu,'');
+   const url=new URL('https://www.google.com/maps/search/');
+   if(query){
+    url.searchParams.set('api','1');
+    url.searchParams.set('query',query);
+   }
+   link.href=url.href;
+  }
+  input.addEventListener('input',update);
+  link.addEventListener('click',update);
+  update();
+  after.after(link);
+  return link;
+ }
+ root.document?.addEventListener('DOMContentLoaded',()=>{
+  const input=root.document.getElementById('address');
+  const button=root.document.getElementById('search');
+  if(input&&button)addGoogleMapsSearch(input,button);
+ });
+ const api={currentPosition,searchAddress,addressSearchUrl,addGoogleMapsSearch};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarLocation=api;
 })(typeof window==='object'?window:globalThis);
