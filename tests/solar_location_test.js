@@ -1,6 +1,9 @@
 'use strict';
-const assert=require('node:assert/strict'),{currentPosition}=require('../solar-location.js');
+const assert=require('node:assert/strict'),{currentPosition,addressSearchUrl}=require('../solar-location.js');
 (async()=>{
+ assert.equal(addressSearchUrl('цело роза ямбол').searchParams.get('q'),'роза ямбол');
+ assert.equal(addressSearchUrl('село Роза, Ямбол').searchParams.get('q'),'Роза, Ямбол');
+ assert.equal(addressSearchUrl('София, бул. Витоша 1').searchParams.get('street'),'1 бул. Витоша');
  let options;
  const p=await currentPosition({getCurrentPosition(ok,fail,o){options=o;ok({coords:{latitude:42.6977,longitude:23.3219,accuracy:12}});}});
  assert.deepEqual(p,{lat:42.6977,lng:23.3219,accuracy:12});assert.equal(options.enableHighAccuracy,true);assert.equal(options.timeout,18000);

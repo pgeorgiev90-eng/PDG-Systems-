@@ -20,14 +20,16 @@
   params.set('format','jsonv2');
   params.set('limit','5');
   params.set('accept-language','bg');
+  // Nominatim matches Bulgarian villages by name without the locality prefix.
+  const villagePrefix=/^(?:[сц]ело|с\.)\s+/iu;
   const parts=query.split(',').map(part=>part.trim()).filter(Boolean);
   const streetIndex=parts.findIndex(part=>/^(?:ул(?:ица)?\.?|бул(?:евард)?\.?)\s+/iu.test(part));
   if(parts.length===2&&streetIndex!==-1){
    const street=parts[streetIndex].replace(/\s+№\s*/u,' ');
    params.set('street',street.replace(/^(.+?)\s+(\d+[\p{L}]?(?:[-/]\d+)?)$/u,'$2 $1'));
-   params.set('city',parts[1-streetIndex]);
+   params.set('city',parts[1-streetIndex].replace(villagePrefix,''));
   }else{
-   params.set('q',query);
+   params.set('q',query.trim().replace(villagePrefix,''));
   }
   return url;
  }
