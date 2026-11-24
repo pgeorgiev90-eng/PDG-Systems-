@@ -1,12 +1,27 @@
 (function(root){'use strict';
 const R=6371008.8;
-function manualRoofs(configs,center){
+function roofSettings(configs,center){
  if(!Array.isArray(configs)||configs.length<1||configs.length>20)throw Error('Задайте между 1 и 20 ската.');
  if(!center||!Number.isFinite(center.lat)||!Number.isFinite(center.lng)||Math.abs(center.lat)>80||Math.abs(center.lng)>180)throw Error('Невалидно местоположение на обекта.');
- const rows=configs.map(c=>{if(!c||['width','length','tilt','azimuth'].some(k=>c[k]===''||c[k]==null))throw Error('Попълнете параметрите на всеки скат.');const width=Number(c.width),length=Number(c.length),tilt=Number(c.tilt),azimuth=Number(c.azimuth);if(![width,length,tilt,azimuth].every(Number.isFinite)||width<.1||width>300||length<.1||length>300||tilt<0||tilt>80||azimuth<0||azimuth>=360)throw Error('Проверете размерите, наклона и изложението на всеки скат.');return {width,length,tilt,azimuth};});
+ return configs.map(c=>{if(!c||['width','length','tilt','azimuth'].some(k=>c[k]===''||c[k]==null))throw Error('Попълнете параметрите на всеки скат.');const width=Number(c.width),length=Number(c.length),tilt=Number(c.tilt),azimuth=Number(c.azimuth);if(![width,length,tilt,azimuth].every(Number.isFinite)||width<.1||width>300||length<.1||length>300||tilt<0||tilt>80||azimuth<0||azimuth>=360)throw Error('Проверете размерите, наклона и изложението на всеки скат.');return {width,length,tilt,azimuth};});
+}
+function manualRoofs(configs,center){
+ const rows=roofSettings(configs,center);
  if(rows.length>4)throw Error('За повече от 4 ската използвайте очертаване на карта.');
  const first=rows[0],depth=rows.slice(0,rows.length===1?1:2).reduce((sum,c)=>sum+c.length*Math.cos(c.tilt*Math.PI/180),0);
  return houseRoofs({width:first.width,depth,count:rows.length,aspect:first.azimuth,tilts:rows.map(c=>c.tilt)},center);
+}
+function separateRoofs(configs,center){
+ const rows=roofSettings(configs,center);
+ const cols=Math.min(5,rows.length),rowCount=Math.ceil(rows.length/cols);
+ const cell=Math.max(...rows.map(({width,length})=>Math.hypot(width,length)))+2;
+ const degreesPerMeter=180/(Math.PI*R);
+ const longitudeDegreesPerMeter=degreesPerMeter/Math.cos(center.lat*Math.PI/180);
+ return rows.map(({width,length,tilt,azimuth},i)=>{
+  const east=(i%cols-(cols-1)/2)*cell,north=((rowCount-1)/2-Math.floor(i/cols))*cell;
+  const origin={lat:center.lat+north*degreesPerMeter,lng:center.lng+east*longitudeDegreesPerMeter};
+  return houseRoofs({width,depth:length*Math.cos(tilt*Math.PI/180),count:1,aspect:azimuth,tilt},origin)[0];
+ });
 }
 function houseRoofs(options,center){
  const width=Number(options.width),depth=Number(options.depth),count=Number(options.count),aspect=Number(options.aspect),tilts=Array.from({length:count},(_,i)=>Number(options.tilts?.[i]??options.tilt??10));
@@ -20,26 +35,73 @@ function houseRoofs(options,center){
 }
 function heightAt(roof,point){const p=roof.roofPlane;if(!p)return null;const e=(point[1]-p.origin[1])*Math.PI/180*R*Math.cos(p.origin[0]*Math.PI/180),n=(point[0]-p.origin[0])*Math.PI/180*R;return p.offset+p.east*e+p.north*n;}
 
-const exported={manualRoofs,houseRoofs,heightAt};if(typeof module==='object'&&module.exports){module.exports=exported;return;}
+const exported={manualRoofs,separateRoofs,houseRoofs,heightAt};if(typeof module==='object'&&module.exports){module.exports=exported;return;}
 function init(){const $=id=>document.getElementById(id),api=root.PDGSolarEditor;if(!api||!$('welcome-start')||!$('menu-new'))return;
 const initial=api.project().projectStart;let mode='map',expected=Number.isInteger(initial?.expectedRoofs)&&initial.expectedRoofs>0&&initial.expectedRoofs<=20?initial.expectedRoofs:0,sourceMode=initial?.mode==='manual'?'manual':'map',anchor=null,configs=[],modelInfo=initial?.roofModel?{roofModel:initial.roofModel,building:initial.building}:{};
 const originalNew=$('menu-new').onclick;let alreadyReset=false;
 const dialog=document.createElement('dialog');dialog.id='new-project-wizard';dialog.className='preview-modal';
- const googleStyle=document.createElement('style');googleStyle.textContent='#new-project-google-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:8px 0 12px}#new-project-google-row[hidden]{display:none}#new-project-google{display:inline-block;padding:9px 14px;border:1px solid #0b6b60;border-radius:8px;color:#0b6b60;background:#fff;font-weight:700;text-decoration:none}#new-project-google:hover,#new-project-google:focus-visible{background:#e6f5f1}';document.head.append(googleStyle);dialog.innerHTML='<button type="button" id="new-project-close">Затвори ×</button><h2>Нов соларен проект</h2><label for="new-project-name">Име на проекта</label><input id="new-project-name" maxlength="100" value="Нов соларен проект"><div class="twocol"><button type="button" id="new-mode-map">Търсене и очертаване на карта</button><button type="button" id="new-mode-manual">Ръчно задаване на размери</button></div><label for="new-roof-count">Колко скатен е покривът?</label><select id="new-roof-count"><option value="1">Едноскатен — 1 скат</option><option value="2">Двускатен — 2 ската</option><option value="3">Трискатен — 3 ската</option><option value="4">Четирискатен — 4 ската</option><option value="custom">Друг брой скатове</option></select><div id="new-custom-count-box" hidden><label for="new-custom-count">Брой скатове (1–20)</label><input id="new-custom-count" type="number" min="1" max="20" step="1" value="5"></div><label for="new-project-address">Адрес или населено място</label><input id="new-project-address" maxlength="200" placeholder="София, бул. Витоша 1"><div id="new-project-google-row"><a id="new-project-google" href="https://www.google.com/maps/search/" target="_blank" rel="noopener noreferrer">Търси в Google Maps ↗</a><span>Отваря адреса в нов раздел.</span></div><div id="new-project-pin"><label for="new-project-coordinates">Координати на покрива от Google Maps</label><p class="note">Избери точка върху покрива в Google Maps, копирай координатите и ги постави тук.</p><input id="new-project-coordinates" maxlength="80" placeholder="42.396480, 26.411030"><button type="button" id="new-project-draw-pin">Очертай по координати</button></div><button type="button" id="new-project-search">Намери на картата в Solar CAD</button><button type="button" id="new-project-locate">⌖ Моето местоположение</button><div id="new-project-results"></div><p class="note" id="new-location-note"></p><p class="note" id="new-map-note">Потърсете адрес и изберете резултат. След това очертайте скатовете върху картата.</p><div id="new-manual-settings" hidden><p class="note">За всеки скат въведете ширина, дължина по наклона, изложение и наклон. Скатовете образуват общ покрив с общи ръбове и било. За многоскатен покрив размерите са общият габарит в план, а изложението на отделните скатове следва формата на покрива.</p><fieldset id="new-building-settings" hidden><legend>Общи габарити на покрива</legend><label for="new-building-width">Дължина на сградата / билото (m)</label><input id="new-building-width" type="number" min="0.1" max="300" step="0.01" value="10" required><label for="new-building-depth">Ширина на сградата в план (m)</label><input id="new-building-depth" type="number" min="0.1" max="300" step="0.01" value="10" required><label for="new-building-aspect">Основно изложение</label><select id="new-building-aspect"><option value="90">Изток</option><option value="270">Запад</option><option value="180" selected>Юг</option></select><p class="note">Двата срещуположни ската споделят било. При 3 и 4 ската челните части се оформят автоматично. За повече от 4 ската използвайте очертаване върху карта.</p></fieldset><div id="new-manual-roofs"></div><button type="button" id="new-manual-create">Създай скатовете и отвори CAD</button></div><p id="new-project-status" class="note" role="status"></p>';
+ const googleStyle=document.createElement('style');googleStyle.textContent='#new-project-google-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:8px 0 12px}#new-project-google-row[hidden]{display:none}#new-project-google{display:inline-block;padding:9px 14px;border:1px solid #0b6b60;border-radius:8px;color:#0b6b60;background:#fff;font-weight:700;text-decoration:none}#new-project-google:hover,#new-project-google:focus-visible{background:#e6f5f1}';document.head.append(googleStyle);dialog.innerHTML='<button type="button" id="new-project-close">Затвори ×</button><h2>Нов соларен проект</h2><label for="new-project-name">Име на проекта</label><input id="new-project-name" maxlength="100" value="Нов соларен проект"><div class="twocol"><button type="button" id="new-mode-map">Търсене и очертаване на карта</button><button type="button" id="new-mode-manual">Ръчно задаване на размери</button></div><label for="new-roof-count">Колко скатен е покривът?</label><select id="new-roof-count"><option value="1">Едноскатен — 1 скат</option><option value="2">Двускатен — 2 ската</option><option value="3">Трискатен — 3 ската</option><option value="4">Четирискатен — 4 ската</option><option value="custom">Друг брой скатове</option></select><div id="new-custom-count-box" hidden><label for="new-custom-count">Брой скатове (1–20)</label><input id="new-custom-count" type="number" min="1" max="20" step="1" value="5"></div><label for="new-project-address">Адрес или населено място</label><input id="new-project-address" maxlength="200" placeholder="София, бул. Витоша 1"><div id="new-project-google-row"><a id="new-project-google" href="https://www.google.com/maps/search/" target="_blank" rel="noopener noreferrer">Търси в Google Maps ↗</a><span>Отваря адреса в нов раздел.</span></div><div id="new-project-pin"><label for="new-project-coordinates">Координати на покрива от Google Maps</label><p class="note">Избери точка върху покрива в Google Maps, копирай координатите и ги постави тук.</p><input id="new-project-coordinates" maxlength="80" placeholder="42.396480, 26.411030"><button type="button" id="new-project-draw-pin">Очертай по координати</button></div><button type="button" id="new-project-search">Намери на картата в Solar CAD</button><button type="button" id="new-project-locate">⌖ Моето местоположение</button><div id="new-project-results"></div><p class="note" id="new-location-note"></p><p class="note" id="new-map-note">Потърсете адрес и изберете резултат. След това очертайте скатовете върху картата.</p><div id="new-manual-settings" hidden><div id="new-roof-layout-row"><label for="new-roof-layout">Подредба на скатовете</label><select id="new-roof-layout"><option value="separate">Отделни размери и изложение</option><option value="joined">Общ габарит и свързани скатове</option></select></div><p id="new-roof-layout-note" class="note"></p><datalist id="new-azimuth-list"><option value="0">Север</option><option value="45">Североизток</option><option value="90">Изток</option><option value="135">Югоизток</option><option value="180">Юг</option><option value="225">Югозапад</option><option value="270">Запад</option><option value="315">Северозапад</option></datalist><fieldset id="new-building-settings" hidden><legend>Общи габарити на покрива</legend><label for="new-building-width">Дължина на сградата / билото (m)</label><input id="new-building-width" type="number" min="0.1" max="300" step="0.01" value="10" required><label for="new-building-depth">Ширина на сградата в план (m)</label><input id="new-building-depth" type="number" min="0.1" max="300" step="0.01" value="10" required><label for="new-building-aspect">Основно изложение</label><select id="new-building-aspect"><option value="90">Изток</option><option value="270">Запад</option><option value="180" selected>Юг</option></select><p class="note">Двата срещуположни ската споделят било. При 3 и 4 ската челните части се оформят автоматично. За повече от 4 ската използвайте очертаване върху карта.</p></fieldset><div id="new-manual-roofs"></div><button type="button" id="new-manual-create">Създай скатовете и отвори CAD</button></div><p id="new-project-status" class="note" role="status"></p>';
  document.body.append(dialog);$('new-project-close').onclick=()=>dialog.close();
  const progress=document.createElement('p');progress.className='note';progress.id='new-roof-progress';$('planes')?.after(progress);
  function count(){return $('new-roof-count').value==='custom'?Number($('new-custom-count').value):Number($('new-roof-count').value);}
- function storeCards(){for(const [i,card]of [...$('new-manual-roofs').children].entries()){const c={};for(const input of card.querySelectorAll('input,select'))c[input.name]=input.value;configs[i]=c;}}
- function cards(){storeCards();const n=count();if(!Number.isInteger(n)||n<1||n>20)return;$('new-building-settings').hidden=n===1;for(const input of $('new-building-settings').querySelectorAll('input,select'))input.disabled=n===1;$('new-manual-roofs').replaceChildren();if(n>4){$('new-project-status').textContent='За повече от 4 ската използвайте режима с карта.';return;}
- for(let i=0;i<n;i++){const c={width:'10',length:'5',azimuth:'180',tilt:'10',...configs[i]},card=document.createElement('fieldset');card.style.cssText='margin:12px 0;padding:10px;border:1px solid #d5dfef;border-radius:8px';const legend=document.createElement('legend');legend.textContent='Скат '+(i+1);card.append(legend);
- const fields=n===1?[['width','Ширина на ската (m)',.1,300,.01],['length','Дължина по наклона (m)',.1,300,.01],['azimuth','Изложение',0,359.9,.1],['tilt','Наклон (°)',0,80,.1]]:[['tilt','Наклон на ската (°)',.1,80,.1]];
- for(const [name,label,min,max,step]of fields){const l=document.createElement('label'),input=document.createElement(name==='azimuth'?'select':'input');input.name=name;input.id='new-roof-'+i+'-'+name;if(name==='azimuth'){for(const [text,value]of [['Изток','90'],['Запад','270'],['Юг','180']])input.add(new Option(text,value));}else{input.type='number';input.min=min;input.max=max;input.step=step;}input.required=true;input.value=c[name];l.htmlFor=input.id;l.textContent=label;card.append(l,input);}
- if(n>1){const az=(Number($('new-building-aspect').value)+[0,180,90,270][i])%360,note=document.createElement('p');note.className='note';note.textContent='Изложение: '+({0:'Север',90:'Изток',180:'Юг',270:'Запад'}[az]||az+'°')+' · определено от общия покрив';card.append(note);}$('new-manual-roofs').append(card);}}
+ function storeCards(){for(const [i,card]of [...$('new-manual-roofs').children].entries()){const c={...configs[i]};for(const input of card.querySelectorAll('input,select'))c[input.name]=input.value;configs[i]=c;}}
+ function joinedLayout(){return count()>1&&count()<=4&&$('new-roof-layout').value==='joined';}
+ function cards(){
+  storeCards();
+  const n=count();
+  if(!Number.isInteger(n)||n<1||n>20)return;
+  const layout=$('new-roof-layout');
+  $('new-roof-layout-row').hidden=n===1;
+  layout.options[1].disabled=n>4;
+  if(n>4)layout.value='separate';
+  const joined=joinedLayout();
+  $('new-building-settings').hidden=!joined;
+  for(const input of $('new-building-settings').querySelectorAll('input,select'))input.disabled=!joined;
+  $('new-roof-layout-note').textContent=joined
+   ? 'Въведете общите габарити и наклона на всеки скат.'
+   : 'Въведете размерите, наклона и изложението на всеки скат. Изложение: 0° север, 90° изток, 180° юг, 270° запад.';
+  $('new-manual-roofs').replaceChildren();
+  for(let i=0;i<n;i++){
+   const values={width:'10',length:'5',azimuth:'180',tilt:'10',...configs[i]};
+   const card=document.createElement('fieldset');
+   card.style.cssText='margin:12px 0;padding:10px;border:1px solid #d5dfef;border-radius:8px';
+   const legend=document.createElement('legend');
+   legend.textContent='Скат '+(i+1);
+   card.append(legend);
+   const fields=joined
+    ? [['tilt','Наклон на ската (°)',.1,80,.1]]
+    : [['width','Ширина на ската (m)',.1,300,.01],['length','Дължина по наклона (m)',.1,300,.01],['azimuth','Изложение (°)',0,359.9,.1],['tilt','Наклон (°)',0,80,.1]];
+   for(const [name,label,min,max,step] of fields){
+    const text=document.createElement('label'),input=document.createElement('input');
+    input.name=name;
+    input.id='new-roof-'+i+'-'+name;
+    input.type='number';
+    input.min=min;
+    input.max=max;
+    input.step=step;
+    if(name==='azimuth')input.setAttribute('list','new-azimuth-list');
+    input.required=true;
+    input.value=values[name];
+    text.htmlFor=input.id;
+    text.textContent=label;
+    card.append(text,input);
+   }
+   if(joined){
+    const az=(Number($('new-building-aspect').value)+[0,180,90,270][i])%360;
+    const note=document.createElement('p');
+    note.className='note';
+    note.textContent='Изложение: '+({0:'Север',90:'Изток',180:'Юг',270:'Запад'}[az]||az+'°')+' · определено от общия покрив';
+    card.append(note);
+   }
+   $('new-manual-roofs').append(card);
+  }
+ }
+ $('new-roof-layout').onchange=cards;
  $('new-building-aspect').onchange=cards;
  function setMode(value){mode=value;$('new-manual-settings').hidden=mode!=='manual';$('new-map-note').hidden=mode==='manual';$('new-project-google-row').hidden=mode==='manual';$('new-project-pin').hidden=mode==='manual';for(const m of ['map','manual'])$('new-mode-'+m).setAttribute('aria-pressed',String(mode===m));$('new-location-note').textContent=anchor?'Избрано местоположение: '+anchor.label:mode==='manual'?'Без търсене се използва текущият център на картата. За точен прогнозен добив задайте местоположението на обекта.':'';}
  $('new-mode-map').onclick=()=>setMode('map');$('new-mode-manual').onclick=()=>setMode('manual');
  $('new-roof-count').onchange=()=>{$('new-custom-count-box').hidden=$('new-roof-count').value!=='custom';cards();};$('new-custom-count').oninput=cards;
- function open(){alreadyReset=false;anchor=null;configs=[];$('new-building-width').value='10';$('new-building-depth').value='10';$('new-building-aspect').value='180';$('new-project-name').value='Нов соларен проект';$('new-roof-count').value='1';$('new-custom-count-box').hidden=true;$('new-manual-roofs').replaceChildren();$('new-project-results').replaceChildren();$('new-project-coordinates').value='';$('new-project-status').textContent='';cards();setMode('map');const menu=$('project-menu');if(menu?.open)menu.close();if(!dialog.open)dialog.showModal();}
+ function open(){alreadyReset=false;anchor=null;configs=[];$('new-roof-layout').value='separate';$('new-building-width').value='10';$('new-building-depth').value='10';$('new-building-aspect').value='180';$('new-project-name').value='Нов соларен проект';$('new-roof-count').value='1';$('new-custom-count-box').hidden=true;$('new-manual-roofs').replaceChildren();$('new-project-results').replaceChildren();$('new-project-coordinates').value='';$('new-project-status').textContent='';cards();setMode('map');const menu=$('project-menu');if(menu?.open)menu.close();if(!dialog.open)dialog.showModal();}
  function begin(location,type){const wanted=count();dialog.close();if(!alreadyReset&&originalNew)originalNew();alreadyReset=false;expected=wanted;sourceMode=type;for(const modal of document.querySelectorAll('dialog[open]'))modal.close();const welcome=$('welcome-panel');if(welcome)welcome.hidden=true;const current=api.project();return {...current,version:1,planes:[],projectName:$('new-project-name').value.trim()||'Нов соларен проект',center:location,zoom:19,projectStart:{expectedRoofs:expected,mode:type},offer:null};}
  function drawAt(location){const project=begin(location,'map');api.restore(project);api.showLocation({...location,accuracy:1});document.body.classList.add('preview-map');$('newPlane')?.click();api.resize?.();api.message('Очертайте '+count()+' ската на покрива.');}
  const coordinateInput=$('new-project-coordinates');
@@ -73,7 +135,7 @@ const dialog=document.createElement('dialog');dialog.id='new-project-wizard';dia
  $('new-project-locate').onclick=async()=>{const button=$('new-project-locate');button.disabled=true;$('new-project-status').textContent='Определяне на местоположението…';try{const point=await root.PDGSolarLocation.currentPosition(navigator.geolocation);if(!dialog.open)return;const location={lat:point.lat,lng:point.lng,label:'Моето местоположение · точност около '+Math.round(point.accuracy)+' m'};if(mode==='manual'){anchor=location;setMode(mode);$('new-project-status').textContent='Местоположението е избрано. Попълнете скатовете.';}else{if(!Number.isInteger(count())||count()<1||count()>20){$('new-project-status').textContent='Задайте между 1 и 20 ската.';return;}drawAt(location);}}catch(e){$('new-project-status').textContent=e.message||'Местоположението не е достъпно.';}finally{button.disabled=false;}};
  root.PDGSolarLocation?.addGoogleMapsSearch?.($('new-project-address'),$('new-project-search'),$('new-project-google'));
  $('new-project-address').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('new-project-search').click();}};
- $('new-manual-create').onclick=()=>{if(!Number.isInteger(count())||count()<1||count()>20){$('new-project-status').textContent='Броят скатове трябва да е между 1 и 20.';return;}if([...$('new-manual-settings').querySelectorAll('input,select')].some(input=>!input.reportValidity()))return;storeCards();try{const location=anchor||api.project().center||{lat:42.7,lng:23.32},building={width:Number($('new-building-width').value),depth:Number($('new-building-depth').value),aspect:Number($('new-building-aspect').value),count:count(),tilts:configs.slice(0,count()).map(c=>Number(c.tilt))},planes=count()===1?manualRoofs(configs.slice(0,1),location):houseRoofs(building,location),project=begin(location,'manual');api.restore({...project,planes,projectStart:{...project.projectStart,roofModel:'joined-v1',building:count()===1?null:building}});api.open('cad');if(api.state().view!=='2d')api.toggle2d();api.resize?.();api.message('Създадени са '+planes.length+' ската с въведените размери и изложение.');}catch(e){$('new-project-status').textContent=e.message;if(!dialog.open)dialog.showModal();}};
+ $('new-manual-create').onclick=()=>{if(!Number.isInteger(count())||count()<1||count()>20){$('new-project-status').textContent='Броят скатове трябва да е между 1 и 20.';return;}if([...$('new-manual-settings').querySelectorAll('input,select')].some(input=>!input.disabled&&!input.reportValidity()))return;storeCards();try{const location=anchor||api.project().center||{lat:42.7,lng:23.32},building={width:Number($('new-building-width').value),depth:Number($('new-building-depth').value),aspect:Number($('new-building-aspect').value),count:count(),tilts:configs.slice(0,count()).map(c=>Number(c.tilt))},joined=joinedLayout(),planes=joined?houseRoofs(building,location):separateRoofs(configs.slice(0,count()),location),project=begin(location,'manual');api.restore({...project,planes,projectStart:joined?{...project.projectStart,roofModel:'joined-v1',building}:project.projectStart});api.open('cad');if(api.state().view!=='2d')api.toggle2d();api.resize?.();api.message('Създадени са '+planes.length+' ската с въведените размери и изложение.');}catch(e){$('new-project-status').textContent=e.message;if(!dialog.open)dialog.showModal();}};
  const baseProject=api.project,baseRestore=api.restore;api.project=function(){const p=baseProject.call(this);return {...p,projectStart:expected?{...modelInfo,expectedRoofs:expected,mode:sourceMode}:null};};api.restore=function(data){const n=data?.projectStart?.expectedRoofs;expected=Number.isInteger(n)&&n>0&&n<=20?n:0;sourceMode=data?.projectStart?.mode==='manual'?'manual':'map';modelInfo=data?.projectStart?.roofModel==='joined-v1'?{roofModel:'joined-v1',building:data.projectStart.building}:{};return baseRestore.call(this,data);};
  function update(){progress.hidden=!expected;progress.textContent=expected?'Начертани скатове: '+api.state().roofs+' / '+expected:'';}
  root.addEventListener('pdg-solar-change',update);root.addEventListener('pdg-solar-mode',update);$('welcome-start').onclick=open;$('menu-new').onclick=()=>{if(originalNew)originalNew();open();alreadyReset=true;};root.PDGSolarProjectStart={open,...exported};update();
