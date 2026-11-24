@@ -17,4 +17,16 @@ d.getElementById('new-mode-manual').click();assert(d.getElementById('new-project
 assert.equal(fresh,1);assert.equal(project.planes.length,2);assert.equal(mode,'cad');assert.equal(view,'2d');assert.equal(project.projectName,'Двускатен тест');assert.equal(project.center.lat,43.2);assert.equal(w.PDGSolarEditor.project().projectStart.expectedRoofs,2);assert.equal(project.planes[0].azimuth,270);assert.equal(project.planes[1].azimuth,90);
 const saved=JSON.parse(JSON.stringify(w.PDGSolarEditor.project()));w.PDGSolarEditor.restore({version:1,center:{lat:42.7,lng:23.32},planes:[]});assert.equal(w.PDGSolarEditor.project().projectStart,null);w.PDGSolarEditor.restore(saved);assert.equal(w.PDGSolarEditor.project().projectStart.expectedRoofs,2);
 d.getElementById('menu-new').click();assert.equal(fresh,2);assert.equal(project.planes.length,0,'New empty project clears existing roofs immediately');assert.equal(w.PDGSolarEditor.project().projectStart,null);assert(d.getElementById('new-project-wizard').open);d.getElementById('new-roof-count').value='4';d.getElementById('new-roof-count').dispatchEvent(new w.Event('change'));d.getElementById('new-project-address').value='София, бул. Витоша 1';d.getElementById('new-project-address').dispatchEvent(new w.Event('input'));const google=d.getElementById('new-project-google');assert.equal(google.textContent,'Търси в Google Maps');assert.equal(new URL(google.href).searchParams.get('query'),'София, бул. Витоша 1');await d.getElementById('new-project-search').onclick();assert.equal(requestedAddress.searchParams.get('city'),'София');assert.equal(requestedAddress.searchParams.get('street'),'1 бул. Витоша');d.querySelector('#new-project-results button').click();assert.equal(fresh,2);assert.equal(located.lat,42.6955267);assert(drawingStarted);assert.equal(w.PDGSolarEditor.project().projectStart.expectedRoofs,4);assert(!d.getElementById('new-project-wizard').open);
+d.getElementById('welcome-start').click();
+const pin=d.getElementById('new-project-coordinates');
+pin.value='92, 26';
+d.getElementById('new-project-draw-pin').click();
+assert.match(d.getElementById('new-project-status').textContent,/диапазон/);
+pin.value='42.396480, 26.411030';
+drawingStarted=false;
+d.getElementById('new-project-draw-pin').click();
+assert.equal(located.lat,42.39648);
+assert.equal(located.lng,26.41103);
+assert(drawingStarted);
+assert(!d.getElementById('new-project-wizard').open);
 console.log('PASS: Welcome opens mode choice without losing current project; New empty project clears immediately, manual two-roof CAD creation, separate values and aspect, address results, requested count and project metadata');w.close();})().catch(e=>{console.error(e);process.exitCode=1});
