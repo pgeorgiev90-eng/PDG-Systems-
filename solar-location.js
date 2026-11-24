@@ -13,5 +13,38 @@
    },{enableHighAccuracy:true,timeout:18000,maximumAge:30000});
   });
  }
- const api={currentPosition};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarLocation=api;
+
+ function addressSearchUrl(query){
+  const url=new URL('https://nominatim.openstreetmap.org/search');
+  const params=url.searchParams;
+  params.set('format','jsonv2');
+  params.set('limit','5');
+  params.set('accept-language','bg');
+  const parts=query.split(',').map(part=>part.trim()).filter(Boolean);
+  const streetIndex=parts.findIndex(part=>/^(?:ул(?:ица)?\.?|бул(?:евард)?\.?)\s+/iu.test(part));
+  if(parts.length===2&&streetIndex!==-1){
+   const street=parts[streetIndex].replace(/\s+№\s*/u,' ');
+   params.set('street',street.replace(/^(.+?)\s+(\d+[\p{L}]?(?:[-/]\d+)?)$/u,'$2 $1'));
+   params.set('city',parts[1-streetIndex]);
+  }else{
+   params.set('q',query);
+  }
+  return url;
+ }
+ async function searchAddress(query){
+  const response=await fetch(addressSearchUrl(query),{
+   headers:{Accept:'application/json'},
+   signal:AbortSignal.timeout(15000)
+  });
+  if(!response.ok)throw new Error('Услугата за търсене е временно недостъпна.');
+  const results=await response.json();
+  if(!Array.isArray(results))throw new Error('Услугата върна невалидни резултати.');
+  return results.flatMap(item=>{
+   if(!item||item.lat==null||item.lon==null||!item.display_name)return [];
+   const lat=Number(item.lat),lng=Number(item.lon);
+   return Number.isFinite(lat)&&Math.abs(lat)<=90&&Number.isFinite(lng)&&Math.abs(lng)<=180
+    ? [{lat,lng,label:String(item.display_name)}] : [];
+  });
+ }
+ const api={currentPosition,searchAddress,addressSearchUrl};if(typeof module==='object'&&module.exports)module.exports=api;else root.PDGSolarLocation=api;
 })(typeof window==='object'?window:globalThis);
