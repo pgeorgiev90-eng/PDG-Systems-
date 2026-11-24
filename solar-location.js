@@ -48,13 +48,15 @@
     ? [{lat,lng,label:String(item.display_name)}] : [];
   });
  }
- function addGoogleMapsSearch(input,after){
-  const link=input.ownerDocument.createElement('a');
+ function addGoogleMapsSearch(input,after,existingLink){
+  const link=existingLink||input.ownerDocument.createElement('a');
   link.textContent='Търси в Google Maps';
   link.target='_blank';
   link.rel='noopener noreferrer';
-  link.style.display='inline-block';
-  link.style.marginBlock='0.5rem';
+  if(!existingLink){
+   link.style.display='inline-block';
+   link.style.marginBlock='0.5rem';
+  }
   function update(){
    const query=input.value.trim().replace(/^(?:[сц]ело|с\.)\s+/iu,'');
    const url=new URL('https://www.google.com/maps/search/');
@@ -67,7 +69,7 @@
   input.addEventListener('input',update);
   link.addEventListener('click',update);
   update();
-  after.after(link);
+  if(!existingLink)after.after(link);
   return link;
  }
  root.document?.addEventListener('DOMContentLoaded',()=>{
