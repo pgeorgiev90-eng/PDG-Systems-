@@ -145,13 +145,16 @@ async function renderReply(raw,out,offer,requestQuestion){
       'kb.solaxpower.com':'SolaX','uk.solaxpower.com':'SolaX',
       'www.deyeinverter.com':'Deye','www.dyness.com':'Dyness',
       'technav.ieee.org':'IEEE','www.energy.gov':'U.S. Department of Energy',
-      'docs.nrel.gov':'NREL'
+      'docs.nrel.gov':'NREL',
+      'pdgsystems.bg':'PDG Systems'
     };
     for(const source of result.sources.slice(0,3)){
       try{
         const url=new URL(source);
         if(url.protocol!=='https:'||!Object.hasOwn(publishers,url.hostname))continue;
-        const sourceLink=make('a','Източник: '+publishers[url.hostname]);
+        const pdgPages={'/solar-cad.html':'Solar CAD · указания','/solar-cad-preview.html':'Отвори Solar CAD','/electric-cad.html':'Отвори Electric CAD'};
+        const linkLabel=url.hostname==='pdgsystems.bg' ? pdgPages[url.pathname] : null;
+        const sourceLink=make('a',linkLabel||'Източник: '+publishers[url.hostname]);
         sourceLink.href=url.href;sourceLink.target='_blank';sourceLink.rel='noopener';sources.append(sourceLink);
       }catch{}
     }
