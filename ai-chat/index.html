@@ -186,20 +186,48 @@ function continueHomeContext(context, question){
   return bytes.encode(combined).length <= 1100 ? combined : question;
 }
 function rememberTurn(question,answer){
-  if(!answer.trim())return;
-  recentTurns.push({question,answer});
-  if(recentTurns.length>3)recentTurns.shift();
+  const turn={question,answer};
+  recentTurns.push(turn);
+  return turn;
+}
+function rememberedAnswer(text,raw){
+  try{
+    const result=JSON.parse(raw);
+    const codes=(Array.isArray(result.items)?result.items:[]).slice(0,8)
+      .filter(item=>typeof item.code==='string'&&item.code)
+      .map(item=>item.quantity+' × '+item.code).join(', ');
+    return codes?'Показани артикули: '+codes+'. '+text:text;
+  }catch{
+    return text;
+  }
 }
 function withConversation(question){
-  const encoder=new TextEncoder();
-  let history='';
-  for(const turn of [...recentTurns].reverse()){
-    const chunk='Клиент: '+turn.question.replace(/\s+/g,' ').slice(0,115)+'\nПомощник: '+turn.answer.replace(/\s+/g,' ').slice(0,130);
-    const next=chunk+(history?'\n'+history:'');
-    if(encoder.encode(question+'\n[История на разговора]\n'+next).length>1200)break;
-    history=next;
+  if(!recentTurns.length)return question;
+  const header=question+'\n[История на разговора]\n';
+  const bytes=new TextEncoder();
+  const limit=12000;
+  const clean=text=>text.replace(/\s+/g,' ').trim();
+  let used=bytes.encode(header).length;
+  const chosen=new Map();
+  // Reserve room for the client's requirements before adding earlier assistant prose.
+  const order=[...recentTurns.keys()].reverse();
+  if(order.length>1)order.unshift(order.pop());
+  for(const index of order){
+    const turn=recentTurns[index];
+    const pair='Клиент: '+clean(turn.question)+'\nПомощник: ';
+    const size=bytes.encode(pair+'\n').length;
+    if(used+size>limit)continue;
+    chosen.set(index,pair);
+    used+=size;
   }
-  return history ? question+'\n[История на разговора]\n'+history : question;
+  for(const index of [...chosen.keys()].sort((a,b)=>b-a)){
+    const answer=clean(recentTurns[index].answer).slice(0,550);
+    const size=bytes.encode(answer).length;
+    if(used+size>limit)continue;
+    chosen.set(index,chosen.get(index)+answer);
+    used+=size;
+  }
+  return chosen.size?header+[...chosen].sort((a,b)=>a[0]-b[0]).map(([,pair])=>pair).join('\n'):question;
 }
 function typeReply(out,text){
   if(!text){out.textContent='';return Promise.resolve();}
@@ -405,7 +433,7 @@ async function renderReply(raw,out,offer,requestQuestion){
 }
 const api=(op)=>'/api/site-ai-chat.php?op='+op;
 async function data(response){const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
-async function showRevisedAnswer(id, requestQuestion) {
+async function showRevisedAnswer(id, requestQuestion, turn) {
   const {card,bubble}=message('Преглеждам предишния си отговор и подготвям нов.');
   const offer=make('div');offer.className='offer';offer.hidden=true;card.append(offer);
   const deadline=Date.now()+6*60*1000;
@@ -417,13 +445,14 @@ async function showRevisedAnswer(id, requestQuestion) {
     if(result.status!=='done')continue;
     bubble.textContent='';
     await renderReply(result.answer,bubble,offer,requestQuestion);
-    addFeedback(card,id,requestQuestion);
+    turn.answer=rememberedAnswer(bubble.textContent,result.answer);
+    addFeedback(card,id,requestQuestion,turn);
     return;
   }
   throw new Error('revision_timeout');
 }
 
-function addFeedback(card,id,requestQuestion){
+function addFeedback(card,id,requestQuestion,turn){
   const group=make('div');group.className='offer-sources';
   const status=make('span','Полезен ли беше отговорът?');status.setAttribute('role','status');
   const buttons=[make('button','Да'),make('button','Не')];
@@ -438,7 +467,7 @@ function addFeedback(card,id,requestQuestion){
         buttons.forEach(item=>item.remove());
         if(vote.revision_id){
           try{
-            await showRevisedAnswer(vote.revision_id,requestQuestion);
+            await showRevisedAnswer(vote.revision_id,requestQuestion,turn);
             status.textContent='Оценката е записана. Новият отговор е по-долу.';
           }catch{
             status.textContent='Оценката е записана, но новият отговор се забави.';
@@ -473,11 +502,16 @@ form.addEventListener('submit',async event=>{
     field.value='';
     message(question,true);
     if(!latestPdfOffer){
-      message('Да, мога да подготвя ориентировъчна PDF оферта. Посочете продуктов код и количество или кажете какво оборудване търсите.');
+      const reply='Да, мога да подготвя ориентировъчна PDF оферта. Посочете продуктов код и количество или кажете какво оборудване търсите.';
+      message(reply);
+      rememberTurn(question,reply);
     }else if(/(?:пдф|pdf)/iu.test(question)){
       await latestPdfOffer();
+      rememberTurn(question,'Заявено е изтегляне на последната предложена оферта.');
     }else{
-      message('Да. Отбележете желаните позиции, въведете количествата и натиснете „Изтегли PDF оферта“.');
+      const reply='Да. Отбележете желаните позиции, въведете количествата и натиснете „Изтегли PDF оферта“.';
+      message(reply);
+      rememberTurn(question,reply);
       latestOfferCard.scrollIntoView({block:'nearest'});
     }
     return;
@@ -534,8 +568,8 @@ form.addEventListener('submit',async event=>{
         clearInterval(waitingTimer);
         bubble.classList.remove('is-waiting');
         await renderReply(status.answer,bubble,offer,requestQuestion);
-        rememberTurn(question,bubble.textContent);
-        addFeedback(card,req.id,contextualRequest);
+        const turn=rememberTurn(question,rememberedAnswer(bubble.textContent,status.answer));
+        addFeedback(card,req.id,contextualRequest,turn);
         return;
       }
     }
