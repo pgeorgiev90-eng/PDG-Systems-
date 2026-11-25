@@ -206,11 +206,13 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     if(preview)body.append(element('p','Примерен изглед · Данните тук са само за преглед.','ops-preview'));
     const unfinished=state.tasks.filter(t=>t.status!=='completed');
     const blocked=unfinished.filter(t=>t.status==='waiting_delivery');
-    const incoming=state.deliveries.filter(d=>d.received_quantity<d.ordered_quantity);
+    const activeOrderIds=new Set(orders.filter(order=>!order.completed_at).map(order=>order.id));
+    const incoming=state.deliveries.filter(d=>activeOrderIds.has(d.work_order_id)&&d.received_quantity<d.ordered_quantity);
+    const waitingOrderIds=new Set(Array.isArray(state.waiting_order_ids)?state.waiting_order_ids:incoming.map(d=>d.work_order_id));
     const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Sofia'}).format(new Date());
     const due=unfinished.filter(t=>t.due_date&&t.due_date<=today);
     const cards=element('div','','ops-cards');
-    for(const [value,label,color] of [[due.length,'За днес и просрочени',''],[blocked.length,'Чакат доставка','ops-warn'],[incoming.length,'Очаквани доставки','']]){
+    for(const [value,label,color] of [[due.length,'За днес и просрочени',''],[waitingOrderIds.size,'Обекти чакат доставка','ops-warn'],[incoming.length,'Очаквани доставки','']]){
       const card=element('div','','ops-metric '+color);
       card.append(element('strong',String(value)),element('span',label));
       cards.append(card);
@@ -225,7 +227,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     function stageFor(order){
       if(order.completed_at)return 'done';
       const tasks=state.tasks.filter(task=>task.work_order_id===order.id);
-      if(tasks.some(task=>task.status==='waiting_delivery'))return 'waiting';
+      if(waitingOrderIds.has(order.id))return 'waiting';
       if(tasks.some(task=>task.status==='ready'))return 'ready';
       return 'preparing';
     }
