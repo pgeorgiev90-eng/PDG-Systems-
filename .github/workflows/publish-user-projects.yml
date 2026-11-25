@@ -98,15 +98,17 @@ jobs:
           from pathlib import Path
           files=['api/demo-account-bootstrap.php','api/admin-common.php','api/admin-users.php','api/project-support.php','electrical-catalog.js','admin-workspace.js','account-session-guard.js','api/account-draft.php','api/my-projects-common.php','api/my-projects.php','api/my-projects-demo.php','api/project-requests.php','my-projects.css','my-projects.js','admin-project-requests.js','cad-account-projects.js','electrical-busbar.js','api/cad-projects.php','api/cad-page-access.php','my-projects.php','auth.html','account-draft.html','admin-dashboard.html','roof-cad.php','electrical-cad.php','solar-cad-preview.html']
           changed=set(subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines())
-          if 'api/admin-users.php' in changed:
-              files=[name for name in files if name in changed]
+          account_rollout='5879ff26a00aa6f4c3ccf6979e9875a5c47918e0'
+          rollout_files=set(subprocess.check_output(['git','diff','--name-only',account_rollout+'^',account_rollout],text=True).splitlines())
+          if changed and changed <= rollout_files:
+              files=[name for name in files if name in rollout_files]
           Path('/tmp/profile-files.json').write_text(json.dumps(files))
           backup=Path('/tmp/profile-rollback');backup.mkdir()
           with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
               ftp.connect(os.environ['FTP_HOST'],21);ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD']);ftp.prot_p();ftp.cwd('/')
               for name in files:
                   p=backup/name;p.parent.mkdir(parents=True,exist_ok=True);data=io.BytesIO()
-                  previous=subprocess.run(['git','show','HEAD^:'+name],capture_output=True)
+                  previous=subprocess.run(['git','show',((account_rollout+'^') if changed and changed <= rollout_files else 'HEAD^')+':'+name],capture_output=True)
                   baseline=subprocess.run(['git','show','b97dae80d28a606859c06189a2ff1592d0c24f63:'+name],capture_output=True)
                   try:ftp.retrbinary('RETR '+name,data.write)
                   except ftplib.error_perm as e:
