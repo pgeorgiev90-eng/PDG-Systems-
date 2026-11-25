@@ -52,6 +52,8 @@ const form=document.querySelector('#chat'), field=document.querySelector('#quest
 const money=cents=>(cents/100).toLocaleString('bg-BG',{style:'currency',currency:'EUR'});
 const make=(tag,text)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=text;return element;};
 let latestPdfOffer=null;
+let latestOfferCard=null;
+const offerRequest=/^(?:моля[,:\s]+)?(?:(?:може(?:ш|те)?\s+ли\s+да\s+)?(?:ми\s+)?(?:направ\p{L}*|генерира\p{L}*|подготв\p{L}*|изготв\p{L}*|да(?:й|йте|деш|дете)|изтегл\p{L}*|искам)(?:\s+ми)?\s+)?(?:една\s+)?(?:оферт(?:а|ата)(?:\s+(?:в(?:ъв)?|като)\s+(?:пдф|pdf)(?:\s+формат)?)?|(?:пдф|pdf)(?:\s+оферт(?:а|ата))?)[.!?]*$/iu;
 
 function offerPdf(rows,date){
   const canvas=make('canvas');
@@ -373,6 +375,7 @@ async function renderReply(raw,out,offer,requestQuestion){
   }
   pdf.onclick=downloadOffer;
   latestPdfOffer=downloadOffer;
+  latestOfferCard=offer;
   check.onclick=async()=>{
     if(busy||added||!validate())return;
     const selection=current();
@@ -465,15 +468,20 @@ form.addEventListener('submit',async event=>{
   event.preventDefault();
   const question=field.value.trim();
   if(!question||send.disabled)return;
-  const pdfRequest=/^(?:моля[,\s]+)?(?:(?:направи(?:те)?|генерирай(?:те)?|дай(?:те)?|изтегли(?:те)?|искам)(?:\s+ми)?\s+)?(?:(?:пдф|pdf)(?:\s+оферт(?:а|ата))?|оферт(?:а|ата)\s+(?:във?|като)\s+(?:пдф|pdf)(?:\s+формат)?)[.!?]*$/iu;
-  if(pdfRequest.test(question)){
+  if(offerRequest.test(question)){
     field.value='';
     message(question,true);
-    if(latestPdfOffer)await latestPdfOffer();
-    else message('Посочете артикули или напишете какво оборудване търсите, за да подготвя PDF оферта.');
+    if(!latestPdfOffer){
+      message('Да, мога да подготвя ориентировъчна PDF оферта. Посочете продуктов код и количество или кажете какво оборудване търсите.');
+    }else if(/(?:пдф|pdf)/iu.test(question)){
+      await latestPdfOffer();
+    }else{
+      message('Да. Отбележете желаните позиции, въведете количествата и натиснете „Изтегли PDF оферта“.');
+      latestOfferCard.scrollIntoView({block:'nearest'});
+    }
     return;
   }
-  if(/^(?:нова тема|друг въпрос|забрави|започни отначало)(?=\s|[.,!?]|$)/iu.test(question)){recentTurns.length=0;previousQuestion='';latestPdfOffer=null;}
+  if(/^(?:нова тема|друг въпрос|забрави|започни отначало)(?=\s|[.,!?]|$)/iu.test(question)){recentTurns.length=0;previousQuestion='';latestPdfOffer=null;latestOfferCard=null;}
   const shortFollowUp=question.length<=105&&/^(?:предложи(?:те)?(?:\s+ми)?(?:\s+ти)?[.!?]*$|препоръчай(?:те)?(?:\s+ми)?[.!?]*$|(?:а\s+)?ко[йеяи]\s+(?:от\s+тях|да\s+избера|би\s+избрал|е\s+по[- ]добър|препоръчваш)|(?:а\s+)?(?:по[- ]евтин|по[- ]мощен|друг\s+вариант)|(?:избери|покажи)(?:те)?\s+ми\s+(?:един|друг|най[- ]добрия))/i.test(question);
   const contextQuestion=continueHomeContext(homeContext,question);
   const requestQuestion=shortFollowUp&&previousQuestion
