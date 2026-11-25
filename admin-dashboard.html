@@ -116,7 +116,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     const form=element('form');form.className='line';form.id='pdg-ops-task-form';
     const order=element('select');order.name='work_order_id';order.required=true;
     const wrap=element('label','Поръчка ');wrap.append(order);form.append(wrap);
-    for(const row of state.orders)order.add(new Option(row.name+' · '+row.site,row.id));
+    for(const row of state.orders.filter(row=>!row.completed_at))order.add(new Option(row.name+' · '+row.site,row.id));
     field(form,'Задача','title');field(form,'Отговорник','assignee','text',false);field(form,'Срок','due_date','date',false);priorityField(form);
     const delivery=element('select');delivery.name='delivery_id';
     const dWrap=element('label','Зависи от доставка ');dWrap.append(delivery);form.append(dWrap);
@@ -125,7 +125,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       for(const row of state.deliveries.filter(d=>String(d.work_order_id)===order.value))delivery.add(new Option(row.item,row.id));
     };
     order.onchange=options;options();
-    const save=element('button','Създай задача');save.type='submit';save.disabled=!state.orders.length;form.append(save);
+    const save=element('button','Създай задача');save.type='submit';save.disabled=!state.orders.some(row=>!row.completed_at);form.append(save);
     form.onsubmit=async event=>{
       event.preventDefault();save.disabled=true;
       try{await api('task',Object.fromEntries(new FormData(form)));form.reset();options();await refresh();}
@@ -223,10 +223,10 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       ['done','Приключени'],
     ];
     function stageFor(order){
+      if(order.completed_at)return 'done';
       const tasks=state.tasks.filter(task=>task.work_order_id===order.id);
       if(tasks.some(task=>task.status==='waiting_delivery'))return 'waiting';
       if(tasks.some(task=>task.status==='ready'))return 'ready';
-      if(tasks.length&&tasks.every(task=>task.status==='completed'))return 'done';
       return 'preparing';
     }
     function openOrder(order){
@@ -248,7 +248,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       };
       for(const [key,value] of Object.entries(drafts[0]))if(orderForm.elements[key])orderForm.elements[key].value=value;
       controls.append(addOrder);
-      if(orders.length){
+      if(orders.some(order=>!order.completed_at)){
         const taskEditor=element('details');taskEditor.id='pdg-ops-task-editor';taskEditor.open=taskOpen;
         taskEditor.append(element('summary','Нова задача'));
         const form=formFor(state);
@@ -258,7 +258,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
           form.elements[key].value=drafts[1][key];
           if(key==='work_order_id')form.elements[key].onchange();
         }
-        if(selectedOrder!==null&&!taskOpen&&orders.some(order=>order.id===selectedOrder)){
+        if(selectedOrder!==null&&!taskOpen&&orders.some(order=>order.id===selectedOrder&&!order.completed_at)){
           form.elements.work_order_id.value=String(selectedOrder);
           form.elements.work_order_id.onchange();
         }
@@ -296,10 +296,11 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       body.append(grid('Приоритети днес',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],taskRows(focus),'Няма просрочени или блокирани задачи.'));
     }
     if(view==='today'){
-      body.append(grid('Текущи обекти',['Поръчка','Обект','Статус','Срок'],orders.map(order=>[
+      body.append(grid('Текущи обекти',['Поръчка','Обект','Статус','Срок'],orders.filter(order=>!order.completed_at).map(order=>[
         button(order.name,()=>openOrder(order)),order.site,tag(stages.find(([key])=>key===stageFor(order))[1],stageFor(order)==='waiting'),shortDate(order.due_date),
       ]),'Няма текущи обекти.'));
-      body.append(grid('Задачи и досиета',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],taskRows(state.tasks),'Няма създадени задачи.'));
+      body.append(grid('Задачи и досиета',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],taskRows(unfinished),'Няма текущи задачи.'));
+      if(state.tasks.some(t=>t.status==='completed'))body.append(grid('Завършени задачи',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],taskRows(state.tasks.filter(t=>t.status==='completed')),''));
     }
     if(view==='orders'){
       const board=element('div','','ops-board');
@@ -324,6 +325,16 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
         const detail=element('section','','ops-block ops-selected-order');
         detail.append(element('h3',order.site+' · '+order.name),
           element('p','Срок '+shortDate(order.due_date),'ops-empty'));
+        if(!preview){
+          const actions=element('div','','ops-controls'), gallery=element('a','Досие и снимки ('+(state.photos||[]).filter(photo=>photo.work_order_id===order.id).length+')');
+          gallery.href='https://ops.pdgsystems.bg/#order='+order.id;gallery.target='_blank';gallery.rel='noopener';
+          actions.append(gallery,button(order.completed_at?'Върни в текущи':'Отбележи завършен',async()=>{
+            if(!confirm(order.completed_at?'Връщане на обекта в текущи?':'Приключване на обекта?'))return;
+            try{await api(order.completed_at?'order_reopen':'order_complete',{id:order.id});await refresh();}
+            catch(error){status.textContent=error.message;}
+          }));
+          detail.append(actions);
+        }
         detail.append(grid('Задачи по обекта',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],
           taskRows(state.tasks.filter(task=>task.work_order_id===order.id)),'По този обект още няма задачи.'));
         detail.append(grid('Доставки по обекта',['Артикул','Доставчик','Получени','Очаквана дата'],
