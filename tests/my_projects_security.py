@@ -18,16 +18,37 @@ def login(email,password):
 a,ac=login('admin@example.test','Admin-test-123456');u,uc=login('customer@example.test','Customer-test-123456')
 check(req(client(),'api/my-projects.php')[0]==401,'guest list rejected')
 check(req(u,'api/project-requests.php')[0]==403,'customer cannot see admin requests')
-check(req(u,'api/my-projects-demo.php',{},uc)[0]==403,'customer cannot create demo identities')
-check(req(a,'api/my-projects-demo.php',{})[0]==403,'demo CSRF enforced')
-code,demo=req(a,'api/my-projects-demo.php',{},ac);check(code==200 and demo['role']=='customer','demo customer creation')
-b,bc=login(demo['email'],demo['password']);code,listing=req(b,'api/my-projects.php');check(code==200 and len(listing['projects'])==2,'demo examples both CADs')
-solar=next(p for p in listing['projects'] if p['editor']=='solar');electric=next(p for p in listing['projects'] if p['editor']=='electric')
-_,electricdata=req(b,'api/my-projects.php?id='+str(electric['id']));open('/tmp/pdg-demo-electric.json','w').write(json.dumps(electricdata['project']))
-check(req(b,'api/admin-users.php')[0]==403,'demo is not administrator')
-_,demo_session=req(b,'api/account-draft.php?action=session');_,admin_session=req(a,'api/account-draft.php?action=session')
-check(demo_session['user']['id']!=admin_session['user']['id'],'demo and administrator are distinct database users')
-for endpoint in ['api/cad-projects.php','api/admin-products-draft.php','api/project-requests.php']:check(req(b,endpoint)[0]==403,'demo cannot access '+endpoint)
+check(req(u,'api/my-projects-demo.php',{},uc)[0]==410,'demo creation retired')
+check(req(a,'api/my-projects-demo.php',{},ac)[0]==410,'administrator cannot create demo identities')
+new={'action':'create','email':'managed@example.test','password':'Managed-account-test-456','role':'customer'}
+check(req(u,'api/admin-users.php',new,uc)[0]==403,'customer cannot create users')
+check(req(a,'api/admin-users.php',new)[0]==403,'owner creation requires CSRF')
+check(req(a,'api/admin-users.php',new,ac)[0]==201,'owner creates customer')
+check(req(a,'api/admin-users.php',new,ac)[0]==409,'duplicate account refused')
+b,bc=login(new['email'],new['password'])
+_,demo_session=req(b,'api/account-draft.php?action=session')
+_,admin_session=req(a,'api/account-draft.php?action=session')
+target=demo_session['user']['id']
+check(req(a,'api/admin-users.php',{'action':'set_role','id':admin_session['user']['id'],'role':'customer'},ac)[0]==403,'owner role protected')
+change={'action':'set_role','id':target,'role':'admin'}
+check(req(a,'api/admin-users.php',change,ac)[0]==200,'owner grants administrator role')
+check(not req(b,'api/admin-users.php')[1]['can_manage_accounts'],'delegated admin is not the owner')
+check(req(b,'api/admin-users.php',{**new,'email':'denied@example.test'},bc)[0]==403,'delegated admin cannot create accounts')
+check(req(a,'api/admin-users.php',{**change,'role':'customer'},ac)[0]==200,'owner revokes administrator role')
+check(req(b,'api/admin-users.php')[0]==403,'revocation applies to an existing session')
+electric={'version':2,'project':'Test cabinet','rows':3,'modules':12,'mode':'din',
+          'cabinet':{'sku':'','widthMm':600,'heightMm':800,'depthMm':260},
+          'items':[{'type':'MAIN','width':4,'row':0,'col':0,'name':'Main','rating':'40 A'}],
+          'busbars':[],'connections':[]}
+code,d=req(b,'api/my-projects.php',{'action':'save','editor':'electric','name':'Test cabinet','project':electric},bc)
+check(code==200,'isolated customer saves Electric CAD')
+_,electricdata=req(b,'api/my-projects.php?id='+str(d['meta']['id']))
+open('/tmp/pdg-demo-electric.json','w').write(json.dumps(electricdata['project']))
+code,d=req(b,'api/my-projects.php',{'action':'save','editor':'solar','name':'Solar test','project':{'version':1,'planes':[]}},bc)
+check(code==200,'isolated customer saves Solar CAD')
+solar=d['meta']
+for endpoint in ['api/cad-projects.php','api/admin-products-draft.php','api/project-requests.php']:
+ check(req(b,endpoint)[0]==403,'managed customer cannot access '+endpoint)
 import re
 for c,uid in [(a,admin_session['user']['id']),(b,demo_session['user']['id'])]:
  with c.open(BASE+'roof-cad.php',timeout=15) as response:check(('data-account-user="'+str(uid)+'"') in response.read().decode(),'server renders the correct local-storage owner')

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 // Shared PDG account sessions for CAD and administration.
+require_once __DIR__.'/demo-account-bootstrap.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
@@ -38,7 +39,7 @@ if ($action === 'session' && $_SERVER['REQUEST_METHOD'] === 'GET') {
                 if (!isset($cfg) || !is_array($cfg)) throw new RuntimeException('configuration');
                 $db=new PDO('mysql:host='.($cfg['host']??'localhost').';dbname='.($cfg['database']??'').';charset=utf8mb4',$cfg['username']??'',$cfg['password']??'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
                 $q=$db->prepare('SELECT id,email,role,is_active FROM pdg_users WHERE id=?');$q->execute([(int)$_SESSION['user']['id']]);$fresh=$q->fetch();
-                if (!$fresh || (int)$fresh['is_active']!==1) {
+                if (!$fresh || (int)$fresh['is_active']!==1 || pdg_is_demo_account($fresh['email'])) {
                     unset($_SESSION['user'],$_SESSION['login_at'],$_SESSION['last_activity']);
                     session_regenerate_id(true); $_SESSION['csrf']=bin2hex(random_bytes(32));
                 } else {
@@ -62,8 +63,6 @@ if ($action === 'logout') {
 if ($action !== 'login') respond(404, ['error'=>'not_found']);
 $input = json_decode(file_get_contents('php://input'), true);
 $email = is_array($input) && is_string($input['email'] ?? null) ? trim($input['email']) : '';
-$demoAlias=in_array(mb_strtolower($email,'UTF-8'),['демо','demo'],true);
-if($demoAlias)$email='demo-cad-a7eb27c84d@pdgsystems.bg';
 $password = is_array($input) && is_string($input['password'] ?? null) ? $input['password'] : '';
 if (strlen($email)>254 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password)>1024 || $password==='') {
     respond(400, ['error'=>'invalid_credentials']);
@@ -92,12 +91,11 @@ try {
     }
     $stmt=$pdo->prepare('UPDATE pdg_login_attempts SET attempt_count=attempt_count+1 WHERE identifier_hash=?');
     $stmt->execute([$key]); $pdo->commit();
-    if($demoAlias){require_once __DIR__.'/demo-account-bootstrap.php';pdg_prepare_demo_login($pdo);}
     $stmt=$pdo->prepare('SELECT id,email,password_hash,role,is_active FROM pdg_users WHERE email=? LIMIT 1');
     $stmt->execute([$email]); $user=$stmt->fetch();
     $dummy='$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
     $valid=password_verify($password, $user['password_hash'] ?? $dummy);
-    if (!$user || !$valid || (int)$user['is_active']!==1 || ($demoAlias && $user['role']!=='customer')) respond(401,['error'=>'invalid_credentials']);
+    if (!$user || !$valid || (int)$user['is_active']!==1 || pdg_is_demo_account($user['email'])) respond(401,['error'=>'invalid_credentials']);
     session_regenerate_id(true);
     $_SESSION['csrf']=bin2hex(random_bytes(32));
     $_SESSION['user']=['id'=>(int)$user['id'],'email'=>$user['email'],'role'=>$user['role']];

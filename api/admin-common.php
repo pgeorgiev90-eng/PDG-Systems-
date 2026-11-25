@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/demo-account-bootstrap.php';
 // Shared private admin helpers. Call only from APIs that perform their own input validation.
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -31,12 +32,12 @@ function pdg_account_session(bool $adminOnly, ?string $loginPage = null): array 
   if(!is_file($path))throw new RuntimeException('configuration');
   $s=require $path;if(!is_array($s))throw new RuntimeException('configuration');
   $db=new PDO('mysql:host='.($s['host']??'localhost').';dbname='.($s['database']??'').';charset=utf8mb4',$s['username']??'',$s['password']??'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
-  $q=$db->prepare('SELECT id,role,is_active FROM pdg_users WHERE id=?');$q->execute([$id]);$user=$q->fetch();
-  if ((!$user || (int)$user['is_active']!==1) && $loginPage !== null) {
+  $q=$db->prepare('SELECT id,email,role,is_active FROM pdg_users WHERE id=?');$q->execute([$id]);$user=$q->fetch();
+  if ((!$user || (int)$user['is_active']!==1 || pdg_is_demo_account($user['email'])) && $loginPage !== null) {
     unset($_SESSION['user'], $_SESSION['login_at'], $_SESSION['last_activity']);
     $requireLogin('authentication_required');
   }
-  if(!$user || (int)$user['is_active']!==1 || ($adminOnly && $user['role']!=='admin'))pdg_answer(403,['error'=>'forbidden']);
+  if(!$user || (int)$user['is_active']!==1 || pdg_is_demo_account($user['email']) || ($adminOnly && $user['role']!=='admin'))pdg_answer(403,['error'=>'forbidden']);
   if($_SERVER['REQUEST_METHOD']!=='GET'){
     $csrf=$_SERVER['HTTP_X_CSRF_TOKEN']??'';
     if(!is_string($csrf)||!isset($_SESSION['csrf'])||!hash_equals($_SESSION['csrf'],$csrf))pdg_answer(403,['error'=>'invalid_request']);
