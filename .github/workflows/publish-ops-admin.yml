@@ -65,7 +65,7 @@ jobs:
                       replaced.append(path)
                   with urllib.request.urlopen(root+'admin-dashboard.html?ops='+os.environ['GITHUB_SHA'],timeout=25) as response:
                       page=response.read()
-                      assert b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page
+                      assert b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page and b'waitingOrderIds.size' in page
                   try:
                       urllib.request.urlopen(root+'api/admin-ops.php',timeout=25)
                   except urllib.error.HTTPError as error:
