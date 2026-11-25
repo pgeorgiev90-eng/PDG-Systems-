@@ -95,7 +95,7 @@ try {
 
     if ($op === 'submit') {
         $question = $body['question'] ?? null;
-        if (!is_string($question) || trim($question) === '' || strlen($question) > 1200) {
+        if (!is_string($question) || trim($question) === '' || strlen($question) > 12000) {
             reply(400, ['error'=>'Въведете кратък въпрос.']);
         }
         $client = hash_hmac('sha256', $_SERVER['REMOTE_ADDR'] ?? '', $rateSalt);
@@ -126,7 +126,7 @@ try {
         $id = $body['id'] ?? null;
         $helpful = $body['helpful'] ?? null;
         $question = $body['question'] ?? null;
-        if ($question !== null && (!is_string($question) || trim($question) === '' || strlen($question) > 1200)) {
+        if ($question !== null && (!is_string($question) || trim($question) === '' || strlen($question) > 12000)) {
             reply(400, ['error'=>'Въведете кратък въпрос за новия опит.']);
         }
         if (!is_string($id) || !preg_match('/^[a-f0-9]{48}$/D', $id) || !is_bool($helpful)) {
