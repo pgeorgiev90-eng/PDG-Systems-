@@ -79,13 +79,13 @@ try {
         $target=$audience==='local'?'http://127.0.0.1:13010/':'https://ops.pdgsystems.bg/';
         header('Referrer-Policy: no-referrer');
         $view=$_GET['view']??'';
-        $route=in_array($view,['team','alerts'],true)?'&view='.$view:'';
+        $route=in_array($view,['team','alerts','mine','sent'],true)?'&view='.$view:'';
         header('Location: '.$target.'#login='.$ticket.$route,true,303);
         exit;
     }
     ops_tables($db);
     if($_SERVER['REQUEST_METHOD']==='POST'){
-        $data=ops_input(4096);
+        $data=ops_input(8192);
         $action=$data['action']??null;
         $payload=$data['payload']??null;
         if(!in_array($action,['order','task','note','complete','priority','order_complete','order_reopen'],true)||!is_array($payload))pdg_answer(422,['error'=>'Невалидна операция.']);
