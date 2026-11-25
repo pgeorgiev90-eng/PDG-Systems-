@@ -91,6 +91,13 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
   const element=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,handler)=>{const n=element('button',text);n.type='button';n.onclick=handler;return n;};
   const statuses={ready:'Готова',waiting_delivery:'Чака доставка',completed:'Завършена'};
+  const priorities=[[2,'Нормален'],[1,'Висок'],[3,'Нисък']];
+  const priorityLabel=value=>priorities.find(([id])=>id===Number(value))?.[1]||'Нормален';
+  function priorityField(form,value=2){
+    const label=element('label','Приоритет '), field=element('select');field.name='priority';
+    for(const [id,name] of priorities)field.add(new Option(name,id));
+    field.value=String(value);label.append(field);form.append(label);return field;
+  }
   async function api(action,payload){
     const response=await fetch('/api/admin-ops.php',action?{
       method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},
@@ -110,7 +117,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     const order=element('select');order.name='work_order_id';order.required=true;
     const wrap=element('label','Поръчка ');wrap.append(order);form.append(wrap);
     for(const row of state.orders)order.add(new Option(row.name+' · '+row.site,row.id));
-    field(form,'Задача','title');field(form,'Отговорник','assignee','text',false);field(form,'Срок','due_date','date',false);
+    field(form,'Задача','title');field(form,'Отговорник','assignee','text',false);field(form,'Срок','due_date','date',false);priorityField(form);
     const delivery=element('select');delivery.name='delivery_id';
     const dWrap=element('label','Зависи от доставка ');dWrap.append(delivery);form.append(dWrap);
     const options=()=>{
@@ -131,7 +138,18 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     const row=state.tasks.find(t=>t.id===activeTask);
     if(!row)return;
     box.append(element('h3','Досие · '+row.title),element('p',
-      [orders.find(o=>o.id===row.work_order_id)?.name,row.assignee||'Без отговорник',row.due_date||'Без срок',statuses[row.status]].filter(Boolean).join(' · ')));
+      [orders.find(o=>o.id===row.work_order_id)?.name,row.assignee||'Без отговорник',row.due_date||'Без срок',statuses[row.status],'Приоритет: '+priorityLabel(row.priority)].filter(Boolean).join(' · ')));
+    if(!preview&&row.status!=='completed'){
+      const form=element('form');form.className='line';
+      const priority=priorityField(form,row.priority||2);
+      const save=element('button','Запази приоритета');form.append(save);box.append(form);
+      form.onsubmit=async event=>{
+        event.preventDefault();save.disabled=true;
+        try{await api('priority',{id:row.id,priority:priority.value});await refresh();}
+        catch(error){status.textContent=error.message;}
+        finally{save.disabled=false;}
+      };
+    }
     if(row.completed_at)box.append(element('p','Завършена на '+new Date(row.completed_at).toLocaleString('bg-BG')));
     if(!preview&&row.status==='ready')box.append(button('Завърши задачата',async()=>{
       try{await api('complete',{id:row.id});await refresh();}catch(error){status.textContent=error.message;}
@@ -234,7 +252,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
         const taskEditor=element('details');taskEditor.id='pdg-ops-task-editor';taskEditor.open=taskOpen;
         taskEditor.append(element('summary','Нова задача'));
         const form=formFor(state);
-        for(const key of ['work_order_id','title','assignee','due_date','delivery_id']){
+        for(const key of ['work_order_id','title','assignee','due_date','priority','delivery_id']){
           if(drafts[1][key]===undefined)continue;
           if(key==='work_order_id'&&!orders.some(o=>String(o.id)===drafts[1][key]))continue;
           form.elements[key].value=drafts[1][key];
@@ -271,17 +289,17 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     };
     const taskRows=tasks=>tasks.map(task=>[
       button(task.title,()=>openTask(task)),orders.find(order=>order.id===task.work_order_id)?.site||'',
-      tag(statuses[task.status]||task.status,task.status==='waiting_delivery'),task.assignee||'—',shortDate(task.due_date),
+      tag(statuses[task.status]||task.status,task.status==='waiting_delivery'),task.assignee||'—',shortDate(task.due_date),tag(priorityLabel(task.priority),Number(task.priority)===1),
     ]);
     if(view==='today'){
-      const focus=[...new Map([...blocked,...due].map(t=>[t.id,t])).values()];
-      body.append(grid('Приоритети днес',['Задача','Обект','Статус','Отговорник','Срок'],taskRows(focus),'Няма просрочени или блокирани задачи.'));
+      const focus=unfinished.filter(t=>blocked.includes(t)||due.includes(t));
+      body.append(grid('Приоритети днес',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],taskRows(focus),'Няма просрочени или блокирани задачи.'));
     }
     if(view==='today'){
       body.append(grid('Текущи обекти',['Поръчка','Обект','Статус','Срок'],orders.map(order=>[
         button(order.name,()=>openOrder(order)),order.site,tag(stages.find(([key])=>key===stageFor(order))[1],stageFor(order)==='waiting'),shortDate(order.due_date),
       ]),'Няма текущи обекти.'));
-      body.append(grid('Задачи и досиета',['Задача','Обект','Статус','Отговорник','Срок'],taskRows(state.tasks),'Няма създадени задачи.'));
+      body.append(grid('Задачи и досиета',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],taskRows(state.tasks),'Няма създадени задачи.'));
     }
     if(view==='orders'){
       const board=element('div','','ops-board');
@@ -306,7 +324,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
         const detail=element('section','','ops-block ops-selected-order');
         detail.append(element('h3',order.site+' · '+order.name),
           element('p','Срок '+shortDate(order.due_date),'ops-empty'));
-        detail.append(grid('Задачи по обекта',['Задача','Обект','Статус','Отговорник','Срок'],
+        detail.append(grid('Задачи по обекта',['Задача','Обект','Статус','Отговорник','Срок','Приоритет'],
           taskRows(state.tasks.filter(task=>task.work_order_id===order.id)),'По този обект още няма задачи.'));
         detail.append(grid('Доставки по обекта',['Артикул','Доставчик','Получени','Очаквана дата'],
           state.deliveries.filter(delivery=>delivery.work_order_id===order.id).map(d=>[
