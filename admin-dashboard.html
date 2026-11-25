@@ -216,7 +216,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     }
     toolbar.append(tabs,button(preview?'Реални данни':'Виж пример',()=>{preview=!preview;activeTask=null;selectedOrder=null;draft='';render(actual);}));
     const opsLinks=element('div','','ops-controls');
-    for(const [view,label] of [['team','Моят екип'],['mine','Моите задачи'],['sent','Възложени от мен'],['alerts','Известия']]){
+    for(const [view,label] of [['incoming','Входящи от сайта'],['team','Моят екип'],['mine','Моите задачи'],['sent','Възложени от мен'],['alerts','Известия']]){
       const link=element('a',label,'crm-outline');
       link.href='/api/admin-ops.php?login=public&view='+view;
       opsLinks.append(link);
