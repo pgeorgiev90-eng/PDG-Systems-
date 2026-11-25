@@ -18,6 +18,11 @@ jobs:
       - name: Check API and dashboard
         run: |
           php -l api/admin-ops.php
+          php -l api/my-projects.php
+          php -l api/my-projects-common.php
+          php -l my-projects.php
+          node --check my-projects.js
+          node --check customer-panel.js
           python - <<'PY'
           import re, subprocess
           from pathlib import Path
@@ -34,7 +39,7 @@ jobs:
         run: |
           import ftplib, io, os, ssl, time, urllib.request, urllib.error
           from pathlib import Path
-          paths=('api/admin-ops.php','admin-dashboard.html')
+          paths=('api/my-projects-common.php','api/my-projects.php','my-projects.js','customer-panel.js','my-projects.php','api/admin-ops.php','admin-dashboard.html')
           suffix='.pdg-ops-'+os.environ['GITHUB_SHA'][:12]
           root='https://pdgsystems.bg/'
           def fetch(ftp,path):
@@ -68,7 +73,7 @@ jobs:
                       request=urllib.request.Request(url,headers={'Cache-Control':'no-cache','User-Agent':'PDG-Ops-Deploy/1.0'})
                       with urllib.request.urlopen(request,timeout=25) as response:
                           page=response.read()
-                      if b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page and b'description.maxLength=1500' in page:
+                      if b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page and b'description.maxLength=1500' in page and b"['incoming'," in page:
                           break
                       time.sleep(3)
                   else:
