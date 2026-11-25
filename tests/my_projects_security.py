@@ -85,4 +85,4 @@ check(req(u,'api/project-requests.php?id='+str(rid))[0]==403,'request detail pri
 check(req(u,'api/cad-projects.php',v,uc)[0]==410,'legacy write cannot bypass revision checks')
 check(req(u,'api/my-projects.php',{'action':'save','editor':'solar','name':'bad','project':{'version':1,'planes':[{}]}},uc)[0]==422,'malformed project blocked')
 check(req(u,'api/my-projects.php',{'action':'save','editor':'solar','name':'big','project':{'version':1,'planes':[],'x':'x'*1048576}},uc)[0]==413,'payload cap')
-print('PASS: isolated owners, guest/admin/customer authorization, CSRF, demo login, both editors, revision conflicts, histories, duplicate, archive/recover, preserved prices, frozen requests and protected legacy writes')
+print('PASS: isolated owners, guest/admin/customer authorization, CSRF, owner-managed roles, both editors, revision conflicts, histories, duplicate, archive/recover, preserved prices, frozen requests and protected legacy writes')
