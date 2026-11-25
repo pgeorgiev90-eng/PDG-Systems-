@@ -1,6 +1,6 @@
 <!doctype html><html lang="bg"><head><script src="account-session-guard.js?v=20261108-isolation-1"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Администрация | PDG Systems</title><style>
 body{margin:0;background:#071722;color:#eef8f7;font:15px/1.5 system-ui}main{max-width:1100px;margin:auto;padding:30px 20px}h1{margin:0 0 8px}input,button,select{font:inherit;padding:9px;border-radius:8px;border:1px solid #496d76}input,select{background:#102b39;color:white}button{background:#4ee1bd;color:#082b28;cursor:pointer;font-weight:bold}.panel{background:#102a39;border:1px solid #31505b;padding:20px;border-radius:14px;margin:18px 0}table{width:100%;border-collapse:collapse}td,th{padding:9px;border-bottom:1px solid #2c4c56;text-align:left}a{color:#70e4cb}.scroll{overflow:auto}.line{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.line input{flex:1;min-width:140px}.muted{color:#b8d2d1}.counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}.metric{background:#0b202d;border:1px solid #31505b;border-radius:12px;padding:15px}.metric span{display:block;color:#b8d2d1;font-size:13px}.metric b{display:block;font-size:30px;color:#70e4cb}.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}.chart{background:#0b202d;border:1px solid #31505b;border-radius:12px;padding:16px;min-width:0}.chart h3{margin:0 0 5px}.chart-note{font-size:13px;color:#b8d2d1;margin:0 0 15px}.bar-row{display:grid;grid-template-columns:minmax(70px,1fr) minmax(80px,2fr) 35px;gap:8px;align-items:center;margin:10px 0}.bar-name{overflow-wrap:anywhere;font-size:13px}.bar-track{height:12px;background:#203d49;border-radius:8px;overflow:hidden}.bar-fill{height:100%;background:#4ee1bd;border-radius:8px}.bar-value{text-align:right;font-weight:700}.chart-scale{display:flex;justify-content:space-between;color:#9ebdc1;font-size:12px;margin-left:33%;margin-right:35px}.chart-empty{color:#b8d2d1}.live-list{padding-left:20px}.stat-status{font-size:13px;color:#b8d2d1}
-#create-account[hidden]{display:none}#pdg-ops-panel[hidden]{display:none}#pdg-ops-content form{margin:12px 0}#pdg-ops-content ul{padding-left:20px}#pdg-ops-content textarea{min-height:65px}.ops-mode #app > :not(#pdg-ops-panel){display:none!important}.ops-mode #crm-page-title{visibility:hidden}#pdg-ops-panel{display:grid;gap:14px;scroll-margin-top:18px;background:#f5f9f7;padding:clamp(14px,3vw,28px)}#pdg-ops-panel>h2{font-size:clamp(26px,4vw,38px);color:#123e37;margin:0}.ops-toolbar,.ops-tabs,.ops-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ops-toolbar{justify-content:space-between}.ops-tabs button[aria-pressed=true]{background:#075a4e;color:white}.ops-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.ops-metric,.ops-block,.ops-controls details{background:white;border:1px solid #d9e7e1;border-radius:12px;padding:13px}.ops-metric strong{display:block;font-size:28px;color:#104d42}.ops-metric span,.ops-empty{color:#526a62}.ops-warn{background:#fff1d7!important;color:#805000}.ops-tag,.ops-preview{display:inline-block;border-radius:8px;padding:5px 9px;background:#e6f5ed;color:#145848}.ops-scroll{overflow:auto}.ops-block table{width:100%;min-width:540px}.ops-block th,.ops-block td{text-align:left}.ops-block h3{margin:0 0 9px;color:#123e37}.ops-controls summary{cursor:pointer;font-weight:650}.ops-controls details[open]{flex-basis:100%}#pdg-ops-dossier textarea{width:min(100%,540px)}#pdg-ops-dossier[hidden]{display:none}#pdg-ops-content{display:grid;gap:14px}</style><link rel="stylesheet" href="light-theme.css?v=20261105"><style>
+#create-account[hidden]{display:none}#pdg-ops-panel[hidden]{display:none}#pdg-ops-content form{margin:12px 0}#pdg-ops-content ul{padding-left:20px}#pdg-ops-content textarea{min-height:65px}.ops-mode #app > :not(#pdg-ops-panel){display:none!important}.ops-mode #crm-page-title{visibility:hidden}#pdg-ops-panel{display:grid;gap:14px;scroll-margin-top:18px;background:#f5f9f7;padding:clamp(14px,3vw,28px)}#pdg-ops-panel>h2{font-size:clamp(26px,4vw,38px);color:#123e37;margin:0}.ops-toolbar,.ops-tabs,.ops-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ops-toolbar{justify-content:space-between}.ops-tabs button[aria-pressed=true]{background:#075a4e;color:white}.ops-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.ops-metric,.ops-block,.ops-controls details{background:white;border:1px solid #d9e7e1;border-radius:12px;padding:13px}.ops-metric strong{display:block;font-size:28px;color:#104d42}.ops-metric span,.ops-empty{color:#526a62}.ops-warn{background:#fff1d7!important;color:#805000}.ops-tag,.ops-preview{display:inline-block;border-radius:8px;padding:5px 9px;background:#e6f5ed;color:#145848}.ops-scroll{overflow:auto}.ops-block table{width:100%;min-width:540px}.ops-block th,.ops-block td{text-align:left}.ops-block h3{margin:0 0 9px;color:#123e37}.ops-controls summary{cursor:pointer;font-weight:650}.ops-controls details[open]{flex-basis:100%}#pdg-ops-dossier textarea{width:min(100%,540px)}#pdg-ops-dossier[hidden]{display:none}#pdg-ops-content{display:grid;gap:14px}.ops-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.ops-lane{min-width:0;padding:12px;border:1px solid #dce8e4;border-radius:14px;background:#eef4f2}.ops-lane-waiting{background:#fff5e2;border-color:#efdfbe}.ops-lane-ready{background:#eaf6ee;border-color:#d2e9db}.ops-lane-preparing{background:#edf4fa;border-color:#dbe7f4}.ops-lane h3{margin:0 0 11px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:6px;color:#183e37}.ops-lane-count{background:#fff;border-radius:999px;padding:2px 7px;font-variant-numeric:tabular-nums}.ops-order-card{display:grid;gap:4px;width:100%;margin-bottom:8px;text-align:left;border:1px solid #b9d2c9;background:#fff;color:#153c35;border-radius:10px;padding:12px;min-height:95px;overflow-wrap:anywhere}.ops-order-card:hover,.ops-order-card[aria-pressed=true]{background:#dff1e9;border-color:#16735f}.ops-order-card small,.ops-order-card span{font-weight:400;color:#45645b}.ops-selected-order{display:grid;gap:8px}.ops-selected-order .ops-block{margin:0;padding:12px;border-color:#e2ece7}.ops-mode #pdg-ops-toggle{background:#075a4e;color:#fff}.ops-tabs{white-space:normal}@media(max-width:1180px){.ops-board{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.ops-board{grid-template-columns:1fr}}</style><link rel="stylesheet" href="light-theme.css?v=20261105"><style>
 body:has(.pdg-admin-shell){background:#f2f6fc;color:#182a47}
 .pdg-admin-head{display:flex;justify-content:space-between;gap:12px;padding:16px 24px;background:#fff;border-bottom:1px solid #d6e0ef;color:#425674}
 .pdg-admin-head a{color:#1744d5;font-weight:800;text-decoration:none}
@@ -85,7 +85,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
   const toggle=document.getElementById('pdg-ops-toggle');
   const status=document.getElementById('pdg-ops-status');
   const body=document.getElementById('pdg-ops-content');
-  let csrf='', timer, activeTask=null, orders=[], busy=false, draft='', preview=false, view='today';
+  let csrf='', timer, activeTask=null, orders=[], busy=false, draft='', preview=false, view='today', selectedOrder=null;
 
   const previewState={orders:[{id:-1,name:'Фотоволтаична система',site:'с. Роза',due_date:'2026-12-03'},{id:-2,name:'Монтаж на табло',site:'гр. Карлово',due_date:'2026-12-04'}],tasks:[{id:-1,work_order_id:-1,title:'Монтаж на батерия',assignee:'Екип 1',status:'waiting_delivery',due_date:'2026-12-03'},{id:-2,work_order_id:-2,title:'Монтаж на табло',assignee:'Екип 2',status:'ready',due_date:'2026-12-04'}],deliveries:[{id:-1,work_order_id:-1,item:'Батерия',supplier:'Примерен доставчик',received_quantity:1,ordered_quantity:2,expected_date:'2026-12-02'}],notes:[{id:-1,task_id:-1,note:'Получен е един от двата модула.',created_at:'Примерна бележка'}]};
   const element=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n;};
@@ -183,7 +183,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       const tab=button(label,()=>{view=key;render(actual);});
       tab.setAttribute('aria-pressed',String(key===view));tabs.append(tab);
     }
-    toolbar.append(tabs,button(preview?'Реални данни':'Виж пример',()=>{preview=!preview;activeTask=null;draft='';render(actual);}));
+    toolbar.append(tabs,button(preview?'Реални данни':'Виж пример',()=>{preview=!preview;activeTask=null;selectedOrder=null;draft='';render(actual);}));
     body.append(toolbar);
     if(preview)body.append(element('p','Примерен изглед · Данните тук са само за преглед.','ops-preview'));
     const unfinished=state.tasks.filter(t=>t.status!=='completed');
@@ -198,6 +198,23 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       cards.append(card);
     }
     if(view==='today')body.append(cards);
+    const stages=[
+      ['preparing','В подготовка'],
+      ['waiting','Чака доставка'],
+      ['ready','Готов за монтаж'],
+      ['done','Приключени'],
+    ];
+    function stageFor(order){
+      const tasks=state.tasks.filter(task=>task.work_order_id===order.id);
+      if(tasks.some(task=>task.status==='waiting_delivery'))return 'waiting';
+      if(tasks.some(task=>task.status==='ready'))return 'ready';
+      if(tasks.length&&tasks.every(task=>task.status==='completed'))return 'done';
+      return 'preparing';
+    }
+    function openOrder(order){
+      selectedOrder=order.id;activeTask=null;draft='';view='orders';render(actual);
+      body.querySelector('.ops-selected-order')?.scrollIntoView({block:'nearest'});
+    }
     if(!preview){
       const controls=element('div','','ops-controls');
       const addOrder=element('details');addOrder.id='pdg-ops-order-editor';addOrder.open=ordersOpen;
@@ -222,6 +239,10 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
           if(key==='work_order_id'&&!orders.some(o=>String(o.id)===drafts[1][key]))continue;
           form.elements[key].value=drafts[1][key];
           if(key==='work_order_id')form.elements[key].onchange();
+        }
+        if(selectedOrder!==null&&!taskOpen&&orders.some(order=>order.id===selectedOrder)){
+          form.elements.work_order_id.value=String(selectedOrder);
+          form.elements.work_order_id.onchange();
         }
         taskEditor.append(form);controls.append(taskEditor);
       }
@@ -256,11 +277,43 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       const focus=[...new Map([...blocked,...due].map(t=>[t.id,t])).values()];
       body.append(grid('Приоритети днес',['Задача','Обект','Статус','Отговорник','Срок'],taskRows(focus),'Няма просрочени или блокирани задачи.'));
     }
-    if(view!=='deliveries'){
-      body.append(grid('Текущи обекти',['Поръчка','Обект','Отворени задачи','Срок'],orders.map(order=>[
-        order.name,order.site,String(unfinished.filter(t=>t.work_order_id===order.id).length),shortDate(order.due_date),
+    if(view==='today'){
+      body.append(grid('Текущи обекти',['Поръчка','Обект','Статус','Срок'],orders.map(order=>[
+        button(order.name,()=>openOrder(order)),order.site,tag(stages.find(([key])=>key===stageFor(order))[1],stageFor(order)==='waiting'),shortDate(order.due_date),
       ]),'Няма текущи обекти.'));
       body.append(grid('Задачи и досиета',['Задача','Обект','Статус','Отговорник','Срок'],taskRows(state.tasks),'Няма създадени задачи.'));
+    }
+    if(view==='orders'){
+      const board=element('div','','ops-board');
+      for(const [key,label] of stages){
+        const column=element('section','','ops-lane ops-lane-'+key);
+        const matches=orders.filter(order=>stageFor(order)===key);
+        const heading=element('h3',label);heading.append(element('span',String(matches.length),'ops-lane-count'));column.append(heading);
+        for(const order of matches){
+          const card=button('',()=>openOrder(order));
+          card.className='ops-order-card';
+          card.setAttribute('aria-pressed',String(selectedOrder===order.id));
+          const remaining=unfinished.filter(task=>task.work_order_id===order.id).length;
+          card.append(element('strong',order.site),element('span',order.name),element('small',remaining+' отворени задачи · '+shortDate(order.due_date)));
+          column.append(card);
+        }
+        if(!matches.length)column.append(element('p','Няма обекти в този етап.','ops-empty'));
+        board.append(column);
+      }
+      body.append(board);
+      const order=orders.find(row=>row.id===selectedOrder);
+      if(order){
+        const detail=element('section','','ops-block ops-selected-order');
+        detail.append(element('h3',order.site+' · '+order.name),
+          element('p','Срок '+shortDate(order.due_date),'ops-empty'));
+        detail.append(grid('Задачи по обекта',['Задача','Обект','Статус','Отговорник','Срок'],
+          taskRows(state.tasks.filter(task=>task.work_order_id===order.id)),'По този обект още няма задачи.'));
+        detail.append(grid('Доставки по обекта',['Артикул','Доставчик','Получени','Очаквана дата'],
+          state.deliveries.filter(delivery=>delivery.work_order_id===order.id).map(d=>[
+            d.item,d.supplier,tag(d.received_quantity+' / '+d.ordered_quantity,d.received_quantity<d.ordered_quantity),shortDate(d.expected_date),
+          ]),'По този обект още няма доставки.'));
+        body.append(detail);
+      }
     }
     if(view!=='orders')body.append(grid(view==='today'?'Очаквани доставки':'Доставки по обекти',['Артикул','Доставчик','Получени','Очаквана дата'],
       (view==='today'?incoming:state.deliveries).map(d=>[d.item,d.supplier,tag(d.received_quantity+' / '+d.ordered_quantity,d.received_quantity<d.ordered_quantity),shortDate(d.expected_date)]),'Няма доставки за показване.'));
