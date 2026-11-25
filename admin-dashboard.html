@@ -1,6 +1,6 @@
 <!doctype html><html lang="bg"><head><script src="account-session-guard.js?v=20261108-isolation-1"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Администрация | PDG Systems</title><style>
 body{margin:0;background:#071722;color:#eef8f7;font:15px/1.5 system-ui}main{max-width:1100px;margin:auto;padding:30px 20px}h1{margin:0 0 8px}input,button,select{font:inherit;padding:9px;border-radius:8px;border:1px solid #496d76}input,select{background:#102b39;color:white}button{background:#4ee1bd;color:#082b28;cursor:pointer;font-weight:bold}.panel{background:#102a39;border:1px solid #31505b;padding:20px;border-radius:14px;margin:18px 0}table{width:100%;border-collapse:collapse}td,th{padding:9px;border-bottom:1px solid #2c4c56;text-align:left}a{color:#70e4cb}.scroll{overflow:auto}.line{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.line input{flex:1;min-width:140px}.muted{color:#b8d2d1}.counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}.metric{background:#0b202d;border:1px solid #31505b;border-radius:12px;padding:15px}.metric span{display:block;color:#b8d2d1;font-size:13px}.metric b{display:block;font-size:30px;color:#70e4cb}.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}.chart{background:#0b202d;border:1px solid #31505b;border-radius:12px;padding:16px;min-width:0}.chart h3{margin:0 0 5px}.chart-note{font-size:13px;color:#b8d2d1;margin:0 0 15px}.bar-row{display:grid;grid-template-columns:minmax(70px,1fr) minmax(80px,2fr) 35px;gap:8px;align-items:center;margin:10px 0}.bar-name{overflow-wrap:anywhere;font-size:13px}.bar-track{height:12px;background:#203d49;border-radius:8px;overflow:hidden}.bar-fill{height:100%;background:#4ee1bd;border-radius:8px}.bar-value{text-align:right;font-weight:700}.chart-scale{display:flex;justify-content:space-between;color:#9ebdc1;font-size:12px;margin-left:33%;margin-right:35px}.chart-empty{color:#b8d2d1}.live-list{padding-left:20px}.stat-status{font-size:13px;color:#b8d2d1}
-#create-account[hidden]{display:none}</style><link rel="stylesheet" href="light-theme.css?v=20261105"><style>
+#create-account[hidden]{display:none}#pdg-ops-panel[hidden]{display:none}#pdg-ops-content form{margin:12px 0}#pdg-ops-content ul{padding-left:20px}#pdg-ops-content textarea{min-height:65px}</style><link rel="stylesheet" href="light-theme.css?v=20261105"><style>
 body:has(.pdg-admin-shell){background:#f2f6fc;color:#182a47}
 .pdg-admin-head{display:flex;justify-content:space-between;gap:12px;padding:16px 24px;background:#fff;border-bottom:1px solid #d6e0ef;color:#425674}
 .pdg-admin-head a{color:#1744d5;font-weight:800;text-decoration:none}
@@ -26,7 +26,7 @@ body:has(.pdg-admin-shell){background:#f2f6fc;color:#182a47}
 #admin-projects td{overflow-wrap:anywhere}
 @media(max-width:720px){.pdg-admin-shell:has(.pdg-admin-nav:not([hidden])){grid-template-columns:minmax(0,1fr)}.pdg-admin-nav:not([hidden]){display:flex;flex-wrap:wrap;padding:8px}.pdg-admin-nav a{margin:0}.pdg-admin-shell main{padding:15px}}
 @media(max-width:520px){.pdg-inbox{grid-template-columns:minmax(0,1fr)}}
-</style><link rel="manifest" href="/pdg-app.webmanifest"><meta name="theme-color" content="#087f6b"><link rel="apple-touch-icon" href="/assets/pdg-app-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PDG Systems"><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="admin-crm.css?v=20261111-2"><script src="admin-crm.js?v=20261111-1" defer></script></head><body><div class="pdg-admin-shell"><nav class="pdg-admin-nav" aria-label="Администрация" hidden></nav><main><header class="crm-top"><div><p class="crm-eyebrow">PDGSYSTEMS.BG / АДМИНИСТРАЦИЯ</p><h1 id="crm-page-title">Общ преглед</h1></div><div class="crm-account"><span id="crm-user">Администратор</span><a class="crm-outline" href="/">↗ Към сайта</a></div></header><p id="message" role="status" aria-live="polite">Проверка на достъпа…</p><div id="app" hidden><section id="admin-overview" class="crm-view"><div class="crm-period" role="group" aria-label="Период"><span>Период:</span><button data-period="today" aria-pressed="true">Днес</button><button data-period="week" aria-pressed="false">7 дни</button><button data-period="month" aria-pressed="false">Месец</button><button id="crm-refresh" class="crm-outline">Обнови</button></div><p id="crm-overview-status" role="status" aria-live="polite">Зареждане на данните…</p><div class="crm-metrics" id="crm-metrics"></div><div class="crm-middle"><section class="crm-card"><h2>Изисква внимание</h2><div id="crm-attention"></div></section><section class="crm-card"><h2>Посещения за 7 дни</h2><div id="crm-visit-chart"></div><p class="crm-note">Отчетени посещения след съгласие за статистика.</p></section></div><section class="crm-card"><h2>Последни поръчки</h2><div class="scroll"><table><thead><tr><th>Поръчка</th><th>Клиент</th><th>Статус</th><th>Сума</th></tr></thead><tbody id="crm-recent-orders"></tbody></table></div></section><p class="crm-note">Непрочетените запитвания и проектите за съдействие са общо към момента. Останалите карти са за избрания период. Кликовете са отчетени отваряния на продукти.</p></section><section class="panel" id="admin-inbox"><h2>Входящи запитвания <span id="pdg-inbox-count" aria-live="polite"></span></h2><button id="pdg-inbox-refresh" type="button">Обнови</button><div class="pdg-inbox"><div id="pdg-inbox-list" role="group" aria-label="Последни запитвания"></div><article id="pdg-inbox-detail" aria-live="polite"></article></div></section><section class="panel" id="admin-projects"><h2>Потребителски проекти</h2><form id="pdg-project-filters" class="line"><label>Потребител или проект <input name="q" type="search" maxlength="120" placeholder="Имейл или име на проект"></label><label>Редактор <select name="editor"><option value="">Всички</option><option value="solar">Solar CAD</option><option value="electric">Electric CAD</option></select></label><label>Архив <select name="archive"><option value="all">Всички чертежи</option><option value="active">Активни</option><option value="archived">Архивирани и изтрити от клиента</option></select></label><button type="submit">Търси</button></form><p id="pdg-project-status" role="status"></p><div class="scroll"><table><thead><tr><th>Проект</th><th>Потребител</th><th>Редактор</th><th>Обновен</th><th>Копие</th></tr></thead><tbody id="pdg-project-list"></tbody></table></div><div class="line"><button id="pdg-project-back" type="button" disabled>Назад</button><button id="pdg-project-next" type="button" disabled>Напред</button></div></section>
+</style><link rel="manifest" href="/pdg-app.webmanifest"><meta name="theme-color" content="#087f6b"><link rel="apple-touch-icon" href="/assets/pdg-app-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PDG Systems"><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="admin-crm.css?v=20261111-2"><script src="admin-crm.js?v=20261111-1" defer></script></head><body><div class="pdg-admin-shell"><nav class="pdg-admin-nav" aria-label="Администрация" hidden></nav><main><header class="crm-top"><div><p class="crm-eyebrow">PDGSYSTEMS.BG / АДМИНИСТРАЦИЯ</p><h1 id="crm-page-title">Общ преглед</h1></div><div class="crm-account"><span id="crm-user">Администратор</span><button class="crm-outline" id="pdg-ops-toggle" type="button">PDG Ops</button><a class="crm-outline" href="/">↗ Към сайта</a></div></header><p id="message" role="status" aria-live="polite">Проверка на достъпа…</p><div id="app" hidden><section id="pdg-ops-panel" class="crm-card" hidden><h2>PDG Ops</h2><p id="pdg-ops-status" role="status"></p><div id="pdg-ops-content"></div></section><section id="admin-overview" class="crm-view"><div class="crm-period" role="group" aria-label="Период"><span>Период:</span><button data-period="today" aria-pressed="true">Днес</button><button data-period="week" aria-pressed="false">7 дни</button><button data-period="month" aria-pressed="false">Месец</button><button id="crm-refresh" class="crm-outline">Обнови</button></div><p id="crm-overview-status" role="status" aria-live="polite">Зареждане на данните…</p><div class="crm-metrics" id="crm-metrics"></div><div class="crm-middle"><section class="crm-card"><h2>Изисква внимание</h2><div id="crm-attention"></div></section><section class="crm-card"><h2>Посещения за 7 дни</h2><div id="crm-visit-chart"></div><p class="crm-note">Отчетени посещения след съгласие за статистика.</p></section></div><section class="crm-card"><h2>Последни поръчки</h2><div class="scroll"><table><thead><tr><th>Поръчка</th><th>Клиент</th><th>Статус</th><th>Сума</th></tr></thead><tbody id="crm-recent-orders"></tbody></table></div></section><p class="crm-note">Непрочетените запитвания и проектите за съдействие са общо към момента. Останалите карти са за избрания период. Кликовете са отчетени отваряния на продукти.</p></section><section class="panel" id="admin-inbox"><h2>Входящи запитвания <span id="pdg-inbox-count" aria-live="polite"></span></h2><button id="pdg-inbox-refresh" type="button">Обнови</button><div class="pdg-inbox"><div id="pdg-inbox-list" role="group" aria-label="Последни запитвания"></div><article id="pdg-inbox-detail" aria-live="polite"></article></div></section><section class="panel" id="admin-projects"><h2>Потребителски проекти</h2><form id="pdg-project-filters" class="line"><label>Потребител или проект <input name="q" type="search" maxlength="120" placeholder="Имейл или име на проект"></label><label>Редактор <select name="editor"><option value="">Всички</option><option value="solar">Solar CAD</option><option value="electric">Electric CAD</option></select></label><label>Архив <select name="archive"><option value="all">Всички чертежи</option><option value="active">Активни</option><option value="archived">Архивирани и изтрити от клиента</option></select></label><button type="submit">Търси</button></form><p id="pdg-project-status" role="status"></p><div class="scroll"><table><thead><tr><th>Проект</th><th>Потребител</th><th>Редактор</th><th>Обновен</th><th>Копие</th></tr></thead><tbody id="pdg-project-list"></tbody></table></div><div class="line"><button id="pdg-project-back" type="button" disabled>Назад</button><button id="pdg-project-next" type="button" disabled>Напред</button></div></section>
 <section class="panel" id="admin-statistics"><h2>Статистика за сайта</h2><p class="muted">Последните 30 дни. Отчитат се действия след разрешение за статистика. Клик върху телефона може да не доведе до обаждане.</p>
 <div class="scroll"><table><thead><tr><th scope="col">Показател</th><th scope="col">Общо</th><th scope="col">Google</th><th scope="col">Facebook</th><th scope="col">Директно</th><th scope="col">Други</th></tr></thead><tbody id="pdg-metrics-events"></tbody></table></div>
 <p id="pdg-metrics-status" role="status"></p><div class="charts"><div><h3>Категории по прегледи</h3><ol id="pdg-metrics-categories"></ol></div><div><h3>Продукти по прегледи</h3><ol id="pdg-metrics-products"></ol></div></div>
@@ -80,4 +80,134 @@ async function fields(){let id=Number($('product').value);current=0;version='';$
 try{let s=await req('api/account-draft.php?action=session');if(!s.user||s.user.role!=='admin'){msg('Необходим е администраторски вход.');return}csrf=s.csrf;document.getElementById('crm-user').textContent=s.user.email;await post('api/admin-dashboard-install.php',{});let products=await req('api/admin-products-draft.php').catch(()=>({products:[]}));allProducts=products.products;filterProducts();const requested=new URLSearchParams(location.search).get('product_id');if(allProducts.some(p=>String(p.id)===requested)){$('product').value=requested;await fields()}await users().catch(()=>{msg('Списъкът с потребители временно не е достъпен.')});await stats();$('app').hidden=false;document.querySelector('.pdg-admin-nav').hidden=false;window.dispatchEvent(new Event('pdg-admin-ready'));msg('');setInterval(stats,30000)}catch(e){msg('Панелът не е достъпен. Проверете администраторския вход и връзката с базата.');return}
 $('user-search').addEventListener('input',filterUsers);$('field-search').addEventListener('input',filterProducts);$('product').onchange=fields;$('add').onclick=()=>{if(!current){msg('Изберете продукт.');return}if($('fields').children.length>=30){msg('Позволени са до 30 полета.');return}addField()};
 $('save').onclick=async()=>{if(!current){msg('Изберете продукт.');return}const id=current;const values=[...$('fields').children].map(row=>({label:row.children[0].value.trim(),value:row.children[1].value.trim()}));if(values.some(v=>!v.label||!v.value)){msg('Попълнете името и стойността на всяко поле.');return}try{let r=await post('api/admin-product-fields.php',{product_id:id,version,fields:values});if(current===id)version=r.version;msg('Полетата са запазени.')}catch(e){msg(e.message==='changed_refresh'?'Полетата са променени другаде. Изберете продукта отново.':'Полетата не са запазени.')}}})();
-</script><script src="admin-project-requests.js?v=20261108-review-edit-1" defer></script></body></html>
+</script><script src="admin-project-requests.js?v=20261108-review-edit-1" defer></script><script>(function opsPanel(){
+  const container=document.getElementById('pdg-ops-panel');
+  const toggle=document.getElementById('pdg-ops-toggle');
+  const status=document.getElementById('pdg-ops-status');
+  const body=document.getElementById('pdg-ops-content');
+  let csrf='', timer, activeTask=null, orders=[], busy=false, draft='';
+  const element=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
+  const button=(text,handler)=>{const n=element('button',text);n.type='button';n.onclick=handler;return n;};
+  const statuses={ready:'Готова',waiting_delivery:'Чака доставка',completed:'Завършена'};
+  async function api(action,payload){
+    const response=await fetch('/api/admin-ops.php',action?{
+      method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},
+      body:JSON.stringify({action,payload}),cache:'no-store',
+    }:{cache:'no-store'});
+    const data=await response.json();
+    if(!response.ok)throw Error(data.error||'PDG Ops е недостъпен.');
+    return data;
+  }
+  function field(form,label,name,type='text',required=true){
+    const wrap=element('label',label+' '), input=element('input');
+    input.name=name;input.type=type;input.required=required;input.maxLength=200;
+    wrap.append(input);form.append(wrap);return input;
+  }
+  function formFor(state){
+    const form=element('form');form.className='line';form.id='pdg-ops-task-form';
+    const order=element('select');order.name='work_order_id';order.required=true;
+    const wrap=element('label','Поръчка ');wrap.append(order);form.append(wrap);
+    for(const row of state.orders)order.add(new Option(row.name+' · '+row.site,row.id));
+    field(form,'Задача','title');field(form,'Отговорник','assignee','text',false);field(form,'Срок','due_date','date',false);
+    const delivery=element('select');delivery.name='delivery_id';
+    const dWrap=element('label','Зависи от доставка ');dWrap.append(delivery);form.append(dWrap);
+    const options=()=>{
+      delivery.replaceChildren(new Option('Без зависимост',''));
+      for(const row of state.deliveries.filter(d=>String(d.work_order_id)===order.value))delivery.add(new Option(row.item,row.id));
+    };
+    order.onchange=options;options();
+    const save=element('button','Създай задача');save.type='submit';save.disabled=!state.orders.length;form.append(save);
+    form.onsubmit=async event=>{
+      event.preventDefault();save.disabled=true;
+      try{await api('task',Object.fromEntries(new FormData(form)));form.reset();options();await refresh();}
+      catch(error){status.textContent=error.message;}
+      finally{save.disabled=false;}
+    };
+    return form;
+  }
+  function dossier(state,box){
+    const row=state.tasks.find(t=>t.id===activeTask);
+    if(!row)return;
+    box.append(element('h3','Досие · '+row.title),element('p',
+      [orders.find(o=>o.id===row.work_order_id)?.name,row.assignee||'Без отговорник',row.due_date||'Без срок',statuses[row.status]].filter(Boolean).join(' · ')));
+    if(row.completed_at)box.append(element('p','Завършена на '+new Date(row.completed_at).toLocaleString('bg-BG')));
+    if(row.status==='ready')box.append(button('Завърши задачата',async()=>{
+      try{await api('complete',{id:row.id});await refresh();}catch(error){status.textContent=error.message;}
+    }));
+    box.append(element('h4','Бележки'));
+    const list=element('ul');
+    for(const note of state.notes.filter(n=>n.task_id===row.id))list.append(element('li',note.created_at+' · '+note.note));
+    box.append(list);
+    const form=element('form'), wrap=element('label','Нова бележка '), input=element('textarea');
+    input.maxLength=1500;input.required=true;input.value=draft;input.oninput=()=>{draft=input.value;};
+    wrap.append(input);form.append(wrap,element('button','Запиши бележка'));box.append(form);
+    form.onsubmit=async event=>{
+      event.preventDefault();const save=form.querySelector('button');save.disabled=true;
+      try{await api('note',{task_id:row.id,note:input.value});draft='';input.value='';await refresh();}
+      catch(error){status.textContent=error.message;}
+      finally{save.disabled=false;}
+    };
+  }
+  async function refresh(){
+    if(busy)return;
+    busy=true;
+    try{
+      const result=await api();
+      const waiting=result.queue.filter(row=>row.status==='pending').length;
+      const failure=result.queue.find(row=>row.status==='failed');
+      status.textContent=(result.updated?'Обновено '+new Date(result.updated*1000).toLocaleString('bg-BG'):'Очаква се връзка с Dell.')
+        +(waiting?' · Чакат запис: '+waiting:'')+(failure?' · Последна грешка: '+failure.error:'');
+      if(!result.state)return;
+      if(body.contains(document.activeElement)&&['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;
+      const state=result.state;orders=state.orders;
+      const taskForm=body.querySelector('#pdg-ops-task-form');
+      const formDraft=taskForm?Object.fromEntries(new FormData(taskForm)):{};
+      body.replaceChildren();
+      body.append(element('p',orders.length+' поръчки · '+state.tasks.filter(t=>t.status!=='completed').length+' отворени задачи · '+state.deliveries.filter(d=>d.received_quantity<d.ordered_quantity).length+' доставки за приемане'));
+      const addOrder=element('details');addOrder.append(element('summary','Нова работна поръчка'));
+      const orderForm=element('form');orderForm.className='line';
+      field(orderForm,'Име','name');field(orderForm,'Обект','site');field(orderForm,'Срок','due_date','date',false);
+      orderForm.append(element('button','Създай поръчка'));addOrder.append(orderForm);
+      orderForm.onsubmit=async event=>{
+        event.preventDefault();const save=orderForm.querySelector('button');save.disabled=true;
+        try{await api('order',Object.fromEntries(new FormData(orderForm)));await refresh();}
+        catch(error){status.textContent=error.message;}
+        finally{save.disabled=false;}
+      };
+      body.append(addOrder);
+      if(!orders.length)body.append(element('p','Създайте работна поръчка, за да добавите задача.'));
+      const form=formFor(state);
+      for(const key of ['work_order_id','title','assignee','due_date','delivery_id']){
+        if(formDraft[key]===undefined)continue;
+        if(key==='work_order_id'&&!orders.some(o=>String(o.id)===formDraft[key]))continue;
+        form.elements[key].value=formDraft[key];
+        if(key==='work_order_id')form.elements[key].onchange();
+      }
+      body.append(form);
+      const tasks=element('ul');
+      for(const task of state.tasks){
+        const item=element('li');
+        item.append(button(task.title,()=>{activeTask=task.id;draft='';const p=document.getElementById('pdg-ops-dossier');p.replaceChildren();dossier(state,p);}),
+          document.createTextNode(' '+(statuses[task.status]||task.status)+' · '+(orders.find(o=>o.id===task.work_order_id)?.name||'')));
+        tasks.append(item);
+      }
+      body.append(tasks);
+      const details=element('section');details.id='pdg-ops-dossier';body.append(details);dossier(state,details);
+      const shipments=element('ul');
+      for(const delivery of state.deliveries)shipments.append(element('li',
+        [delivery.item,delivery.supplier,delivery.received_quantity+'/'+delivery.ordered_quantity+' получени',delivery.expected_date].filter(Boolean).join(' · ')));
+      if(shipments.children.length)body.append(element('h3','Доставки'),shipments);
+    }catch(error){status.textContent=error.message;}
+    finally{busy=false;}
+  }
+  toggle.onclick=async()=>{
+    if(!container.hidden){container.hidden=true;clearInterval(timer);return;}
+    container.hidden=false;
+    try{
+      const response=await fetch('/api/account-draft.php?action=session',{cache:'no-store'});
+      const session=await response.json();csrf=session.csrf;
+      await refresh();
+      timer=setInterval(refresh,10000);
+    }catch(error){status.textContent=error.message;}
+  };
+})();</script></body></html>
