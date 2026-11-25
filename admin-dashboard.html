@@ -118,6 +118,9 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     const wrap=element('label','Поръчка ');wrap.append(order);form.append(wrap);
     for(const row of state.orders.filter(row=>!row.completed_at))order.add(new Option(row.name+' · '+row.site,row.id));
     field(form,'Задача','title');
+    const descriptionLabel=element('label','Описание '), description=element('textarea');
+    description.name='description';description.maxLength=1500;
+    descriptionLabel.append(description);form.append(descriptionLabel);
     const assignees=state.assignable||[];
     if(assignees.length){
       const owner=element('label','Отговорник '), person=element('select');
@@ -148,6 +151,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     if(!row)return;
     box.append(element('h3','Досие · '+row.title),element('p',
       [orders.find(o=>o.id===row.work_order_id)?.name,row.assignee||'Без отговорник',row.due_date||'Без срок',statuses[row.status],'Приоритет: '+priorityLabel(row.priority)].filter(Boolean).join(' · ')));
+    if(row.description)box.append(element('p',row.description));
     if(!preview&&row.status!=='completed'){
       const form=element('form');form.className='line';
       const priority=priorityField(form,row.priority||2);
@@ -212,7 +216,7 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     }
     toolbar.append(tabs,button(preview?'Реални данни':'Виж пример',()=>{preview=!preview;activeTask=null;selectedOrder=null;draft='';render(actual);}));
     const opsLinks=element('div','','ops-controls');
-    for(const [view,label] of [['team','Моят екип'],['alerts','Известия за доставки']]){
+    for(const [view,label] of [['team','Моят екип'],['mine','Моите задачи'],['sent','Възложени от мен'],['alerts','Известия']]){
       const link=element('a',label,'crm-outline');
       link.href='/api/admin-ops.php?login=public&view='+view;
       opsLinks.append(link);
