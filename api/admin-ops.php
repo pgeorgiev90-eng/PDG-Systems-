@@ -86,7 +86,7 @@ try {
         $data=ops_input(4096);
         $action=$data['action']??null;
         $payload=$data['payload']??null;
-        if(!in_array($action,['order','task','note','complete'],true)||!is_array($payload))pdg_answer(422,['error'=>'Невалидна операция.']);
+        if(!in_array($action,['order','task','note','complete','priority'],true)||!is_array($payload))pdg_answer(422,['error'=>'Невалидна операция.']);
         $q=$db->prepare('INSERT INTO pdg_ops_queue(action,payload,author) VALUES(?,?,?)');
         $q->execute([$action,json_encode($payload,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR),(string)$actor]);
         pdg_answer(202,['id'=>(int)$db->lastInsertId()]);
