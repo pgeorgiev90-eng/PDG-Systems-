@@ -1,0 +1,78 @@
+name: Publish PDG Ops admin integration
+on:
+  push:
+    branches: [main]
+    paths: ['api/admin-ops.php', '.github/workflows/publish-ops-admin.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pdg-production-deploy
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check API and dashboard
+        run: |
+          php -l api/admin-ops.php
+          python - <<'PY'
+          import re, subprocess
+          from pathlib import Path
+          page=Path('admin-dashboard.html').read_text()
+          for script in re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',page,re.S):
+              if script.strip(): subprocess.run(['node','--check','-'],input=script,text=True,check=True)
+          PY
+      - name: Publish only the administration integration
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import ftplib, io, os, ssl, urllib.request, urllib.error
+          from pathlib import Path
+          paths=('api/admin-ops.php','admin-dashboard.html')
+          suffix='.pdg-ops-'+os.environ['GITHUB_SHA'][:12]
+          root='https://pdgsystems.bg/'
+          def fetch(ftp,path):
+              out=io.BytesIO()
+              ftp.retrbinary('RETR '+path,out.write)
+              return out.getvalue()
+          def upload(ftp,path,content):
+              stage=path+suffix
+              ftp.storbinary('STOR '+stage,io.BytesIO(content))
+              assert fetch(ftp,stage)==content,path
+              ftp.rename(stage,path)
+          with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
+              ftp.connect(os.environ['FTP_HOST'],21)
+              ftp.login(os.environ['FTP_USER'],os.environ['FTP_PASSWORD'])
+              ftp.prot_p()
+              ftp.cwd('/')
+              backup={}
+              for path in paths:
+                  try:
+                      backup[path]=fetch(ftp,path)
+                  except ftplib.error_perm as exc:
+                      if path!='api/admin-ops.php' or not str(exc).startswith('550'): raise
+                      backup[path]=None
+              replaced=[]
+              try:
+                  for path in paths:
+                      upload(ftp,path,Path(path).read_bytes())
+                      replaced.append(path)
+                  with urllib.request.urlopen(root+'admin-dashboard.html?ops='+os.environ['GITHUB_SHA'],timeout=25) as response:
+                      assert b'id="pdg-ops-toggle"' in response.read()
+                  try:
+                      urllib.request.urlopen(root+'api/admin-ops.php',timeout=25)
+                  except urllib.error.HTTPError as error:
+                      assert error.code==401,error.code
+                  else:
+                      raise ValueError('Owner endpoint must reject guests')
+              except Exception:
+                  for path in reversed(replaced):
+                      if backup[path] is None: ftp.delete(path)
+                      else: upload(ftp,path,backup[path])
+                  raise
