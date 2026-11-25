@@ -64,7 +64,8 @@ jobs:
                       upload(ftp,path,Path(path).read_bytes())
                       replaced.append(path)
                   with urllib.request.urlopen(root+'admin-dashboard.html?ops='+os.environ['GITHUB_SHA'],timeout=25) as response:
-                      assert b'id="pdg-ops-toggle"' in response.read()
+                      page=response.read()
+                      assert b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page
                   try:
                       urllib.request.urlopen(root+'api/admin-ops.php',timeout=25)
                   except urllib.error.HTTPError as error:
