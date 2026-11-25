@@ -53,9 +53,9 @@ const money=cents=>(cents/100).toLocaleString('bg-BG',{style:'currency',currency
 const make=(tag,text)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=text;return element;};
 let latestPdfOffer=null;
 let latestOfferCard=null;
-const offerRequest=/^(?:моля[,:\s]+)?(?:(?:може(?:ш|те)?\s+ли\s+да\s+)?(?:ми\s+)?(?:направ\p{L}*|генерира\p{L}*|подготв\p{L}*|изготв\p{L}*|да(?:й|йте|деш|дете)|изтегл\p{L}*|искам)(?:\s+ми)?\s+)?(?:една\s+)?(?:оферт(?:а|ата)(?:\s+(?:в(?:ъв)?|като)\s+(?:пдф|pdf)(?:\s+формат)?)?|(?:пдф|pdf)(?:\s+оферт(?:а|ата))?)[.!?]*$/iu;
+const offerRequest=/^(?:моля[,:\s]+)?(?:(?:може(?:ш|те)?\s+ли\s+да\s+)?(?:ми\s+)?(?:направ\p{L}*|генерира\p{L}*|подготв\p{L}*|изготв\p{L}*|да(?:й|йте|деш|дете)|изтегл\p{L}*|искам)(?:\s+ми)?\s+)?(?:(?:директно|една)\s+)*(?:оферт(?:а|ата)(?:\s+(?:в(?:ъв)?|като)\s+(?:пдф|pdf)(?:\s+формат)?)?|(?:пдф|pdf)(?:\s+оферт(?:а|ата))?)[.!?]*$/iu;
 
-function offerPdf(rows,date){
+function offerPdf(rows,date,bundle=false){
   const canvas=make('canvas');
   canvas.width=1240;
   canvas.height=1754;
@@ -115,9 +115,10 @@ function offerPdf(rows,date){
     y+=height;
   }
   const total=rows.reduce((sum,row)=>sum+(row.cents??0)*row.quantity,0);
-  const missing=rows.some(row=>row.cents===null);
+  const missing=bundle||rows.some(row=>row.cents===null);
   text((missing?'Сума за оценените позиции: ':'Общо: ')+money(total)+' с ДДС',left,y+52,30,'#125744',true);
-  if(missing)text('Окончателната сума включва и позициите с цена по запитване.',left,y+91,24);
+  if(bundle)text('BMS TBMS-S51-8: код и цена за потвърждение. Сумата е частична.',left,y+91,24);
+  else if(missing)text('Окончателната сума включва и позициите с цена по запитване.',left,y+91,24);
   text('Наличност, доставка и монтаж се потвърждават отделно.',left,y+133,24);
   text('pdgsystems.bg  |  0876 323 109  |  pdg2019@abv.bg',left,1690,22,'#526a61');
 
@@ -263,7 +264,7 @@ async function renderReply(raw,out,offer,requestQuestion){
   group.append(legend);
   const options=items.map(item=>{
     const row=make('div');row.className='offer-row';
-    const selected=make('input');selected.type='checkbox';selected.checked=result.kind==='requested';
+    const selected=make('input');selected.type='checkbox';selected.checked=['requested','offer_bundle'].includes(result.kind);
     selected.setAttribute('aria-label','Включи '+item.name);
     const details=make('div'),link=make('a',item.name);
     link.href='/product.html?id='+item.id;link.target='_blank';link.rel='noopener';
@@ -316,7 +317,7 @@ async function renderReply(raw,out,offer,requestQuestion){
     const priced=rows.every(x=>Number.isInteger(x.item.unit_cents));
     const sum=rows.reduce((acc,x)=>acc+(x.item.unit_cents||0)*(x.qty.valueAsNumber||0),0);
     total.textContent=!rows.length?'Изберете позиции за офертата.':
-      priced?'Ориентировъчно: '+money(sum)+' с ДДС. Доставка и монтаж се уточняват отделно.':
+      priced?(result.kind==='offer_bundle'?'Частична сума: ':'Ориентировъчно: ')+money(sum)+' с ДДС. Доставка и монтаж се уточняват отделно.':
       'За част от избраните позиции цената е по запитване.';
   }
   function fail(error){
@@ -356,7 +357,7 @@ async function renderReply(raw,out,offer,requestQuestion){
         return {name:String(product.name).slice(0,180),code:String(product.code||'').slice(0,65),quantity,cents};
       });
       const date=new Intl.DateTimeFormat('bg-BG',{timeZone:'Europe/Sofia'}).format(new Date());
-      const url=URL.createObjectURL(offerPdf(rows,date));
+      const url=URL.createObjectURL(offerPdf(rows,date,result.kind==='offer_bundle'));
       const link=make('a');
       link.href=url;
       link.download='PDG-oferta.pdf';
