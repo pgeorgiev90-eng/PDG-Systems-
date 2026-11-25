@@ -32,7 +32,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: python
         run: |
-          import ftplib, io, os, ssl, urllib.request, urllib.error
+          import ftplib, io, os, ssl, time, urllib.request, urllib.error
           from pathlib import Path
           paths=('api/admin-ops.php','admin-dashboard.html')
           suffix='.pdg-ops-'+os.environ['GITHUB_SHA'][:12]
@@ -63,9 +63,16 @@ jobs:
                   for path in paths:
                       upload(ftp,path,Path(path).read_bytes())
                       replaced.append(path)
-                  with urllib.request.urlopen(root+'admin-dashboard.html?ops='+os.environ['GITHUB_SHA'],timeout=25) as response:
-                      page=response.read()
-                      assert b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page and b'waitingOrderIds.size' in page
+                  for attempt in range(4):
+                      url=root+'admin-dashboard.html?ops='+os.environ['GITHUB_SHA']+'&check='+str(time.time_ns())
+                      request=urllib.request.Request(url,headers={'Cache-Control':'no-cache','User-Agent':'PDG-Ops-Deploy/1.0'})
+                      with urllib.request.urlopen(request,timeout=25) as response:
+                          page=response.read()
+                      if b'id="pdg-ops-toggle"' in page and b'ops-order-card' in page and b'description.maxLength=1500' in page:
+                          break
+                      time.sleep(3)
+                  else:
+                      raise ValueError('Published Ops administration revision is missing')
                   try:
                       urllib.request.urlopen(root+'api/admin-ops.php',timeout=25)
                   except urllib.error.HTTPError as error:
