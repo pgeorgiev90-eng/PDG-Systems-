@@ -117,7 +117,16 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
     const order=element('select');order.name='work_order_id';order.required=true;
     const wrap=element('label','Поръчка ');wrap.append(order);form.append(wrap);
     for(const row of state.orders.filter(row=>!row.completed_at))order.add(new Option(row.name+' · '+row.site,row.id));
-    field(form,'Задача','title');field(form,'Отговорник','assignee','text',false);field(form,'Срок','due_date','date',false);priorityField(form);
+    field(form,'Задача','title');
+    const assignees=state.assignable||[];
+    if(assignees.length){
+      const owner=element('label','Отговорник '), person=element('select');
+      person.name='assignee_id';
+      person.add(new Option('Без отговорник',''));
+      for(const member of assignees)person.add(new Option(member.name,member.id));
+      owner.append(person);form.append(owner);
+    }else field(form,'Отговорник','assignee','text',false);
+    field(form,'Срок','due_date','date',false);priorityField(form);
     const delivery=element('select');delivery.name='delivery_id';
     const dWrap=element('label','Зависи от доставка ');dWrap.append(delivery);form.append(dWrap);
     const options=()=>{
@@ -202,7 +211,13 @@ $('save').onclick=async()=>{if(!current){msg('Изберете продукт.')
       tab.setAttribute('aria-pressed',String(key===view));tabs.append(tab);
     }
     toolbar.append(tabs,button(preview?'Реални данни':'Виж пример',()=>{preview=!preview;activeTask=null;selectedOrder=null;draft='';render(actual);}));
-    body.append(toolbar);
+    const opsLinks=element('div','','ops-controls');
+    for(const [view,label] of [['team','Моят екип'],['alerts','Известия за доставки']]){
+      const link=element('a',label,'crm-outline');
+      link.href='/api/admin-ops.php?login=public&view='+view;
+      opsLinks.append(link);
+    }
+    body.append(toolbar,opsLinks);
     if(preview)body.append(element('p','Примерен изглед · Данните тук са само за преглед.','ops-preview'));
     const unfinished=state.tasks.filter(t=>t.status!=='completed');
     const blocked=unfinished.filter(t=>t.status==='waiting_delivery');
