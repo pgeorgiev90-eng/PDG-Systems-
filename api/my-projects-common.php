@@ -24,5 +24,5 @@ function pdg_my_project_summary(array $row):array {
  $p=json_decode($row['snapshot'],true);$count=0;$watts=0;$preview=[];
  if($row['editor']==='solar'){foreach($p['planes']??[] as $roof){$path=$roof['path']??[];$panels=$roof['panels']??[];$count+=count($panels);foreach($panels as $v)$watts+=(float)($v['power']??0);$preview[]=['path'=>$path,'panels'=>array_slice(array_map(fn($v)=>['lat'=>$v['lat']??0,'lng'=>$v['lng']??0],$panels),0,200)];}}
  else $count=count($p['items']??[]);
- return ['id'=>(int)$row['id'],'editor'=>$row['editor'],'name'=>$row['project_name'],'updatedAt'=>$row['updated_at'],'revision'=>(int)$row['revision'],'status'=>$row['status'],'archived'=>(bool)$row['archived'],'count'=>$count,'kwp'=>$watts/1000,'preview'=>$preview,'lastAdminRevision'=>(int)($row['last_admin_revision']??0),'lastAdminAt'=>$row['last_admin_at']??null];
+ return ['id'=>(int)$row['id'],'editor'=>$row['editor'],'name'=>$row['project_name'],'updatedAt'=>$row['updated_at'],'revision'=>(int)$row['revision'],'status'=>$row['status'],'archived'=>(bool)$row['archived'],'count'=>$count,'kwp'=>$watts/1000,'preview'=>$preview,'lastAdminRevision'=>(int)($row['last_admin_revision']??0),'lastAdminAt'=>$row['last_admin_at']??null,'supportProcessedAt'=>$row['ops_processed_at']??null];
 }
