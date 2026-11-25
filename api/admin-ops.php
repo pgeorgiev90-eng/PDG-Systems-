@@ -7,6 +7,10 @@ function ops_tables(PDO $db): void {
     $db->exec("CREATE TABLE IF NOT EXISTS pdg_ops_queue (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, action VARCHAR(16) NOT NULL, payload TEXT NOT NULL, author VARCHAR(254) NOT NULL, status ENUM('pending','done','failed') NOT NULL DEFAULT 'pending', error VARCHAR(255), created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX(status,id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 }
 
+function ops_login_table(PDO $db): void {
+    $db->exec("CREATE TABLE IF NOT EXISTS pdg_ops_login_ticket (token CHAR(64) PRIMARY KEY, owner_id BIGINT UNSIGNED NOT NULL, audience VARCHAR(16) NOT NULL, expires DATETIME NOT NULL) ENGINE=InnoDB");
+}
+
 function ops_input(int $limit): array {
     $body=file_get_contents('php://input',false,null,0,$limit+1);
     if($body===false||strlen($body)>$limit)pdg_answer(413,['error'=>'Заявката е прекалено голяма.']);
@@ -16,12 +20,30 @@ function ops_input(int $limit): array {
 }
 
 try {
-    if(isset($_GET['sync'])){
+    if(isset($_GET['sync']) || isset($_GET['claim_login'])){
         $authorization=$_SERVER['HTTP_AUTHORIZATION']??'';
         if($_SERVER['REQUEST_METHOD']!=='POST'||!str_starts_with($authorization,'Bearer ')||
             !hash_equals('c75eeba13cb8deb0f2b7c91557f67ddf3e48cae8cf62d3d95b74e33e6ae1f3a2',hash('sha256',substr($authorization,7))))pdg_answer(401,['error'=>'unauthorized']);
         $s=require dirname(__DIR__,2).'/pdg-shop-db.php';
         $db=new PDO('mysql:host='.($s['host']??'localhost').';dbname='.$s['database'].';charset=utf8mb4',$s['username'],$s['password'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+        if(isset($_GET['claim_login'])){
+            ops_login_table($db);
+            $body=ops_input(1024);
+            $ticket=$body['ticket']??null;
+            $audience=$body['audience']??null;
+            if(!is_string($ticket)||!preg_match('/^[a-f0-9]{64}$/D',$ticket)||!in_array($audience,['local','public'],true))
+                pdg_answer(422,['error'=>'invalid_ticket']);
+            $db->beginTransaction();
+            $q=$db->prepare("SELECT t.owner_id FROM pdg_ops_login_ticket t JOIN pdg_users u ON u.id=t.owner_id WHERE t.token=? AND t.audience=? AND t.expires>NOW() AND u.is_active=1 AND u.role='admin' AND u.id=(SELECT MIN(id) FROM pdg_users WHERE role='admin') FOR UPDATE");
+            $hash=hash('sha256',$ticket);
+            $q->execute([$hash,$audience]);
+            $owner=$q->fetchColumn();
+            if(!$owner){$db->rollBack();pdg_answer(401,['error'=>'invalid_ticket']);}
+            $q=$db->prepare('DELETE FROM pdg_ops_login_ticket WHERE token=?');
+            $q->execute([$hash]);
+            $db->commit();
+            pdg_answer(200,['owner'=>true]);
+        }
         ops_tables($db);
         $data=ops_input(2000000);
         $state=$data['state']??null;
@@ -43,8 +65,22 @@ try {
         pdg_answer(200,['commands'=>$commands]);
     }
 
-    [$db,$actor]=pdg_admin_session();
+    [$db,$actor]=isset($_GET['login']) ? pdg_account_session(true,'/auth.html?next=admin-dashboard.html') : pdg_admin_session();
     if($actor!==(int)$db->query("SELECT MIN(id) FROM pdg_users WHERE role='admin'")->fetchColumn())pdg_answer(403,['error'=>'Достъпът е ограничен до собственика.']);
+    if(isset($_GET['login'])){
+        if($_SERVER['REQUEST_METHOD']!=='GET')pdg_answer(405,['error'=>'method_not_allowed']);
+        $audience=$_GET['login'];
+        if(!in_array($audience,['local','public'],true))pdg_answer(422,['error'=>'invalid_audience']);
+        ops_login_table($db);
+        $db->exec('DELETE FROM pdg_ops_login_ticket WHERE expires<=NOW()');
+        $ticket=bin2hex(random_bytes(32));
+        $q=$db->prepare('INSERT INTO pdg_ops_login_ticket VALUES(?,?,?,DATE_ADD(NOW(),INTERVAL 60 SECOND))');
+        $q->execute([hash('sha256',$ticket),$actor,$audience]);
+        $target=$audience==='local'?'http://127.0.0.1:13010/':'https://ops.pdgsystems.bg/';
+        header('Referrer-Policy: no-referrer');
+        header('Location: '.$target.'#login='.$ticket,true,303);
+        exit;
+    }
     ops_tables($db);
     if($_SERVER['REQUEST_METHOD']==='POST'){
         $data=ops_input(4096);
