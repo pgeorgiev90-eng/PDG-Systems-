@@ -51,6 +51,101 @@ button:disabled{opacity:.55;cursor:default}
 const form=document.querySelector('#chat'), field=document.querySelector('#question'), log=document.querySelector('#messages'), send=form.querySelector('button');
 const money=cents=>(cents/100).toLocaleString('bg-BG',{style:'currency',currency:'EUR'});
 const make=(tag,text)=>{const element=document.createElement(tag);if(text!==undefined)element.textContent=text;return element;};
+let latestPdfOffer=null;
+
+function offerPdf(rows,date){
+  const canvas=make('canvas');
+  canvas.width=1240;
+  canvas.height=1754;
+  const ctx=canvas.getContext('2d');
+  const left=64,right=1176;
+  let y=265;
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  function text(value,x,at,size=25,color='#17352e',bold=false){
+    ctx.font=(bold?'bold ':'')+size+'px Arial';
+    ctx.fillStyle=color;
+    ctx.fillText(value,x,at);
+  }
+  function wrap(value,width,size){
+    ctx.font=size+'px Arial';
+    const lines=[''];
+    for(const word of value.trim().split(/\s+/)){
+      const i=lines.length-1;
+      const joined=lines[i]?lines[i]+' '+word:word;
+      if(ctx.measureText(joined).width<=width)lines[i]=joined;
+      else if(ctx.measureText(word).width<=width)lines.push(word);
+      else{
+        if(lines[i])lines.push('');
+        for(const char of word){
+          const last=lines.length-1;
+          if(ctx.measureText(lines[last]+char).width>width)lines.push('');
+          lines[lines.length-1]+=char;
+        }
+      }
+    }
+    return lines;
+  }
+  ctx.fillStyle='#125744';
+  ctx.fillRect(0,0,canvas.width,207);
+  text('PDG SYSTEMS',left,61,27,'#d1f4e8',true);
+  text('Ориентировъчна оферта',left,128,45,'#fff',true);
+  text(date,left,172,24,'#d1f4e8');
+  text('Артикул',left+12,y,24,'#17352e',true);
+  text('Брой',638,y,24,'#17352e',true);
+  text('Ед. цена',748,y,24,'#17352e',true);
+  text('Стойност',968,y,24,'#17352e',true);
+  y+=20;
+  for(const [i,row] of rows.entries()){
+    const lines=wrap(row.name,535,25);
+    if(lines.length>3){
+      lines.length=3;
+      lines[2]=lines[2].slice(0,-2)+'…';
+    }
+    const height=lines.length*31+54;
+    ctx.fillStyle=i%2?'#fff':'#eff7f3';
+    ctx.fillRect(left,y,right-left,height);
+    lines.forEach((line,j)=>text(line,left+12,y+32+j*31));
+    text(row.code,left+12,y+35+lines.length*31,21,'#526a61');
+    text(String(row.quantity),638,y+32);
+    text(row.cents===null?'По запитване':money(row.cents),748,y+32,23);
+    text(row.cents===null?'По запитване':money(row.cents*row.quantity),968,y+32,23);
+    y+=height;
+  }
+  const total=rows.reduce((sum,row)=>sum+(row.cents??0)*row.quantity,0);
+  const missing=rows.some(row=>row.cents===null);
+  text((missing?'Сума за оценените позиции: ':'Общо: ')+money(total)+' с ДДС',left,y+52,30,'#125744',true);
+  if(missing)text('Окончателната сума включва и позициите с цена по запитване.',left,y+91,24);
+  text('Наличност, доставка и монтаж се потвърждават отделно.',left,y+133,24);
+  text('pdgsystems.bg  |  0876 323 109  |  pdg2019@abv.bg',left,1690,22,'#526a61');
+
+  const jpeg=Uint8Array.from(atob(canvas.toDataURL('image/jpeg',.93).split(',')[1]),char=>char.charCodeAt(0));
+  const encoder=new TextEncoder(), chunks=[], offsets=[0];
+  let length=0;
+  function append(value){
+    const bytes=typeof value==='string'?encoder.encode(value):value;
+    chunks.push(bytes);
+    length+=bytes.length;
+  }
+  function object(id,...body){
+    offsets[id]=length;
+    append(id+' 0 obj\n');
+    body.forEach(append);
+    append('\nendobj\n');
+  }
+  append('%PDF-1.4\n');
+  object(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  object(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  object(3,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+  object(4,'<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+jpeg.length+' >>\nstream\n',jpeg,'\nendstream');
+  const commands='q 595.28 0 0 841.89 0 0 cm /Im0 Do Q\n';
+  object(5,'<< /Length '+commands.length+' >>\nstream\n'+commands+'endstream');
+  const xref=length;
+  append('xref\n0 6\n0000000000 65535 f \n');
+  for(const offset of offsets.slice(1))append(String(offset).padStart(10,'0')+' 00000 n \n');
+  append('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');
+  return new Blob(chunks,{type:'application/pdf'});
+}
 async function customerTools(payload,csrf){
   const options={credentials:'same-origin',cache:'no-store'};
   if(payload)Object.assign(options,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify(payload)});
@@ -200,10 +295,12 @@ async function renderReply(raw,out,offer,requestQuestion){
   status.setAttribute('role','status');
   const actions=make('div');actions.className='offer-actions';
   const check=make('button','Провери за количката'),add=make('button','Добави в количката');
+  const pdf=make('button','Изтегли PDF оферта');
+  pdf.type='button';
   const login=make('a','Влез в профила'),cart=make('a','Отвори количката');
   login.href='/auth.html?next=cart.html';login.target='_blank';login.rel='noopener';login.hidden=true;
   cart.href='/cart.html';cart.target='_top';cart.hidden=true;add.hidden=true;
-  actions.append(check,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;
+  actions.append(check,pdf,add,login,cart);offer.append(group,total,actions,status);offer.hidden=false;
   offer.parentElement.classList.add('has-offer');
   let preview,csrf='', busy=false, added=false;
   function selectedRows(){return options.filter(x=>x.selected.checked);}
@@ -212,6 +309,7 @@ async function renderReply(raw,out,offer,requestQuestion){
   function update(){
     preview=null;add.hidden=true;status.textContent='';login.hidden=true;
     check.disabled=busy||added||!validate();
+    pdf.disabled=busy||!validate();
     const rows=selectedRows();
     const priced=rows.every(x=>Number.isInteger(x.item.unit_cents));
     const sum=rows.reduce((acc,x)=>acc+(x.item.unit_cents||0)*(x.qty.valueAsNumber||0),0);
@@ -233,8 +331,48 @@ async function renderReply(raw,out,offer,requestQuestion){
     busy=value;
     for(const x of options){x.selected.disabled=value||added;x.qty.disabled=value||added;}
     check.disabled=value||added||!validate();add.disabled=value||added;
+    pdf.disabled=value||!validate();
   }
   group.addEventListener('input',update);
+  async function downloadOffer(){
+    if(busy||!validate()){
+      offer.scrollIntoView({block:'nearest'});
+      status.textContent='Изберете поне една позиция и въведете количество за PDF офертата.';
+      return;
+    }
+    const selection=current();
+    status.textContent='Проверяваме каталожните цени…';
+    lock(true);
+    try{
+      const catalog=await data(await fetch('/api/products.php',{cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(15000)}));
+      const products=new Map(catalog.products.map(product=>[Number(product.id),product]));
+      const rows=selection.map(({id,quantity})=>{
+        const product=products.get(id);
+        if(!product)throw new Error('offer_product_missing');
+        const price=Number(product.price);
+        const cents=catalog.prices_visible&&Number.isFinite(price)&&price>0?Math.round((price*120)+1e-7):null;
+        return {name:String(product.name).slice(0,180),code:String(product.code||'').slice(0,65),quantity,cents};
+      });
+      const date=new Intl.DateTimeFormat('bg-BG',{timeZone:'Europe/Sofia'}).format(new Date());
+      const url=URL.createObjectURL(offerPdf(rows,date));
+      const link=make('a');
+      link.href=url;
+      link.download='PDG-oferta.pdf';
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),60000);
+      status.textContent='PDF офертата е готова.';
+    }catch(error){
+      status.textContent=error.message==='offer_product_missing'
+        ?'Поне една позиция вече липсва в каталога. Поискайте актуална оферта.'
+        :'PDF офертата временно не е достъпна. Опитайте отново.';
+    }finally{
+      lock(false);
+    }
+  }
+  pdf.onclick=downloadOffer;
+  latestPdfOffer=downloadOffer;
   check.onclick=async()=>{
     if(busy||added||!validate())return;
     const selection=current();
@@ -327,7 +465,15 @@ form.addEventListener('submit',async event=>{
   event.preventDefault();
   const question=field.value.trim();
   if(!question||send.disabled)return;
-  if(/^(?:нова тема|друг въпрос|забрави|започни отначало)(?=\s|[.,!?]|$)/iu.test(question)){recentTurns.length=0;previousQuestion='';}
+  const pdfRequest=/^(?:моля[,\s]+)?(?:(?:направи(?:те)?|генерирай(?:те)?|дай(?:те)?|изтегли(?:те)?|искам)(?:\s+ми)?\s+)?(?:(?:пдф|pdf)(?:\s+оферт(?:а|ата))?|оферт(?:а|ата)\s+(?:във?|като)\s+(?:пдф|pdf)(?:\s+формат)?)[.!?]*$/iu;
+  if(pdfRequest.test(question)){
+    field.value='';
+    message(question,true);
+    if(latestPdfOffer)await latestPdfOffer();
+    else message('Посочете артикули или напишете какво оборудване търсите, за да подготвя PDF оферта.');
+    return;
+  }
+  if(/^(?:нова тема|друг въпрос|забрави|започни отначало)(?=\s|[.,!?]|$)/iu.test(question)){recentTurns.length=0;previousQuestion='';latestPdfOffer=null;}
   const shortFollowUp=question.length<=105&&/^(?:предложи(?:те)?(?:\s+ми)?(?:\s+ти)?[.!?]*$|препоръчай(?:те)?(?:\s+ми)?[.!?]*$|(?:а\s+)?ко[йеяи]\s+(?:от\s+тях|да\s+избера|би\s+избрал|е\s+по[- ]добър|препоръчваш)|(?:а\s+)?(?:по[- ]евтин|по[- ]мощен|друг\s+вариант)|(?:избери|покажи)(?:те)?\s+ми\s+(?:един|друг|най[- ]добрия))/i.test(question);
   const contextQuestion=continueHomeContext(homeContext,question);
   const requestQuestion=shortFollowUp&&previousQuestion
