@@ -78,7 +78,9 @@ try {
         $q->execute([hash('sha256',$ticket),$actor,$audience]);
         $target=$audience==='local'?'http://127.0.0.1:13010/':'https://ops.pdgsystems.bg/';
         header('Referrer-Policy: no-referrer');
-        header('Location: '.$target.'#login='.$ticket,true,303);
+        $view=$_GET['view']??'';
+        $route=in_array($view,['team','alerts'],true)?'&view='.$view:'';
+        header('Location: '.$target.'#login='.$ticket.$route,true,303);
         exit;
     }
     ops_tables($db);
